@@ -1,16 +1,11 @@
-# Makefile to compile .s files to .o files
-
-# Define a variable for the assembler
 AS = aarch64-linux-gnu-as
 LD = aarch64-linux-gnu-ld
 
-# Get a list of all .s files in the current directory
 SRC = $(wildcard *.s)
-# Define the corresponding .o files
+
 OBJ = $(SRC:.s=.o)
 EXEC = arm64
 
-# The default target
 all: comp run
 
 comp: $(EXEC)
@@ -20,11 +15,18 @@ run:
 $(EXEC): $(OBJ)
 	$(LD) -o $@ $^
 
-# Rule to create .o files from .s files
 %.o: %.s
 	$(AS) -o $@ $<
 
 clean:
 	rm -f $(OBJ) $(EXEC)
 
-.PHONY: all clean run
+# runs the program in debug mode, need another terminal to run gdb
+debug: $(EXEC)
+	qemu-aarch64 -L /usr/aarch64-linux-gnu/ -g 1234 ./$(EXEC)
+
+# see above
+gdb: $(EXEC)
+	gdb-multiarch -q --nh -ex 'set architecture arm64' -ex 'file $(EXEC)' -ex 'target remote localhost:1234' -ex 'layout split' -ex 'layout regs' 
+
+.PHONY: all clean run debug gdb
