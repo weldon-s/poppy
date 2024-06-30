@@ -22,7 +22,7 @@ print:
     ldr     x1, =text   //x1 is the address of the text buffer
     mov     x2, #1      //x2 is the length of the string (always 1 for our case)
     mov     x8, #64     //64 is the syscall number for write
-    mov     x10, #2    //10 is the base for our division
+    mov     x10, #10    //10 is the base for our division
     mov     x13, #0     //x13 is the number of digits we've printed (for popping off the stack later)
 
     //first, let's check if x9 is negative
