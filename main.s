@@ -5,9 +5,11 @@ len = . - text
 
 .text
 
-//prints a number to the console
+// prints a number to the console
+// we do this by pushing each ASCII digit to the stack, then popping them off and printing them
+// can definitely be optimized
+
 //x1 is the number to print (passed in as NON-ASCII!)
-//TODO negative handling
 print:
     str lr, [sp, #-8]!
     stp x1, x2, [sp, #-16]!
@@ -15,14 +17,27 @@ print:
     //x1 is our parameter (integer to print) + will store the ASCII-converted value
     //x2 is the length of the string (always 1 for our case)
 
-    //first, let's check if x1 is negative
-
     //get things set up
-    mov     x9, x1
-    ldr     x1, =text
-    mov     x2, #1
-    mov     x10, #10
-    mov     x13, #0
+    mov     x9, x1      //x9 is the current value we're working with
+    ldr     x1, =text   //x1 is the address of the text buffer
+    mov     x2, #1      //x2 is the length of the string (always 1 for our case)
+    mov     x8, #64     //64 is the syscall number for write
+    mov     x10, #2    //10 is the base for our division
+    mov     x13, #0     //x13 is the number of digits we've printed (for popping off the stack later)
+
+    //first, let's check if x9 is negative
+    //i could negate it here too, but that doesnt handle the edge case of the smallest possible value
+    //so i just deal with that digit-by-digit (which i should optimize at some point)
+
+    cmp     x9, #0
+    bge     print_loop_stack
+
+    //if it is, print a '-'
+    mov     x11, #45
+    strb    w11, [x1]
+
+    svc     #0
+
 
     print_loop_stack:
         //divide x9 by 10, store in x11
@@ -34,6 +49,12 @@ print:
         mov     x9, x11
         mov     x11, x12
 
+        //if x11 is negative, negate it
+        cmp     x11, #0
+        bge     print_loop_stack_after_negate
+        neg     x11, x11
+
+        print_loop_stack_after_negate:
         //add 48 to x11 to convert to ASCII
         add     x11, x11, #48
         strb    w11, [x1]
@@ -54,7 +75,6 @@ print:
         strb    w11, [x1]
         
         //call the write syscall
-        mov     x8, #64
         svc     #0
 
         subs    x13, x13, #1
@@ -66,7 +86,7 @@ print:
 .global _start
 _start:
     mov     x0, #1
-    mov     x1, #0xFFFF
+    mov     x1, #-1234
     bl      print
 
     mov     x0, #0      
