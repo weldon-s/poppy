@@ -1,6 +1,8 @@
 *.d
 *.o
 *.out
+
 arm64
+out.s
 
 .vscode

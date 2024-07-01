@@ -6,6 +6,9 @@
 #include <vector>
 
 class Program {
+    // assembly path
+    static const std::string assembly_path;
+
     // important bits that define _start, end gracefully
     static const std::string head;
     static const std::string tail;
@@ -18,7 +21,9 @@ class Program {
     Program();
     Program& add_include(std::string include);
     Program& add_code(std::string line);
-    void compile(std::string name = "out") const;  // compiles the program into an executable
+
+    void compile(std::string name) const;  // compiles the program into an executable
+    void compile() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Program& program);
 };

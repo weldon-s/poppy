@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+const std::string Program::assembly_path = "assembly";
+
 const std::string Program::head =
     R""""(.text
 .global _start
@@ -30,12 +32,16 @@ Program& Program::add_code(std::string line) {
 }
 
 void Program::compile(std::string name) const {
-    std::ofstream file(name + ".s");
+    std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
     file.close();
 
     // run make
-    system("make");
+    system(("cd " + assembly_path + " && make").c_str());
+}
+
+void Program::compile() const {
+    compile("out");
 }
 
 std::ostream& operator<<(std::ostream& os, const Program& program) {

@@ -1,33 +1,19 @@
-AS = aarch64-linux-gnu-as
-LD = aarch64-linux-gnu-ld
+CXX=g++
+CXXFLAGS=-std=c++20 -Wall -g -MMD
+EXEC=main
+CCFILES=$(wildcard *.cc)
+OBJECTS=${CCFILES:.cc=.o}
+DEPENDS = ${OBJECTS:.o=.d}
+${EXEC}: ${OBJECTS}
+	${CXX} ${OBJECTS} -o ${EXEC}
+-include ${DEPENDS}
 
-SRC = $(wildcard *.s)
-
-OBJ = $(SRC:.s=.o)
-EXEC = arm64
-
-all: comp run
-
-comp: $(EXEC)
-run:
-	./$(EXEC)
-
-# TODO make this only compile included files
-$(EXEC): $(OBJ)
-	$(LD) -o $@ $^
-
-%.o: %.s
-	$(AS) -o $@ $<
-
+PHONY: clean run
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm ${EXEC} ${OBJECTS} ${DEPENDS}
 
-# runs the program in debug mode, need another terminal to run gdb
-debug: $(EXEC)
-	qemu-aarch64 -L /usr/aarch64-linux-gnu/ -g 1234 ./$(EXEC)
+run: ${EXEC}
+	$(MAKE) runprint --no-print-directory
 
-# see above
-gdb: $(EXEC)
-	gdb-multiarch -q --nh -ex 'set architecture arm64' -ex 'file $(EXEC)' -ex 'target remote localhost:1234' -ex 'layout split' -ex 'layout regs' 
-
-.PHONY: all clean run debug gdb
+runprint: ${EXEC}
+	./${EXEC}
