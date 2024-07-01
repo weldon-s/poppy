@@ -15,6 +15,9 @@ class Instruction {
     friend std::ostream& operator<<(std::ostream& os, const Instruction& instruction);
 };
 
-Instruction mov(int dest, int src);
-Instruction movi(int dest, long long imm);
+Instruction mov(int dest, int src);         // move from src to dest
+Instruction movi(int dest, long long imm);  // move immediate value to dest (supports 64-bit values)
+Instruction push(int reg);                  // push register onto stack
+Instruction pop(int reg);                   // pop register from stack
+
 #endif

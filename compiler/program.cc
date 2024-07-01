@@ -8,7 +8,6 @@ const std::string Program::head =
     R""""(.text
 .global _start
 _start:
-mov x0, #1
 )"""";
 
 const std::string Program::tail =

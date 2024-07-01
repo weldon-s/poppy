@@ -5,7 +5,7 @@
 
 //x1 is the number to print (passed in as NON-ASCII!)
 print_num:
-    str lr, [sp, #-8]!
+    stp x0, lr, [sp, #-16]!
     stp x1, x2, [sp, #-16]!
 
     //x1 is our parameter (integer to print) + will store the ASCII-converted value
@@ -13,6 +13,7 @@ print_num:
 
     //get things set up
     mov     x9, x1      //x9 is the current value we're working with
+    mov     x0, #1      //x0 is the file descriptor (1 for stdout)
     mov     x1, sp      //x1 is the address of the text buffer
     mov     x2, #1      //x2 is the length of the string (always 1 for our case)
     mov     x8, #64     //64 is the syscall number for write
@@ -70,4 +71,5 @@ print_num:
         bne     print_loop_out
     
     ldp x1, x2, [sp], #16
+    ldr x0, [sp], #8
     ret

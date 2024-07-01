@@ -38,3 +38,11 @@ Instruction movi(int dest, long long imm) {
            std::format("lsl x{}, x{}, #12", dest, dest) +
            std::format("add x{}, x{}, #{}", dest, dest, lower);
 }
+
+Instruction push(int reg) {
+    return std::format("str x{}, [sp, #-8]!", reg);
+}
+
+Instruction pop(int reg) {
+    return std::format("ldr x{}, [sp], #8", reg);
+}
