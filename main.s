@@ -1,8 +1,4 @@
 .data
-text:
-    .ascii " "
-len = . - text
-
 .text
 
 // prints a number to the console
@@ -58,8 +54,6 @@ print:
         //add 48 to x11 to convert to ASCII
         add     x11, x11, #48
         strb    w11, [x1]
-        ldr     x3,  [x1]
-        ldr     x2, =len
 
         // push this value to the stack
         str     x11, [sp, #-8]!
