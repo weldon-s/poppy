@@ -19,7 +19,7 @@ print:
 
     //get things set up
     mov     x9, x1      //x9 is the current value we're working with
-    ldr     x1, =text   //x1 is the address of the text buffer
+    mov     x1, sp      //x1 is the address of the text buffer
     mov     x2, #1      //x2 is the length of the string (always 1 for our case)
     mov     x8, #64     //64 is the syscall number for write
     mov     x10, #10    //10 is the base for our division
@@ -70,12 +70,9 @@ print:
         bne     print_loop_stack
 
     print_loop_out:
-        //pop the stack
-        ldr     x11, [sp], #8
-        strb    w11, [x1]
-        
-        //call the write syscall
-        svc     #0
+        mov     x1, sp     // set x1 to the top of the stack
+        add     sp, sp, #8 // pop the top value from the stack
+        svc     #0         //call the write syscall
 
         subs    x13, x13, #1
         bne     print_loop_out
