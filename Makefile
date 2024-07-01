@@ -12,6 +12,7 @@ comp: $(EXEC)
 run:
 	./$(EXEC)
 
+# TODO make this only compile included files
 $(EXEC): $(OBJ)
 	$(LD) -o $@ $^
 
