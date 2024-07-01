@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "instruction.h"
+
 class Program {
     // assembly path
     static const std::string assembly_path;
@@ -15,12 +17,12 @@ class Program {
 
     // dependencies for the program (assembly files without the .s extension)
     std::vector<std::string> includes;
-    std::vector<std::string> code;  // the code of the program
+    std::vector<Instruction> code;  // the code of the program
 
    public:
     Program();
     Program& add_include(std::string include);
-    Program& add_code(std::string line);
+    Program& add_code(Instruction line);
 
     void compile(std::string name) const;  // compiles the program into an executable
     void compile() const;

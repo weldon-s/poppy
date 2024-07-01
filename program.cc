@@ -18,7 +18,7 @@ svc #0)"""";
 
 Program::Program() {
     includes = std::vector<std::string>();
-    code = std::vector<std::string>();
+    code = std::vector<Instruction>();
 }
 
 Program& Program::add_include(std::string include) {
@@ -26,7 +26,7 @@ Program& Program::add_include(std::string include) {
     return *this;
 }
 
-Program& Program::add_code(std::string line) {
+Program& Program::add_code(Instruction line) {
     code.push_back(line);
     return *this;
 }
@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     os << Program::head << std::endl;
 
     // then, we do the code
-    for (std::string line : program.code) {
+    for (Instruction line : program.code) {
         os << line << std::endl;
     }
 
