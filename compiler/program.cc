@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-const std::string Program::assembly_path = "assembly";
+const std::string Program::assembly_path = "../assembly";
 
 const std::string Program::head =
     R""""(.text
