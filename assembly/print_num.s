@@ -5,8 +5,9 @@
 
 //x1 is the number to print (passed in as NON-ASCII!)
 print_num:
-    stp x0, lr, [sp, #-16]!
-    stp x1, x2, [sp, #-16]!
+    str     lr, [sp, #-8]!
+    str     x0, [sp, #-8]!
+    stp     x1, x2, [sp, #-16]!
 
     //x1 is our parameter (integer to print) + will store the ASCII-converted value
     //x2 is the length of the string (always 1 for our case)
@@ -52,7 +53,6 @@ print_num:
         print_loop_stack_after_negate:
         //add 48 to x11 to convert to ASCII
         add     x11, x11, #48
-        strb    w11, [x1]
 
         // push this value to the stack
         str     x11, [sp, #-8]!
@@ -70,6 +70,7 @@ print_num:
         subs    x13, x13, #1
         bne     print_loop_out
     
-    ldp x1, x2, [sp], #16
-    ldr x0, [sp], #8
+    ldp     x1, x2, [sp], #16
+    ldr     x0, [sp], #8
+    add     sp, sp, #8
     ret

@@ -20,5 +20,5 @@ Instruction print_str(std::string name, std::string str) {
 }
 
 Instruction print_num(long long num) {
-    return movi(1, num) + "bl print_num";
+    return push(1) + movi(1, num) + "bl print_num" + pop(1);
 }

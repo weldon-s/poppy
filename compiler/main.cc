@@ -6,8 +6,9 @@ int main() {
     Program program;
 
     program.add_include("print_num")
-        .add_code(print_str("str", "Hello I am a string\\n"))
-        .add_code(print_num(42))
-        .add_code(print_str("str2", "Goodbye I am another string\\n"));
-    program.compile();
+        .add_code(print_str("hi", "Hi, world!\n"))
+        .add_code(print_num(4))
+        .add_code(print_str("hello", "Hello, world!\n"))
+        .add_code(print_num(501))
+        .compile();
 }
