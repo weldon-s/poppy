@@ -2,7 +2,7 @@
 
 #include <format>
 
-Instruction::Instruction(const std::string& assembly) : assembly(assembly) {}
+Instruction::Instruction(const std::string assembly) : assembly(assembly) {}
 Instruction::Instruction(const char* assembly) : assembly(assembly) {}
 
 Instruction Instruction::operator+(const Instruction& instruction) const {

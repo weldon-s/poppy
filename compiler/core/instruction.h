@@ -5,10 +5,10 @@
 // represents an ARM instruction
 // mostly just a wrapper for strings right now, but could be expanded
 class Instruction {
-    const std::string& assembly;
+    const std::string assembly;
 
    public:
-    Instruction(const std::string& assembly);
+    Instruction(const std::string assembly);
     Instruction(const char* assembly);
     Instruction operator+(const Instruction& instruction) const;
 
