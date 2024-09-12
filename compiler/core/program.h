@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "instruction.h"
+#include "core/instruction.h"
 
 class Program {
     // assembly path
