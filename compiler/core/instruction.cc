@@ -2,7 +2,7 @@
 
 #include <format>
 
-Instruction::Instruction(std::string assembly) : assembly(assembly) {}
+Instruction::Instruction(const std::string& assembly) : assembly(assembly) {}
 Instruction::Instruction(const char* assembly) : assembly(assembly) {}
 
 Instruction Instruction::operator+(const Instruction& instruction) const {
@@ -31,7 +31,7 @@ Instruction movi(int dest, long long imm) {
     long long lower = imm & 0xFFF;
 
     // create the instructions to move upper
-    Instruction mov_upper = movi(dest, upper);
+    Instruction mov_upper{movi(dest, upper)};
 
     // create the instructions to move lower
     return mov_upper +

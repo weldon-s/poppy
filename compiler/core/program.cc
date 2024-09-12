@@ -20,17 +20,17 @@ Program::Program() {
     code = std::vector<Instruction>();
 }
 
-Program& Program::add_include(std::string include) {
+Program& Program::add_include(const std::string& include) {
     includes.push_back(include);
     return *this;
 }
 
-Program& Program::add_code(Instruction line) {
+Program& Program::add_code(const Instruction& line) {
     code.push_back(line);
     return *this;
 }
 
-void Program::compile(std::string name) const {
+void Program::compile(const std::string& name) const {
     std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
     file.close();

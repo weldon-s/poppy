@@ -21,10 +21,10 @@ class Program {
 
    public:
     Program();
-    Program& add_include(std::string include);
-    Program& add_code(Instruction line);
+    Program& add_include(const std::string& include);
+    Program& add_code(const Instruction& line);
 
-    void compile(std::string name) const;  // compiles the program into an executable
+    void compile(const std::string& name) const;  // compiles the program into an executable
     void compile() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Program& program);

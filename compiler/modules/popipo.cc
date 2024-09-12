@@ -2,7 +2,7 @@
 
 #include <format>
 
-Instruction print_str(std::string name, std::string str) {
+Instruction print_str(const std::string& name, const std::string& str) {
     // unlike numbers, we store strings as data
     // this is generally better since we don't have to worry about the length of the string
 

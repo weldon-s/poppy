@@ -5,7 +5,7 @@
 
 #include "core/instruction.h"
 
-Instruction print_str(std::string name, std::string str);
+Instruction print_str(const std::string& name, const std::string& str);
 Instruction print_num(long long num);
 
 #endif
