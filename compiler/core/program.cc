@@ -1,6 +1,9 @@
 #include "core/program.h"
 
+#include <cassert>
 #include <fstream>
+
+#include "core/code.h"
 
 const std::string Program::assembly_path = "../assembly";
 
@@ -15,17 +18,14 @@ const std::string Program::tail =
 mov w8, #93
 svc #0)"""";
 
-Program::Program() {
-    includes = std::vector<std::string>();
-    code = std::vector<Instruction>();
-}
+Program::Program() {}
 
 Program& Program::add_include(const std::string& include) {
     includes.push_back(include);
     return *this;
 }
 
-Program& Program::add_code(const Instruction& line) {
+Program& Program::add_code(const Code* line) {
     code.push_back(line);
     return *this;
 }
@@ -53,12 +53,32 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     os << Program::head << std::endl;
 
     // then, we do the code
-    for (Instruction line : program.code) {
-        os << line << std::endl;
+    for (const Code* line : program.code) {
+        os << line << std::endl;  // TODO handle this
     }
 
     // finally, we do the tail
     os << Program::tail << std::endl;
 
     return os;
+}
+
+void Program::_apply_transformers() {
+    for (Transformer* transformer : transformers) {
+        for (int i = 0; i < code.size(); i++) {
+            const Code* transformed = transformer->transform(code[i], *this);
+
+            // update the code if the transformer returned a new code
+            if (transformed != nullptr) {
+                delete code[i];
+                code[i] = transformed;
+            }
+        }
+    }
+
+    // make sure all code is assembly
+    for (const Code* c : code) {
+        assert(c != nullptr && "Code cannot be null");
+        assert(c->is_assembly() && "Code must be assembly");
+    }
 }
