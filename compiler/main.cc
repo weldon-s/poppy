@@ -15,12 +15,17 @@ int main() {
     //     std::cout << variable.name << " " << offset << std::endl;
     // }
 
-    // program.add_include("print_num")
-    //     .add_code(print_str("hi", "Hi, world!\\n"))
-    //     .add_code(print_num(4))
-    //     .add_code(print_str("hello", "Hello, world!\\n"))
-    //     .add_code(print_num(501))
-    //     .compile();
+    Instruction i1{print_str("hi", "Hi, world!\\n")};
+    Instruction i2{print_num(4)};
+    Instruction i3{print_str("hello", "Hello, world!\\n")};
+    Instruction i4{print_num(501)};
+
+    program.add_include("print_num")
+        .add_code(&i1)
+        .add_code(&i2)
+        .add_code(&i3)
+        .add_code(&i4)
+        .compile();
 
     return 0;
 }

@@ -2,15 +2,15 @@
 
 #include <format>
 
-Instruction::Instruction(const std::string assembly) : assembly(assembly) {}
-Instruction::Instruction(const char* assembly) : assembly(assembly) {}
+Instruction::Instruction(const std::string assembly) : Code{true}, assembly(assembly) {}
+Instruction::Instruction(const char* assembly) : Code{true}, assembly(assembly) {}
 
 Instruction Instruction::operator+(const Instruction& instruction) const {
     return assembly + "\n" + instruction.assembly;
 }
 
-std::ostream& operator<<(std::ostream& os, const Instruction& instruction) {
-    os << instruction.assembly;
+std::ostream& Instruction::stream(std::ostream& os) const {
+    os << assembly;
     return os;
 }
 
