@@ -2,6 +2,7 @@
 #define PROGRAM_H
 // represents a Poppy program
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -20,7 +21,7 @@ class Program {
 
     // dependencies for the program (assembly files without the .s extension)
     std::vector<std::string> includes;
-    std::vector<const Code*> code;  // the code of the program
+    std::vector<std::unique_ptr<const Code>> code;  // the code of the program
 
     // transformers that will be applied to the code IN THE ORDER THEY APPEAR HERE
     std::vector<Transformer*> transformers;
@@ -30,10 +31,11 @@ class Program {
    public:
     Program();
     Program& add_include(const std::string& include);
-    Program& add_code(const Code* line);
+    Program& add_code(const std::unique_ptr<const Code> line);
 
-    void compile(const std::string& name) const;  // compiles the program into an executable
-    void compile() const;
+    const Program& compile(const std::string& name) const;  // compiles the program into an executable
+    const Program& compile() const;
+    const Program& run() const;  // runs the program
 
     friend std::ostream& operator<<(std::ostream& os, const Program& program);
 };

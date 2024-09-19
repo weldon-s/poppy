@@ -25,22 +25,26 @@ Program& Program::add_include(const std::string& include) {
     return *this;
 }
 
-Program& Program::add_code(const Code* line) {
-    code.push_back(line);
+Program& Program::add_code(std::unique_ptr<const Code> line) {
+    code.push_back(std::move(line));
     return *this;
 }
 
-void Program::compile(const std::string& name) const {
+const Program& Program::compile(const std::string& name) const {
     std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
     file.close();
-
-    // run make
-    system(("cd " + assembly_path + " && make").c_str());
+    return *this;
 }
 
-void Program::compile() const {
-    compile("out");
+const Program& Program::compile() const {
+    return compile("out");
+}
+
+const Program& Program::run() const {
+    // run make
+    system(("cd " + assembly_path + " && make").c_str());
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Program& program) {
@@ -53,7 +57,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     os << Program::head << std::endl;
 
     // then, we do the code
-    for (const Code* line : program.code) {
+    for (const std::unique_ptr<const Code>& line : program.code) {
         os << *line << std::endl;  // TODO handle this
     }
 
@@ -66,18 +70,17 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 void Program::_apply_transformers() {
     for (Transformer* transformer : transformers) {
         for (int i = 0; i < code.size(); i++) {
-            const Code* transformed = transformer->transform(code[i], *this);
+            std::unique_ptr<const Code> transformed = transformer->transform(*code[i], *this);
 
-            // update the code if the transformer returned a new code
-            if (transformed != nullptr) {
-                delete code[i];
-                code[i] = transformed;
+            // update the code if the transformer returned a new code and not nullptr
+            if (transformed) {
+                code[i].reset(transformed.release());  // transfer ownership from transformed to code[i]
             }
         }
     }
 
     // make sure all code is assembly
-    for (const Code* c : code) {
+    for (const std::unique_ptr<const Code>& c : code) {
         assert(c != nullptr && "Code cannot be null");
         assert(c->is_assembly() && "Code must be assembly");
     }
