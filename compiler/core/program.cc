@@ -69,9 +69,9 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 
     os << ".data" << std::endl;
 
-    for (const std::string& literal : program.literals) {
-        os << program._literal_label(literal) << ": .ascii \"" << literal << "\"" << std::endl;
-        os << program._literal_length_label(literal) << "= . - " << program._literal_label(literal) << std::endl;
+    for (auto iter = program.literals.begin(); iter != program.literals.end(); iter++) {
+        os << program._literal_label(iter) << ": .ascii \"" << *iter << "\"" << std::endl;
+        os << program._literal_length_label(iter) << "= . - " << program._literal_label(iter) << std::endl;
     }
 
     // then, we do the head
@@ -108,21 +108,24 @@ void Program::_apply_transformers() {
 }
 
 std::pair<const std::string, const std::string> Program::add_literal(const std::string& literal) {
-    if (std::find(literals.begin(), literals.end(), literal) == literals.end()) {
+    auto iter{std::find(literals.begin(), literals.end(), literal)};
+
+    if (iter == literals.end()) {
         literals.push_back(literal);
+        iter = --literals.end();
     }
 
-    return {_literal_label(literal), _literal_length_label(literal)};
+    return {_literal_label(iter), _literal_length_label(iter)};
 }
 
-const std::string Program::_literal_label(const std::string& literal) const {
+const std::string Program::_literal_label(const std::vector<std::string>::const_iterator& iter) const {
     // these are based on the order in which the literals are added
     // so we CANT reorder them or we will break the program
-    return "lit" + std::to_string(std::find(literals.begin(), literals.end(), literal) - literals.begin());
+    return "lit" + std::to_string(iter - literals.begin());
 }
 
-const std::string Program::_literal_length_label(const std::string& literal) const {
+const std::string Program::_literal_length_label(const std::vector<std::string>::const_iterator& iter) const {
     // these are based on the order in which the literals are added
     // so we CANT reorder them or we will break the program
-    return "lit" + std::to_string(std::find(literals.begin(), literals.end(), literal) - literals.begin()) + "len";
+    return _literal_label(iter) + "len";
 }
