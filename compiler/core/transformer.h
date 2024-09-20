@@ -8,7 +8,6 @@ class Program;
 
 /*
 this class could also be replaced by fn ptrs but this is better if we wanna expand
-TODO make singleton (CRTP?)
 TODO add another field with other transformers this one must go before/after
 or something idk
 */
@@ -21,8 +20,23 @@ class Transformer {
     program is NOT const because the transformer may need to modify the program (e.g. add includes or whatnot)
     returns nullptr if no transformation is needed
     */
-    virtual const std::unique_ptr<const Code> transform(const Code& code, Program& program) const = 0;
+    virtual const std::unique_ptr<const Code> transform(const Code &code, Program &program) const = 0;
     virtual ~Transformer() = default;
+};
+
+template <typename T>
+class SingletonTransformer : public Transformer {
+   protected:
+    SingletonTransformer() = default;
+
+   public:
+    SingletonTransformer(const SingletonTransformer &) = delete;
+    SingletonTransformer &operator=(const SingletonTransformer &) = delete;
+
+    static Transformer *instance() {
+        static T instance;
+        return &instance;
+    }
 };
 
 #endif

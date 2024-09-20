@@ -19,10 +19,9 @@ class PrintStr : public Code {
     friend class LiteralTransformer;
 };
 
-class LiteralTransformer : public Transformer {
+class LiteralTransformer : public SingletonTransformer<LiteralTransformer> {
    public:
     const std::unique_ptr<const Code> transform(const Code& code, Program& program) const override;
-    static Transformer* instance();
 };
 
 PrintStr::PrintStr(const std::string& str) : Code(false, {LiteralTransformer::instance()}), str{str} {}
@@ -32,10 +31,6 @@ std::ostream& PrintStr::stream(std::ostream& os) const {
     return os << "print_str " << str << std::endl;
 }
 
-Transformer* LiteralTransformer::instance() {
-    static LiteralTransformer instance;
-    return &instance;
-}
 const std::unique_ptr<const Code> LiteralTransformer::transform(const Code& code, Program& program) const {
     const PrintStr* print_str_ptr = dynamic_cast<const PrintStr*>(&code);
 
