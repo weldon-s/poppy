@@ -1,5 +1,6 @@
 #include "core/program.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
@@ -27,21 +28,32 @@ Program& Program::add_include(const std::string& include) {
 
 Program& Program::add_code(std::unique_ptr<const Code> line) {
     code.push_back(std::move(line));
+
+    // add the transformers needed by this code to the list of transformers
+    // if they are not already there
+
+    for (const Transformer* transformer : code.back()->needed_transformers()) {
+        if (std::find(transformers.begin(), transformers.end(), transformer) == transformers.end()) {
+            transformers.push_back(transformer);
+        }
+    }
+
     return *this;
 }
 
-const Program& Program::compile(const std::string& name) const {
+Program& Program::compile(const std::string& name) {
+    _apply_transformers();
     std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
     file.close();
     return *this;
 }
 
-const Program& Program::compile() const {
+Program& Program::compile() {
     return compile("out");
 }
 
-const Program& Program::run() const {
+Program& Program::run() {
     // run make
     system(("cd " + assembly_path + " && make").c_str());
     return *this;
@@ -51,6 +63,15 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     // first, we do includes
     for (std::string include : program.includes) {
         os << ".include \"" << include << ".s\"" << std::endl;
+    }
+
+    // then, we do the literals (data section)
+
+    os << ".data" << std::endl;
+
+    for (const std::string& literal : program.literals) {
+        os << program._literal_label(literal) << ": .ascii \"" << literal << "\"" << std::endl;
+        os << program._literal_length_label(literal) << "= . - " << program._literal_label(literal) << std::endl;
     }
 
     // then, we do the head
@@ -68,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 }
 
 void Program::_apply_transformers() {
-    for (Transformer* transformer : transformers) {
+    for (const Transformer* transformer : transformers) {
         for (int i = 0; i < code.size(); i++) {
             std::unique_ptr<const Code> transformed = transformer->transform(*code[i], *this);
 
@@ -84,4 +105,24 @@ void Program::_apply_transformers() {
         assert(c != nullptr && "Code cannot be null");
         assert(c->is_assembly() && "Code must be assembly");
     }
+}
+
+std::pair<const std::string, const std::string> Program::add_literal(const std::string& literal) {
+    if (std::find(literals.begin(), literals.end(), literal) == literals.end()) {
+        literals.push_back(literal);
+    }
+
+    return {_literal_label(literal), _literal_length_label(literal)};
+}
+
+const std::string Program::_literal_label(const std::string& literal) const {
+    // these are based on the order in which the literals are added
+    // so we CANT reorder them or we will break the program
+    return "lit" + std::to_string(std::find(literals.begin(), literals.end(), literal) - literals.begin());
+}
+
+const std::string Program::_literal_length_label(const std::string& literal) const {
+    // these are based on the order in which the literals are added
+    // so we CANT reorder them or we will break the program
+    return "lit" + std::to_string(std::find(literals.begin(), literals.end(), literal) - literals.begin()) + "len";
 }

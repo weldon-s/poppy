@@ -21,22 +21,31 @@ class Program {
 
     // dependencies for the program (assembly files without the .s extension)
     std::vector<std::string> includes;
-    std::vector<std::unique_ptr<const Code>> code;  // the code of the program
+
+    // the code of the program
+    std::vector<std::unique_ptr<const Code>> code;
+
+    // the string literals of the program. these are stored in the data section
+    std::vector<std::string> literals;
 
     // transformers that will be applied to the code IN THE ORDER THEY APPEAR HERE
-    std::vector<Transformer*> transformers;
+    std::vector<const Transformer*> transformers;
 
     void _apply_transformers();
+    const std::string _literal_label(const std::string& literal) const;
+    const std::string _literal_length_label(const std::string& literal) const;
 
    public:
     Program();
     Program& add_include(const std::string& include);
     Program& add_code(const std::unique_ptr<const Code> line);
 
-    const Program& compile(const std::string& name) const;  // compiles the program into an executable
-    const Program& compile() const;
-    const Program& run() const;  // runs the program
+    Program& compile(const std::string& name);  // compiles the program into an executable
+    Program& compile();
+    Program& run();  // runs the program
 
+    // adds a literal to the program and returns its label and its length's label
+    std::pair<const std::string, const std::string> add_literal(const std::string& literal);
     friend std::ostream& operator<<(std::ostream& os, const Program& program);
 };
 
