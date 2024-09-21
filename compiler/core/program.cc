@@ -26,7 +26,7 @@ Program& Program::add_include(const std::string& include) {
     return *this;
 }
 
-Program& Program::add_code(std::unique_ptr<const Code> line) {
+Program& Program::add_code(Line line) {
     code.push_back(std::move(line));
 
     // add the transformers needed by this code to the list of transformers
@@ -78,7 +78,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     os << Program::head << std::endl;
 
     // then, we do the code
-    for (const std::unique_ptr<const Code>& line : program.code) {
+    for (const Line& line : program.code) {
         os << *line << std::endl;  // TODO handle this
     }
 
@@ -91,7 +91,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 void Program::_apply_transformers() {
     for (const Transformer* transformer : transformers) {
         for (int i = 0; i < code.size(); i++) {
-            std::unique_ptr<const Code> transformed = transformer->transform(*code[i], *this);
+            Line transformed = transformer->transform(*code[i], *this);
 
             // update the code if the transformer returned a new code and not nullptr
             if (transformed) {
@@ -101,7 +101,7 @@ void Program::_apply_transformers() {
     }
 
     // make sure all code is assembly
-    for (const std::unique_ptr<const Code>& c : code) {
+    for (const Line& c : code) {
         assert(c != nullptr && "Code cannot be null");
         assert(c->is_assembly() && "Code must be assembly");
     }

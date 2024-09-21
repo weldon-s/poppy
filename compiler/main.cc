@@ -11,10 +11,6 @@ int main() {
 
     // Chunk chunk({x, y});
 
-    // for (auto [variable, offset] : chunk.offsets) {
-    //     std::cout << variable.name << " " << offset << std::endl;
-    // }
-
     program.add_include("print_num")
         .add_code(print_str("Hi, world!\\n"))
         .add_code(print_num(4))

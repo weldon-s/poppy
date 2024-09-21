@@ -6,7 +6,7 @@
 
 #include "core/code.h"
 
-std::unique_ptr<const Code> print_str(const std::string& str);
-std::unique_ptr<const Code> print_num(long long num);
+Line print_str(const std::string& str);
+Line print_num(long long num);
 
 #endif

@@ -2,15 +2,17 @@
 #define _CODE_H_
 
 #include <iostream>
+#include <memory>
 #include <vector>
 
 class Transformer;
 
 // represents any piece of code (IR or assembly instruction) in the compiler
 // all code objects should be immutable
+
 class Code {
     const bool _is_assembly;
-    std::vector<const Transformer*> _needed_transformers;
+    const std::vector<const Transformer*> _needed_transformers;
     virtual std::ostream& stream(std::ostream& os) const = 0;
 
    public:
@@ -24,5 +26,9 @@ class Code {
 
     friend std::ostream& operator<<(std::ostream& os, const Code& code);
 };
+
+typedef std::unique_ptr<const Code> Line;
+
+Line operator+(const Line& l1, const Line& l2);
 
 #endif

@@ -23,7 +23,7 @@ class Program {
     std::vector<std::string> includes;
 
     // the code of the program
-    std::vector<std::unique_ptr<const Code>> code;
+    std::vector<Line> code;
 
     // the string literals of the program. these are stored in the data section
     std::vector<std::string> literals;
@@ -38,7 +38,7 @@ class Program {
    public:
     Program();
     Program& add_include(const std::string& include);
-    Program& add_code(const std::unique_ptr<const Code> line);
+    Program& add_code(const Line line);
 
     Program& compile(const std::string& name);  // compiles the program into an executable
     Program& compile();

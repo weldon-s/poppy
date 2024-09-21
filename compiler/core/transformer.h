@@ -20,7 +20,7 @@ class Transformer {
     program is NOT const because the transformer may need to modify the program (e.g. add includes or whatnot)
     returns nullptr if no transformation is needed
     */
-    virtual const std::unique_ptr<const Code> transform(const Code &code, Program &program) const = 0;
+    virtual const Line transform(const Code &code, Program &program) const = 0;
     virtual ~Transformer() = default;
 };
 
