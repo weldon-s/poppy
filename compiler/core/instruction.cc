@@ -57,8 +57,9 @@ Line movi(int dest, long long imm) {
 
     // create the instructions to move lower
     return std::move(mov_upper) +
-           Line{new Instruction{std::vector<std::string>{std::format("lsl x{}, x{}, #12", dest, dest),
-                                                         std::format("add x{}, x{}, #{}", dest, dest, lower)}}};
+           Line{
+               new Instruction{Instruction{std::format("lsl x{}, x{}, #12", dest, dest)} +
+                               std::format("add x{}, x{}, #{}", dest, dest, lower)}};
 }
 
 Line push(int reg) {

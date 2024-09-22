@@ -42,11 +42,12 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
 
     return push(0) + push(1) + push(2) + push(8) +  // preserve values of x0, x1, x2, x8
            movi(0, 1) +
-           Line{new Instruction{std::vector<std::string>{
-               std::format("ldr x1, ={}", labels.first),  // set up and call syscall
-               std::format("ldr x2, ={}", labels.second),
-               "mov x8, #64",
-               "svc #0"}}} +
+           Line{
+               new Instruction{
+                   Instruction{std::format("ldr x1, ={}", labels.first)} +  // set up and call syscall
+                   std::format("ldr x2, ={}", labels.second) +
+                   "mov x8, #64" +
+                   "svc #0"}} +
            pop(8) + pop(2) + pop(1) + pop(0);  // restore values of x0, x1, x2, x8
 }
 
