@@ -22,9 +22,10 @@ class Instruction : public Code {
     Instruction operator+(const Instruction& instruction) const;
 };
 
-Line mov(int dest, int src);         // move from src to dest
-Line movi(int dest, long long imm);  // move immediate value to dest (supports 64-bit values)
-Line push(int reg);                  // push register onto stack
-Line pop(int reg);                   // pop register from stack
-
+Line mov(int dest, int src);             // move from src to dest
+Line movi(int dest, long long imm);      // move immediate value to dest (supports 64-bit values)
+Line push(int reg);                      // push register onto stack
+Line pop(int reg);                       // pop register from stack
+Line add(int dest, int src1, int src2);  // add src1 and src2, store in dest
+Line copy(int dest, int src);            // copy src to dest
 #endif

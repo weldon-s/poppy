@@ -51,10 +51,10 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
            pop(8) + pop(2) + pop(1) + pop(0);  // restore values of x0, x1, x2, x8
 }
 
-std::unique_ptr<const Code> print_str(const std::string& str) {
+Line print_str(const std::string& str) {
     return std::unique_ptr<const Code>(new PrintStr{str});
 }
 
-std::unique_ptr<const Code> print_num(long long num) {
-    return push(1) + movi(1, num) + Line{new Instruction{"bl print_num"}} + pop(1);
+Line print_num(int reg) {
+    return push(1) + copy(1, reg) + Line{new Instruction{"bl print_num"}} + pop(1);
 }

@@ -71,3 +71,11 @@ Line pop(int reg) {
         new Instruction{
             std::format("ldr x{}, [sp], #8", reg)}};
 }
+
+Line add(int dest, int src1, int src2) {
+    return Line{new Instruction{std::format("add x{}, x{}, x{}", dest, src1, src2)}};
+}
+
+Line copy(int dest, int src) {
+    return Line{new Instruction{std::format("mov x{}, x{}", dest, src)}};
+}
