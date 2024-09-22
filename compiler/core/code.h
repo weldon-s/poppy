@@ -29,6 +29,6 @@ class Code {
 
 typedef std::unique_ptr<const Code> Line;
 
-Line operator+(const Line& l1, const Line& l2);
+Line operator+(Line l1, Line l2);
 
 #endif

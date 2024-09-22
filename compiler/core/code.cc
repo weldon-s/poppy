@@ -35,20 +35,23 @@ std::vector<const Transformer*> _combine_vectors(const std::vector<const Transfo
 }
 
 class CombinedCode : public Code {
-    const Line& l1;
-    const Line& l2;
+    // this keeps unique ownership of the codes, which requires them to be released from the original unique_ptrs
+    const Line line1;
+    const Line line2;
 
    public:
-    CombinedCode(const Line& l1, const Line& l2)
-        : Code{l1->is_assembly() && l2->is_assembly(), _combine_vectors(l1->needed_transformers(), l2->needed_transformers())}, l1{l1}, l2{l2} {}
+    CombinedCode(Line l1, Line l2)
+        : Code{l1->is_assembly() && l2->is_assembly(), _combine_vectors(l1->needed_transformers(), l2->needed_transformers())},
+          line1{Line(l1.release())},
+          line2{Line(l2.release())} {}
 
     std::ostream& stream(std::ostream& os) const override {
-        os << l1 << std::endl;
-        os << l2;
+        os << *line1 << std::endl;
+        os << *line2;
         return os;
     };
 };
 
-Line operator+(const Line& l1, const Line& l2) {
-    return Line{new CombinedCode{l1, l2}};
+Line operator+(Line l1, Line l2) {
+    return Line{new CombinedCode{std::move(l1), std::move(l2)}};
 }

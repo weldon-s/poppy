@@ -40,16 +40,14 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
 
     std::pair<const std::string, const std::string> labels{program.add_literal(print_str_ptr->str)};
 
-    Instruction* i = new Instruction(push(0) + push(1) + push(2) + push(8) +     // preserve values of x0, x1, x2, x8
-                                     movi(0, 1) +                                // set up syscall arguments (file descriptor = 1, stdout)
-                                     std::format("ldr x1, ={}", labels.first) +  // set up and call syscall
-                                     std::format("ldr x2, ={}", labels.second) +
-                                     "mov x8, #64" +
-                                     "svc #0" +
-                                     pop(8) + pop(2) + pop(1) + pop(0)  // restore values of x0, x1, x2, x8
-    );
-
-    return std::unique_ptr<const Code>(i);
+    return push(0) + push(1) + push(2) + push(8) +  // preserve values of x0, x1, x2, x8
+           movi(0, 1) +
+           Line{new Instruction{std::vector<std::string>{
+               std::format("ldr x1, ={}", labels.first),  // set up and call syscall
+               std::format("ldr x2, ={}", labels.second),
+               "mov x8, #64",
+               "svc #0"}}} +
+           pop(8) + pop(2) + pop(1) + pop(0);  // restore values of x0, x1, x2, x8
 }
 
 std::unique_ptr<const Code> print_str(const std::string& str) {
@@ -57,6 +55,5 @@ std::unique_ptr<const Code> print_str(const std::string& str) {
 }
 
 std::unique_ptr<const Code> print_num(long long num) {
-    Instruction* i = new Instruction(push(1) + movi(1, num) + "bl print_num" + pop(1));
-    return std::unique_ptr<const Code>(i);
+    return push(1) + movi(1, num) + Line{new Instruction{"bl print_num"}} + pop(1);
 }
