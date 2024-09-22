@@ -36,16 +36,16 @@ std::ostream& Instruction::stream(std::ostream& os) const {
     return os;
 }
 
-Line mov(int dest, int src) {
-    return Line{new Instruction{std::format("mov x{}, x{}", dest, src)}};
+Line mov(const Register& dest, const Register& src) {
+    return Line{new Instruction{std::format("mov x{}, x{}", dest.reg, src.reg)}};
 }
 
-Line movi(int dest, long long imm) {
+Line movi(const Register& dest, long long imm) {
     // this instruction needs to support 64-bit immediate values
     // ARM only supports 16-bit, so we recursively split the immediate value
 
     if ((imm <= 65535) && (imm >= -65537)) {
-        return Line{new Instruction{std::format("mov x{}, #{}", dest, imm)}};
+        return Line{new Instruction{std::format("mov x{}, #{}", dest.reg, imm)}};
     }
 
     // split the immediate value into upper and lower parts
@@ -58,24 +58,20 @@ Line movi(int dest, long long imm) {
     // create the instructions to move lower
     return std::move(mov_upper) +
            Line{
-               new Instruction{Instruction{std::format("lsl x{}, x{}, #12", dest, dest)} +
-                               std::format("add x{}, x{}, #{}", dest, dest, lower)}};
+               new Instruction{Instruction{std::format("lsl x{}, x{}, #12", dest.reg, dest.reg)} +
+                               std::format("add x{}, x{}, #{}", dest.reg, dest.reg, lower)}};
 }
 
-Line push(int reg) {
-    return Line{new Instruction{std::format("str x{}, [sp, #-8]!", reg)}};
+Line push(const Register& reg) {
+    return Line{new Instruction{std::format("str x{}, [sp, #-8]!", reg.reg)}};
 }
 
-Line pop(int reg) {
+Line pop(const Register& reg) {
     return Line{
         new Instruction{
-            std::format("ldr x{}, [sp], #8", reg)}};
+            std::format("ldr x{}, [sp], #8", reg.reg)}};
 }
 
-Line add(int dest, int src1, int src2) {
-    return Line{new Instruction{std::format("add x{}, x{}, x{}", dest, src1, src2)}};
-}
-
-Line copy(int dest, int src) {
-    return Line{new Instruction{std::format("mov x{}, x{}", dest, src)}};
+Line add(const Register& dest, const Register& src1, const Register& src2) {
+    return Line{new Instruction{std::format("add x{}, x{}, x{}", dest.reg, src1.reg, src2.reg)}};
 }

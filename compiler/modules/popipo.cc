@@ -40,21 +40,21 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
 
     std::pair<const std::string, const std::string> labels{program.add_literal(print_str_ptr->str)};
 
-    return push(0) + push(1) + push(2) + push(8) +  // preserve values of x0, x1, x2, x8
-           movi(0, 1) +
+    return push(Register(0)) + push(Register(1)) + push(Register(2)) + push(Register(8)) +  // preserve values of x0, x1, x2, x8
+           movi(Register(0), 1) +
            Line{
                new Instruction{
                    Instruction{std::format("ldr x1, ={}", labels.first)} +  // set up and call syscall
                    std::format("ldr x2, ={}", labels.second) +
                    "mov x8, #64" +
                    "svc #0"}} +
-           pop(8) + pop(2) + pop(1) + pop(0);  // restore values of x0, x1, x2, x8
+           pop(Register(8)) + pop(Register(2)) + pop(Register(1)) + pop(Register(0));  // restore values of x0, x1, x2, x8
 }
 
 Line print_str(const std::string& str) {
     return std::unique_ptr<const Code>(new PrintStr{str});
 }
 
-Line print_num(int reg) {
-    return push(1) + copy(1, reg) + Line{new Instruction{"bl print_num"}} + pop(1);
+Line print_num(const Register& reg) {
+    return push(Register(1)) + mov(Register(1), reg) + Line{new Instruction{"bl print_num"}} + pop(Register(1));
 }

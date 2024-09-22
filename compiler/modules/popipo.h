@@ -5,10 +5,11 @@
 #include <string>
 
 #include "core/code.h"
+#include "core/register.h"
 
 // print_str should also have an overload taking in a register
 // but that would involve arrays, which we haven't implemented yet
 Line print_str(const std::string& str);
-Line print_num(int reg);
+Line print_num(const Register& reg);
 
 #endif

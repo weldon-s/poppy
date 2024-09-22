@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "instruction.h"
+#include "register.h"
 
 // represents a variable
 class Variable {
@@ -26,10 +27,11 @@ class Chunk {
    public:
     Chunk(std::vector<Variable> variables);
 
+    // TODO ensure sp is aligned to 16 bytes
     Line push_chunk() const;
     Line pop_chunk() const;
-    Line read_variable(int reg, const Variable& variable) const;
-    Line write_variable(const Variable& variable, int reg) const;
+    Line read_variable(const Register& reg, const Variable& variable) const;
+    Line write_variable(const Variable& variable, const Register& reg) const;
 };
 
 #endif

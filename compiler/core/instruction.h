@@ -4,6 +4,7 @@
 #include <string>
 
 #include "core/code.h"
+#include "core/register.h"
 
 // represents an ARM instruction
 // mostly just a wrapper for strings right now, but could be expanded
@@ -22,10 +23,9 @@ class Instruction : public Code {
     Instruction operator+(const Instruction& instruction) const;
 };
 
-Line mov(int dest, int src);             // move from src to dest
-Line movi(int dest, long long imm);      // move immediate value to dest (supports 64-bit values)
-Line push(int reg);                      // push register onto stack
-Line pop(int reg);                       // pop register from stack
-Line add(int dest, int src1, int src2);  // add src1 and src2, store in dest
-Line copy(int dest, int src);            // copy src to dest
+Line mov(const Register& dest, const Register& src);                         // move from src to dest
+Line movi(const Register& dest, long long imm);                              // move immediate value to dest (supports 64-bit values)
+Line push(const Register& reg);                                              // push register onto stack
+Line pop(const Register& reg);                                               // pop register from stack
+Line add(const Register& dest, const Register& src1, const Register& src2);  // add src1 and src2, store in dest
 #endif
