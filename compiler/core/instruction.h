@@ -26,6 +26,8 @@ class Instruction : public Code {
 Line mov(const Register& dest, const Register& src);                         // move from src to dest
 Line movi(const Register& dest, long long imm);                              // move immediate value to dest (supports 64-bit values)
 Line push(const Register& reg);                                              // push register onto stack
+Line push_pair(const Register& reg1, const Register& reg2);                  // push two registers onto stack
 Line pop(const Register& reg);                                               // pop register from stack
+Line pop_pair(const Register& reg1, const Register& reg2);                   // pop two registers from stack
 Line add(const Register& dest, const Register& src1, const Register& src2);  // add src1 and src2, store in dest
 #endif

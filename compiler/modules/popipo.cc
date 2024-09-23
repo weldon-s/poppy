@@ -40,7 +40,7 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
 
     std::pair<const std::string, const std::string> labels{program.add_literal(print_str_ptr->str)};
 
-    return push(Register(0)) + push(Register(1)) + push(Register(2)) + push(Register(8)) +  // preserve values of x0, x1, x2, x8
+    return push_pair(Register(0), Register(1)) + push_pair(Register(2), Register(8)) +  // preserve values of x0, x1, x2, x8
            movi(Register(0), 1) +
            Line{
                new Instruction{
@@ -48,7 +48,7 @@ const Line LiteralTransformer::transform(const Code& code, Program& program) con
                    std::format("ldr x2, ={}", labels.second) +
                    "mov x8, #64" +
                    "svc #0"}} +
-           pop(Register(8)) + pop(Register(2)) + pop(Register(1)) + pop(Register(0));  // restore values of x0, x1, x2, x8
+           pop_pair(Register(8), Register(2)) + pop_pair(Register(1), Register(0));  // restore values of x0, x1, x2, x8
 }
 
 Line print_str(const std::string& str) {

@@ -5,8 +5,7 @@
 
 //x1 is the number to print (passed in as NON-ASCII!)
 print_num:
-    str     lr, [sp, #-8]!
-    str     x0, [sp, #-8]!
+    stp     lr, x0, [sp, #-16]!
     stp     x1, x2, [sp, #-16]!
 
     //x1 is our parameter (integer to print) + will store the ASCII-converted value
@@ -55,7 +54,7 @@ print_num:
         add     x11, x11, #48
 
         // push this value to the stack
-        str     x11, [sp, #-8]!
+        str     x11, [sp, #-16]!
         add     x13, x13, #1
 
         //if x9 is 0, we're done
@@ -64,13 +63,12 @@ print_num:
 
     print_loop_out:
         mov     x1, sp     // set x1 to the top of the stack
-        add     sp, sp, #8 // pop the top value from the stack
+        add     sp, sp, #16 // pop the top value from the stack
         svc     #0         //call the write syscall
 
         subs    x13, x13, #1
         bne     print_loop_out
     
     ldp     x1, x2, [sp], #16
-    ldr     x0, [sp], #8
-    add     sp, sp, #8
+    ldr     x0, [sp], #16
     ret

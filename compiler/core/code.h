@@ -19,9 +19,6 @@ class Code {
     Code(bool is_assembly, std::vector<const Transformer*> needed_transformers = {});
     bool is_assembly() const;
     const std::vector<const Transformer*>& needed_transformers() const;
-    // TODO consider adding operator+
-    //  would operate with pointers -> clarity might be lost
-
     virtual ~Code();
 
     friend std::ostream& operator<<(std::ostream& os, const Code& code);

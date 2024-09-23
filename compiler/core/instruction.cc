@@ -63,13 +63,24 @@ Line movi(const Register& dest, long long imm) {
 }
 
 Line push(const Register& reg) {
-    return Line{new Instruction{std::format("str x{}, [sp, #-8]!", reg.reg)}};
+    return Line{new Instruction{std::format("str x{}, [sp, #-16]!", reg.reg)}};
+}
+
+Line push_pair(const Register& reg1, const Register& reg2) {
+    return Line{
+        new Instruction{std::format("stp x{}, x{}, [sp, #-16]!", reg1.reg, reg2.reg)}};
 }
 
 Line pop(const Register& reg) {
     return Line{
         new Instruction{
-            std::format("ldr x{}, [sp], #8", reg.reg)}};
+            std::format("ldr x{}, [sp], #16", reg.reg)}};
+}
+
+Line pop_pair(const Register& reg1, const Register& reg2) {
+    return Line{
+        new Instruction{
+            std::format("ldp x{}, x{}, [sp], #16", reg1.reg, reg2.reg)}};
 }
 
 Line add(const Register& dest, const Register& src1, const Register& src2) {

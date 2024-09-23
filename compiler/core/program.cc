@@ -79,7 +79,7 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 
     // then, we do the code
     for (const Line& line : program.code) {
-        os << *line << std::endl;  // TODO handle this
+        os << *line << std::endl;
     }
 
     // finally, we do the tail

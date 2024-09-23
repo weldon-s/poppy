@@ -12,7 +12,8 @@ bool Variable::operator<(const Variable& other) const {
     return name < other.name;
 }
 
-Chunk::Chunk(std::vector<Variable> variables) : size{variables.size() * 8 + 8} {
+// make sure size is multiple of 16 bytes
+Chunk::Chunk(std::vector<Variable> variables) : size{8 * (variables.size() + 1 + ((variables.size() + 1) % 2))} {
     int offset{8};
 
     for (const Variable& variable : variables) {
