@@ -37,7 +37,7 @@ std::ostream& Instruction::stream(std::ostream& os) const {
 }
 
 Line mov(const Register& dest, const Register& src) {
-    return Line{new Instruction{std::format("mov x{}, x{}", dest.reg, src.reg)}};
+    return Line{new Instruction{std::format("mov {}, {}", dest, src)}};
 }
 
 Line movi(const Register& dest, long long imm) {
@@ -45,7 +45,7 @@ Line movi(const Register& dest, long long imm) {
     // ARM only supports 16-bit, so we recursively split the immediate value
 
     if ((imm <= 65535) && (imm >= -65537)) {
-        return Line{new Instruction{std::format("mov x{}, #{}", dest.reg, imm)}};
+        return Line{new Instruction{std::format("mov {}, #{}", dest, imm)}};
     }
 
     // split the immediate value into upper and lower parts
@@ -58,31 +58,31 @@ Line movi(const Register& dest, long long imm) {
     // create the instructions to move lower
     return std::move(mov_upper) +
            Line{
-               new Instruction{Instruction{std::format("lsl x{}, x{}, #12", dest.reg, dest.reg)} +
-                               std::format("add x{}, x{}, #{}", dest.reg, dest.reg, lower)}};
+               new Instruction{Instruction{std::format("lsl {}, {}, #12", dest, dest)} +
+                               std::format("add {}, {}, #{}", dest, dest, lower)}};
 }
 
 Line push(const Register& reg) {
-    return Line{new Instruction{std::format("str x{}, [sp, #-16]!", reg.reg)}};
+    return Line{new Instruction{std::format("str {}, [sp, #-16]!", reg)}};
 }
 
 Line push_pair(const Register& reg1, const Register& reg2) {
     return Line{
-        new Instruction{std::format("stp x{}, x{}, [sp, #-16]!", reg1.reg, reg2.reg)}};
+        new Instruction{std::format("stp {}, {}, [sp, #-16]!", reg1, reg2)}};
 }
 
 Line pop(const Register& reg) {
     return Line{
         new Instruction{
-            std::format("ldr x{}, [sp], #16", reg.reg)}};
+            std::format("ldr {}, [sp], #16", reg)}};
 }
 
 Line pop_pair(const Register& reg1, const Register& reg2) {
     return Line{
         new Instruction{
-            std::format("ldp x{}, x{}, [sp], #16", reg1.reg, reg2.reg)}};
+            std::format("ldp {}, {}, [sp], #16", reg1, reg2)}};
 }
 
 Line add(const Register& dest, const Register& src1, const Register& src2) {
-    return Line{new Instruction{std::format("add x{}, x{}, x{}", dest.reg, src1.reg, src2.reg)}};
+    return Line{new Instruction{std::format("add {}, {}, {}", dest, src1, src2)}};
 }
