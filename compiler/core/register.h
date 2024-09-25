@@ -8,7 +8,7 @@
 // this class helps disambiguate between registers and other integers/numbers
 class Register {
    public:
-    Register(int reg);  // once we have more named registers, we could make this private
+    explicit Register(int reg);  // once we have more named registers, we could make this private
 
     const int reg;
     // note: this only handles 64-bit access...maybe we also want 32 bits?

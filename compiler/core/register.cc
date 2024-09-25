@@ -20,11 +20,11 @@ Register::operator std::string() const {
     return "x" + std::to_string(reg);
 }
 
-const Register& Register::scratch{9};
-const Register& Register::frame_pointer{29};
-const Register& Register::link_register{30};
+const Register& Register::scratch{Register{9}};
+const Register& Register::frame_pointer{Register{29}};
+const Register& Register::link_register{Register{30}};
 
 /* strictly speaking this is probably not the most "proper" OOP way to do this
    however, I don't think the added complexity would be worth it here since
    the logic of this class is SO simple */
-const Register& Register::stack_pointer{-1};
+const Register& Register::stack_pointer{Register{-1}};
