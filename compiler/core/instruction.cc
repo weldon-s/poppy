@@ -7,6 +7,10 @@ Instruction::Instruction(const char* assembly) : Code{true}, assembly(assembly) 
 Instruction::Instruction(std::vector<std::string> assembly) : Code{true}, assembly(combine(assembly)) {}
 Instruction::Instruction(std::vector<const char*> assembly) : Code{true}, assembly(combine(assembly)) {}
 
+Line Instruction::simplify(Program& program) {
+    return Line{nullptr};
+}
+
 std::string Instruction::combine(const std::vector<std::string>& assembly) {
     std::string result{};
 

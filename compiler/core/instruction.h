@@ -21,6 +21,8 @@ class Instruction : public Code {
     Instruction(std::vector<const char*> assembly);
     Instruction(std::vector<std::string> assembly);
     Instruction operator+(const Instruction& instruction) const;
+
+    Line simplify(Program& program) override;
 };
 
 Line mov(const Register& dest, const Register& src);                         // move from src to dest

@@ -31,22 +31,24 @@ Program& Program::add_include(const std::string& include) {
 
 Program& Program::add_code(Line line) {
     code.push_back(std::move(line));
-
-    // add the transformers needed by this code to the list of transformers
-    // if they are not already there
-
-    for (const Transformer* transformer : code.back()->needed_transformers()) {
-        if (std::find(transformers.begin(), transformers.end(), transformer) == transformers.end()) {
-            transformers.push_back(transformer);
-        }
-    }
-
     return *this;
 }
 
 Program& Program::compile(const std::string& name) {
-    _apply_includes();
-    _apply_transformers();
+    // simplify all code
+    for (auto iter = code.begin(); iter != code.end(); iter++) {
+        Line simplified = (*iter)->simplify(*this);
+        if (simplified) {
+            *iter = std::move(simplified);
+        }
+    }
+
+    // make sure all code is assembly
+    for (const Line& c : code) {
+        assert(c != nullptr && "Code cannot be null");
+        assert(c->is_assembly() && "Code must be assembly");
+    }
+
     std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
     file.close();
@@ -90,29 +92,6 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
     os << Program::tail << std::endl;
 
     return os;
-}
-
-void Program::_apply_transformers() {
-    for (const Transformer* transformer : transformers) {
-        for (int i = 0; i < code.size(); i++) {
-            Line transformed = transformer->transform(std::move(code[i]), *this);
-            code[i] = std::move(transformed);  // transfer ownership from transformed to code[i]
-        }
-    }
-
-    // make sure all code is assembly
-    for (const Line& c : code) {
-        assert(c != nullptr && "Code cannot be null");
-        assert(c->is_assembly() && "Code must be assembly");
-    }
-}
-
-void Program::_apply_includes() {
-    for (const Line& line : code) {
-        for (const std::string& include : line->needed_includes()) {
-            add_include(include);
-        }
-    }
 }
 
 std::pair<const std::string, const std::string> Program::add_literal(const std::string& literal) {

@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/instruction.h"
-#include "core/transformer.h"
 
 class Code;
 
@@ -28,11 +27,6 @@ class Program {
     // the string literals of the program. these are stored in the data section
     std::vector<std::string> literals;
 
-    // transformers that will be applied to the code IN THE ORDER THEY APPEAR HERE
-    std::vector<const Transformer*> transformers;
-
-    void _apply_transformers();
-    void _apply_includes();
     const std::string _literal_label(const std::vector<std::string>::const_iterator& iter) const;
     const std::string _literal_length_label(const std::vector<std::string>::const_iterator& iter) const;
 
