@@ -3,19 +3,27 @@
 
 AS = aarch64-linux-gnu-as
 LD = aarch64-linux-gnu-ld
+STAGING_DIR = staging
 
-SRC = $(wildcard *.s)
+SRC = $(wildcard $(STAGING_DIR)/**/*.s) $(wildcard $(STAGING_DIR)/*.s)
 
 OBJ = $(SRC:.s=.o)
 EXEC = arm64
 
-all: comp run
+all: stage call_comp run
+
+stage: 
+	./stage
+
+# This lets us use our updated SRC and OBJ variables, since otherwise, these are evaluated before stage is run
+call_comp:
+	$(MAKE) comp --no-print-directory
 
 comp: $(EXEC)
+
 run:
 	./$(EXEC)
 
-# TODO make this only compile included files
 $(EXEC): $(OBJ)
 	$(LD) -o $@ $^
 
@@ -23,7 +31,8 @@ $(EXEC): $(OBJ)
 	$(AS) -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -rf staging
+	rm -f $(EXEC)
 
 # runs the program in debug mode, need another terminal to run gdb
 debug: $(EXEC)
@@ -33,4 +42,4 @@ debug: $(EXEC)
 gdb: $(EXEC)
 	gdb-multiarch -q --nh -ex 'set architecture arm64' -ex 'file $(EXEC)' -ex 'target remote localhost:1234' -ex 'layout split' -ex 'layout regs' 
 
-.PHONY: all clean run debug gdb
+.PHONY: all stage clean run debug gdb

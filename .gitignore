@@ -1,9 +1,16 @@
+# Dependency/object files
 *.d
 *.o
-*.out
 
-arm64
-main
+# Output assembly file
 out.s
 
+# Staging directory
+staging/
+
+# Executables
+arm64
+main
+
+# VSCode settings
 .vscode

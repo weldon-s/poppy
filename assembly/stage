@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# This script reads an assembly file and copies all the files it includes to a staging directory.
+# We do this to ensure the Makefile only compiles the files that are actually needed.
+
+STAGING_DIR=staging
+MAIN_FILE=out.s
+
+echo "Finding includes in $MAIN_FILE..."
+
+rm -rf $STAGING_DIR
+mkdir $STAGING_DIR
+
+# Read the main file line by line, looking for include directives
+cat $MAIN_FILE | while read line; do
+    if [[ $line == .include* ]]; then
+        file=$(echo $line | sed 's/.*"\(.*\)".*/\1/') # Extract the filename from the include directive (part between quotes)
+        echo "Found include $file"
+
+        # make any directories needed to include the file
+        mkdir -p $STAGING_DIR/$(dirname $file)
+        cp $file $STAGING_DIR/$file
+    fi
+done
+
+# Copy the main file to the staging directory
+mkdir -p $STAGING_DIR/$(dirname $MAIN_FILE)
+cp $MAIN_FILE $STAGING_DIR/$MAIN_FILE
