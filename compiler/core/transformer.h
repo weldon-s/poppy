@@ -13,14 +13,18 @@ or something idk
 */
 
 class Transformer {
+    virtual Line apply(Line line, Program &program) const = 0;
+
    public:
-    /*
-    the rationale for the return ptr being const is that the code should not modified...instead, a new code should be created
-    this keeps things more predictable
-    program is NOT const because the transformer may need to modify the program (e.g. add includes or whatnot)
-    returns nullptr if no transformation is needed
-    */
-    virtual const Line transform(const Code &code, Program &program) const = 0;
+    Line transform(Line line, Program &program) const {
+        Line children_applied{line->apply_to_children(*this, program)};
+
+        if (children_applied.get() == nullptr) {
+            return apply(std::move(line), program);
+        }
+
+        return apply(std::move(children_applied), program);
+    }
     virtual ~Transformer() = default;
 };
 

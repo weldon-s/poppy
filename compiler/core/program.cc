@@ -91,12 +91,8 @@ std::ostream& operator<<(std::ostream& os, const Program& program) {
 void Program::_apply_transformers() {
     for (const Transformer* transformer : transformers) {
         for (int i = 0; i < code.size(); i++) {
-            Line transformed = transformer->transform(*code[i], *this);
-
-            // update the code if the transformer returned a new code and not nullptr
-            if (transformed) {
-                code[i].reset(transformed.release());  // transfer ownership from transformed to code[i]
-            }
+            Line transformed = transformer->transform(std::move(code[i]), *this);
+            code[i] = std::move(transformed);  // transfer ownership from transformed to code[i]
         }
     }
 
