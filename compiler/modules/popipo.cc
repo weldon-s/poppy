@@ -72,5 +72,5 @@ Line print_str(const std::string& str) {
 }
 
 Line print_num(const Register& reg) {
-    return push(Register(1)) + mov(Register(1), reg) + Line{new Instruction{"bl print_num"}} + pop(Register(1));
+    return with_include(push(Register(1)) + mov(Register(1), reg) + Line{new Instruction{"bl print_num"}} + pop(Register(1)), "print_num");
 }

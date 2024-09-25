@@ -32,6 +32,7 @@ class Program {
     std::vector<const Transformer*> transformers;
 
     void _apply_transformers();
+    void _apply_includes();
     const std::string _literal_label(const std::vector<std::string>::const_iterator& iter) const;
     const std::string _literal_length_label(const std::vector<std::string>::const_iterator& iter) const;
 

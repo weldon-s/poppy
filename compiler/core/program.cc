@@ -22,7 +22,10 @@ svc #0)"""";
 Program::Program() {}
 
 Program& Program::add_include(const std::string& include) {
-    includes.push_back(include);
+    if (std::find(includes.begin(), includes.end(), include) == includes.end()) {
+        includes.push_back(include);
+    }
+
     return *this;
 }
 
@@ -42,6 +45,7 @@ Program& Program::add_code(Line line) {
 }
 
 Program& Program::compile(const std::string& name) {
+    _apply_includes();
     _apply_transformers();
     std::ofstream file(assembly_path + "/" + name + ".s");
     file << *this;
@@ -100,6 +104,14 @@ void Program::_apply_transformers() {
     for (const Line& c : code) {
         assert(c != nullptr && "Code cannot be null");
         assert(c->is_assembly() && "Code must be assembly");
+    }
+}
+
+void Program::_apply_includes() {
+    for (const Line& line : code) {
+        for (const std::string& include : line->needed_includes()) {
+            add_include(include);
+        }
     }
 }
 
