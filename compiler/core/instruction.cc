@@ -90,3 +90,7 @@ Line pop_pair(const Register& reg1, const Register& reg2) {
 Line add(const Register& dest, const Register& src1, const Register& src2) {
     return Line{new Instruction{std::format("add {}, {}, {}", dest, src1, src2)}};
 }
+
+Line comment(const std::string& comment) {
+    return Line{new Instruction{std::format("// {}", comment)}};
+}

@@ -19,6 +19,7 @@ class Register {
     static const Register& frame_pointer;
     static const Register& link_register;
     static const Register& stack_pointer;
+    static const Register& arithmetic_result;
 };
 
 template <>
