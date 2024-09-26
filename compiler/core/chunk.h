@@ -2,22 +2,11 @@
 #define CHUNK
 
 #include <map>
-#include <string>
 #include <vector>
 
+#include "core/variable.h"
 #include "instruction.h"
 #include "register.h"
-
-// represents a variable
-class Variable {
-    std::string name;
-
-   public:
-    Variable(std::string name);
-
-    bool operator==(const Variable& other) const;
-    bool operator<(const Variable& other) const;
-};
 
 // represents a chunk allocated on the stack
 class Chunk {
@@ -32,6 +21,7 @@ class Chunk {
     Line pop_chunk() const;
     Line read_variable(const Register& reg, const Variable& variable) const;
     Line write_variable(const Variable& variable, const Register& reg) const;
+    Line write_immediate(const Variable& variable, long long imm) const;
 };
 
 #endif
