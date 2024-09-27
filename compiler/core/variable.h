@@ -3,14 +3,18 @@
 
 #include <string>
 
+#include "core/code.h"
+
 // represents a variable
 class Variable {
-    std::string name;
+    const std::string name;
 
    public:
-    Variable(std::string name);
+    explicit Variable(std::string name);
 
     bool operator==(const Variable& other) const;
     bool operator<(const Variable& other) const;
+
+    Line declare() const;
 };
 #endif

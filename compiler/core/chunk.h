@@ -11,14 +11,18 @@
 // represents a chunk allocated on the stack
 class Chunk {
     std::map<Variable, int> offsets;
-    int size;
+    int _size;
 
    public:
-    Chunk(std::vector<Variable> variables);
+    Chunk();
 
-    // TODO ensure sp is aligned to 16 bytes
-    Line push_chunk() const;
-    Line pop_chunk() const;
+    // adds a variable to the chunk
+    void add_variable(const Variable& v);
+
+    Line push_chunk();
+    Line pop_chunk();
+    int size() const;
+
     Line read_variable(const Register& reg, const Variable& variable) const;
     Line write_variable(const Variable& variable, const Register& reg) const;
     Line write_immediate(const Variable& variable, long long imm) const;

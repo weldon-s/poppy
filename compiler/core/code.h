@@ -19,6 +19,9 @@ class Code {
     Code(bool is_assembly);
     bool is_assembly() const;
 
+    // process variable allocation (add variables/chunks)
+    virtual void allocate(Program& program);
+
     /*
     return Line{nullptr} if unchanged
     this ensures we don't end up with multiple unique_ptrs to the same object
@@ -30,6 +33,7 @@ class Code {
     virtual Line simplify(Program& program) = 0;
     virtual ~Code();
 
+    // TODO provide default implementation for this that throws an error
     friend std::ostream& operator<<(std::ostream& os, const Code& code);
 };
 

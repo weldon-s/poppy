@@ -4,6 +4,7 @@
 #include <cassert>
 #include <fstream>
 
+#include "core/chunk.h"
 #include "core/code.h"
 
 const std::string Program::assembly_path = "../assembly";
@@ -34,7 +35,27 @@ Program& Program::add_code(Line line) {
     return *this;
 }
 
+Program& Program::add_variable(const Variable& v) {
+    chunks.top()->add_variable(v);
+    return *this;
+}
+
+Program& Program::push_chunk(Chunk* chunk) {
+    chunks.push(chunk);
+    return *this;
+}
+
+Program& Program::pop_chunk() {
+    chunks.pop();
+    return *this;
+}
+
 Program& Program::compile(const std::string& name) {
+    // allocate all variables
+    for (const Line& c : code) {
+        c->allocate(*this);
+    }
+
     // simplify all code
     for (auto iter = code.begin(); iter != code.end(); iter++) {
         Line simplified = (*iter)->simplify(*this);

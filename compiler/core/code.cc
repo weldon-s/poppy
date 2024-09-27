@@ -17,22 +17,7 @@ std::ostream& operator<<(std::ostream& os, const Code& code) {
     return code.stream(os);
 }
 
-template <typename T>
-std::vector<T> _combine_vectors(const std::vector<T>& v1, const std::vector<T>& v2) {
-    std::vector<T> vec{};
-
-    for (T t : v1) {
-        vec.emplace_back(t);
-    }
-
-    for (T t : v2) {
-        if (std::find(vec.begin(), vec.end(), t) == vec.end()) {
-            vec.emplace_back(t);
-        }
-    }
-
-    return vec;
-}
+void Code::allocate(Program& program) {}
 
 class CombinedCode : public Code {
     // this keeps unique ownership of the codes, which requires them to be released from the original unique_ptrs

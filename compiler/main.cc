@@ -12,9 +12,14 @@ int main() {
     Variable y("y");
     Variable z("z");
 
-    Chunk chunk1({w, x, y, z});
+    Chunk chunk1;
+    Chunk chunk2;
 
     program.add_code(chunk1.push_chunk())
+        .add_code(w.declare())
+        .add_code(x.declare())
+        .add_code(y.declare())
+        .add_code(z.declare())
         .add_code(chunk1.write_immediate(w, 100))
         .add_code(chunk1.write_immediate(x, -10))
         .add_code(chunk1.write_immediate(y, 20))
@@ -30,6 +35,12 @@ int main() {
                         chunk1.read_variable(Register::arithmetic_result, x))),
                 chunk1.read_variable(Register::arithmetic_result, w)))
         .add_code(print_num(Register::arithmetic_result))
+        .add_code(chunk2.push_chunk())
+        .add_code(w.declare())
+        .add_code(chunk2.write_immediate(w, 105))
+        .add_code(chunk2.read_variable(Register::scratch, w))
+        .add_code(print_num(Register::scratch))
+        .add_code(chunk2.pop_chunk())
         .add_code(chunk1.pop_chunk())
         .compile()
         .run();
