@@ -8,6 +8,7 @@ class BinaryOperation : public Code {
     Line operand1;
     Line operand2;
     Line operation;
+    void allocate(Program& program) override;
     Line simplify(Program& program) override;
 
    public:

@@ -40,6 +40,11 @@ class CombinedCode : public Code {
         return os;
     }
 
+    void allocate(Program& program) override {
+        line1->allocate(program);
+        line2->allocate(program);
+    }
+
     Line simplify(Program& program) override {
         return Line{
             new CombinedCode{
@@ -61,6 +66,10 @@ class IncludeCode : public Code {
     std::ostream& stream(std::ostream& os) const override {
         return os << *base;
     };
+
+    void allocate(Program& program) override {
+        base->allocate(program);
+    }
 
     Line simplify(Program& program) override {
         program.add_include(include);

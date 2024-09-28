@@ -6,6 +6,12 @@ BinaryOperation::BinaryOperation(Line operand1, Line operand2, Line operation)
       operand2{std::move(operand2)},
       operation{std::move(operation)} {}
 
+void BinaryOperation::allocate(Program& program) {
+    operand1->allocate(program);
+    operand2->allocate(program);
+    operation->allocate(program);
+}
+
 Line BinaryOperation::simplify(Program& program) {
     return get_simplified(std::move(operand1), program) +
            push(Register::arithmetic_result) +
