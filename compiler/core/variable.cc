@@ -2,6 +2,10 @@
 
 #include "core/program.h"
 
+int Variable::counter = 0;
+
+Variable::Variable() : name{"var" + std::to_string(counter++)} {}
+
 Variable::Variable(std::string name) : name{name} {}
 
 bool Variable::operator==(const Variable& other) const {

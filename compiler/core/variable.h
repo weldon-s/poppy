@@ -7,9 +7,11 @@
 
 // represents a variable
 class Variable {
+    static int counter;
     const std::string name;
 
    public:
+    Variable();
     explicit Variable(std::string name);
 
     bool operator==(const Variable& other) const;

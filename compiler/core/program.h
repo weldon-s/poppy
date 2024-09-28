@@ -47,6 +47,7 @@ class Program {
     Program& add_variable(const Variable& v);
     Program& push_chunk(Chunk* chunk);
     Program& pop_chunk();
+    const Chunk& top_chunk();
     Label* get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable

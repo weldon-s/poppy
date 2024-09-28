@@ -55,6 +55,10 @@ Program& Program::pop_chunk() {
     return *this;
 }
 
+const Chunk& Program::top_chunk() {
+    return *chunks.top();
+}
+
 Program& Program::compile(const std::string& name) {
     // allocate all variables
     for (const Line& c : code) {

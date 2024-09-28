@@ -15,7 +15,7 @@ Line If::simplify(Program& program) {
 
     Line beginning =
         get_simplified(std::move(condition), program) +
-        Line(new Instruction{std::format("cmp {}, #0", Register::arithmetic_result)}) +
+        Line(new Instruction{std::format("cmp {}, #1", Register::arithmetic_result)}) +
         Line(new Instruction{"bne " + after_then->label()}) +
         get_simplified(std::move(then_block), program);
 

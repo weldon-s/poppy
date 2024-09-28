@@ -32,6 +32,9 @@ class PushChunkCode : public Code {
     Line simplify(Program& program) override {
         // subtract the size from the stack pointer
         // store the size at the top of the chunk
+
+        program.push_chunk(chunk);
+
         return movi(Register::scratch, chunk->size()) +
                Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]")) +
                mov(Register::frame_pointer, Register::stack_pointer);
@@ -49,6 +52,8 @@ class PopChunkCode : public Code {
     PopChunkCode(Chunk* chunk) : Code{false}, chunk{chunk} {}
 
     Line simplify(Program& program) override {
+        program.pop_chunk();
+
         // add the size back to the stack pointer
         return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9")) +
                mov(Register::frame_pointer, Register::stack_pointer);

@@ -1,5 +1,5 @@
+#include "control/condition.h"
 #include "control/if.h"
-#include "control/label.h"
 #include "core/chunk.h"
 #include "core/instruction.h"
 #include "core/program.h"
@@ -14,21 +14,20 @@ int main() {
 
     Chunk chunk;
 
-    Label* label = program.get_label();
-    std::string label_name = label->label();
-
     program.add_code(chunk.push_chunk())
         .add_code(x.declare())
         .add_code(y.declare())
-        .add_code(chunk.write_immediate(x, 0))
-        .add_code(chunk.write_immediate(y, -22220))
+        .add_code(chunk.write_immediate(x, -1110))
+        .add_code(chunk.write_immediate(y, -50))
 
         .add_code(Line{
             new If{
-                chunk.read_variable(Register::arithmetic_result, x),
-                chunk.read_variable(Register::scratch, y) +
+                lt(
+                    chunk.read_variable(Register::arithmetic_result, x),
+                    chunk.read_variable(Register::arithmetic_result, y)),
+                movi(Register::scratch, 1111) +
                     print_num(Register::scratch),
-                chunk.read_variable(Register::scratch, x) +
+                movi(Register::scratch, 0) +
                     print_num(Register::scratch)}})
         .add_code(chunk.pop_chunk())
         .compile()
