@@ -28,9 +28,6 @@ class PrintStr : public Code {
 
    public:
     PrintStr(const std::string& str) : Code{false}, str{str} {}
-    std::ostream& stream(std::ostream& os) const override {
-        return os << "print_str " << str << std::endl;
-    }
     Line simplify(Program& program) override {
         std::pair<const std::string, const std::string> labels{program.add_literal(escape(str))};
 

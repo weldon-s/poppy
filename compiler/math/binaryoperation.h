@@ -11,7 +11,6 @@ class BinaryOperation : public Code {
 
    public:
     BinaryOperation(Line operand1, Line operand2, Line operation);
-    std::ostream& stream(std::ostream& os) const override;
     Line simplify(Program& program) override;
 };
 

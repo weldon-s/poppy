@@ -19,6 +19,10 @@ std::ostream& operator<<(std::ostream& os, const Code& code) {
 
 void Code::allocate(Program& program) {}
 
+std::ostream& Code::stream(std::ostream& os) const {
+    throw std::runtime_error("stream not implemented");
+}
+
 class CombinedCode : public Code {
     // this keeps unique ownership of the codes, which requires them to be released from the original unique_ptrs
     Line line1;

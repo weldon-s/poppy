@@ -1,17 +1,10 @@
 #include "math/binaryoperation.h"
 
 BinaryOperation::BinaryOperation(Line operand1, Line operand2, Line operation)
-    : Code{operand1->is_assembly() && operand2->is_assembly()},
+    : Code{false},
       operand1{std::move(operand1)},
       operand2{std::move(operand2)},
       operation{std::move(operation)} {}
-
-// TODO implement this properly
-std::ostream& BinaryOperation::stream(std::ostream& os) const {
-    os << *operand1 << std::endl;
-    os << *operand2 << std::endl;
-    return os;
-}
 
 Line BinaryOperation::simplify(Program& program) {
     Line simplified1{operand1->simplify(program)};

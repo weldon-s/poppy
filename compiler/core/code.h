@@ -13,7 +13,9 @@ typedef std::unique_ptr<Code> Line;
 
 class Code {
     const bool _is_assembly;
-    virtual std::ostream& stream(std::ostream& os) const = 0;
+
+    // needs to be overridden if code is assembly
+    virtual std::ostream& stream(std::ostream& os) const;
 
    public:
     Code(bool is_assembly);
@@ -33,7 +35,6 @@ class Code {
     virtual Line simplify(Program& program) = 0;
     virtual ~Code();
 
-    // TODO provide default implementation for this that throws an error
     friend std::ostream& operator<<(std::ostream& os, const Code& code);
 };
 

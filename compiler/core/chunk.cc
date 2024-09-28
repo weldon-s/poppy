@@ -8,10 +8,10 @@
 Chunk::Chunk() : _size{16} {}
 
 void Chunk::add_variable(const Variable& v) {
-    int old_count{offsets.size()};
+    size_t old_count{offsets.size()};
     offsets[v] = (old_count + 1) * 8;
 
-    int new_count{offsets.size()};
+    size_t new_count{offsets.size()};
 
     // if new_count is even, we have to use an odd number of words
     // -> have to increment by 16 to keep the stack pointer aligned
@@ -27,11 +27,7 @@ class PushChunkCode : public Code {
     Chunk* chunk;
 
    public:
-    PushChunkCode(Chunk* chunk) : Code{true}, chunk{chunk} {}
-
-    std::ostream& stream(std::ostream& os) const override {
-        return os;
-    }
+    PushChunkCode(Chunk* chunk) : Code{false}, chunk{chunk} {}
 
     Line simplify(Program& program) override {
         // subtract the size from the stack pointer
@@ -50,11 +46,7 @@ class PopChunkCode : public Code {
     Chunk* chunk;
 
    public:
-    PopChunkCode(Chunk* chunk) : Code{true}, chunk{chunk} {}
-
-    std::ostream& stream(std::ostream& os) const override {
-        return os;
-    }
+    PopChunkCode(Chunk* chunk) : Code{false}, chunk{chunk} {}
 
     Line simplify(Program& program) override {
         // add the size back to the stack pointer
@@ -86,11 +78,7 @@ class LazilyEvaluatedCode : public Code {
 
    public:
     LazilyEvaluatedCode(const Chunk* chunk, const std::function<Line(const Chunk*)> evaluator)
-        : Code{true}, chunk{chunk}, evaluator{evaluator} {}
-
-    std::ostream& stream(std::ostream& os) const override {
-        return os;
-    }
+        : Code{false}, chunk{chunk}, evaluator{evaluator} {}
 
     Line simplify(Program& program) override {
         return evaluator(chunk);
