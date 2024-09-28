@@ -58,10 +58,7 @@ Program& Program::compile(const std::string& name) {
 
     // simplify all code
     for (auto iter = code.begin(); iter != code.end(); iter++) {
-        Line simplified = (*iter)->simplify(*this);
-        if (simplified) {
-            *iter = std::move(simplified);
-        }
+        *iter = get_simplified(std::move(*iter), *this);
     }
 
     // make sure all code is assembly

@@ -41,13 +41,10 @@ class CombinedCode : public Code {
     }
 
     Line simplify(Program& program) override {
-        Line simplified1{line1->simplify(program)};
-        Line simplified2{line2->simplify(program)};
-
         return Line{
             new CombinedCode{
-                simplified1 ? std::move(simplified1) : std::move(line1),
-                simplified2 ? std::move(simplified2) : std::move(line2)}};
+                get_simplified(std::move(line1), program),
+                get_simplified(std::move(line2), program)}};
     }
 };
 
@@ -68,8 +65,7 @@ class IncludeCode : public Code {
     Line simplify(Program& program) override {
         program.add_include(include);
 
-        Line simplified{base->simplify(program)};
-        return simplified ? std::move(simplified) : std::move(base);
+        return get_simplified(std::move(base), program);
     };
 };
 
@@ -79,4 +75,14 @@ Line operator+(Line l1, Line l2) {
 
 Line with_include(Line line, const std::string& include) {
     return Line{new IncludeCode{std::move(line), include}};
+}
+
+Line get_simplified(Line line, Program& program) {
+    Line simplified{line->simplify(program)};
+
+    if (simplified) {
+        return simplified;
+    }
+
+    return line;
 }

@@ -8,10 +8,10 @@ class BinaryOperation : public Code {
     Line operand1;
     Line operand2;
     Line operation;
+    Line simplify(Program& program) override;
 
    public:
     BinaryOperation(Line operand1, Line operand2, Line operation);
-    Line simplify(Program& program) override;
 };
 
 // we could implement these as overloads, but concatenation is used quite often

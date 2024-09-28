@@ -15,14 +15,14 @@ class Instruction : public Code {
     static std::string combine(const std::vector<std::string>& assembly);
     static std::string combine(const std::vector<const char*>& assembly);
 
+    Line simplify(Program& program) override;
+
    public:
     Instruction(const std::string assembly);
     Instruction(const char* assembly);
     Instruction(std::vector<const char*> assembly);
     Instruction(std::vector<std::string> assembly);
     Instruction operator+(const Instruction& instruction) const;
-
-    Line simplify(Program& program) override;
 };
 
 Line mov(const Register& dest, const Register& src);                         // move from src to dest

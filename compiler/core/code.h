@@ -17,6 +17,8 @@ class Code {
     // needs to be overridden if code is assembly
     virtual std::ostream& stream(std::ostream& os) const;
 
+    virtual Line simplify(Program& program) = 0;
+
    public:
     Code(bool is_assembly);
     bool is_assembly() const;
@@ -32,13 +34,14 @@ class Code {
     program is not const because we may need to modify it (e.g. add includes)
     */
 
-    virtual Line simplify(Program& program) = 0;
     virtual ~Code();
 
     friend std::ostream& operator<<(std::ostream& os, const Code& code);
+    friend Line get_simplified(Line line, Program& program);
 };
 
 Line operator+(Line l1, Line l2);
 Line with_include(Line line, const std::string& include);
+Line get_simplified(Line line, Program& program);
 
 #endif

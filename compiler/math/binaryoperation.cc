@@ -7,12 +7,9 @@ BinaryOperation::BinaryOperation(Line operand1, Line operand2, Line operation)
       operation{std::move(operation)} {}
 
 Line BinaryOperation::simplify(Program& program) {
-    Line simplified1{operand1->simplify(program)};
-    Line simplified2{operand2->simplify(program)};
-
-    return (simplified1 ? std::move(simplified1) : std::move(operand1)) +
+    return get_simplified(std::move(operand1), program) +
            push(Register::arithmetic_result) +
-           (simplified2 ? std::move(simplified2) : std::move(operand2)) +
+           get_simplified(std::move(operand2), program) +
            pop(Register::scratch) +
            std::move(operation);
 }
