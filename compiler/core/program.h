@@ -11,6 +11,7 @@
 
 class Code;
 class Chunk;
+class Label;
 class Variable;
 
 class Program {
@@ -34,6 +35,8 @@ class Program {
     // note: this is only used to allocate variables, hence no ownership is needed
     std::stack<Chunk*> chunks;
 
+    int label_count{0};
+
     const std::string _literal_label(const std::vector<std::string>::const_iterator& iter) const;
     const std::string _literal_length_label(const std::vector<std::string>::const_iterator& iter) const;
 
@@ -44,6 +47,7 @@ class Program {
     Program& add_variable(const Variable& v);
     Program& push_chunk(Chunk* chunk);
     Program& pop_chunk();
+    Label* get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable
     Program& compile();

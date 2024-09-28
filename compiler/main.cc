@@ -1,3 +1,4 @@
+#include "control/label.h"
 #include "core/chunk.h"
 #include "core/instruction.h"
 #include "core/program.h"
@@ -15,6 +16,9 @@ int main() {
     Chunk chunk1;
     Chunk chunk2;
 
+    Label* label = program.get_label();
+    std::string label_name = label->label();
+
     program.add_code(chunk1.push_chunk())
         .add_code(w.declare())
         .add_code(x.declare())
@@ -24,6 +28,9 @@ int main() {
         .add_code(chunk1.write_immediate(x, -10))
         .add_code(chunk1.write_immediate(y, 20))
         .add_code(chunk1.write_immediate(z, 30))
+        .add_code(Line(new Instruction{"b " + label_name}))
+        .add_code(chunk1.write_immediate(w, 1404))
+        .add_code(Line(label))
         .add_code(
             modulo(
                 subtract(

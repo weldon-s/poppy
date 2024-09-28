@@ -4,6 +4,7 @@
 #include <cassert>
 #include <fstream>
 
+#include "control/label.h"
 #include "core/chunk.h"
 #include "core/code.h"
 
@@ -38,6 +39,10 @@ Program& Program::add_code(Line line) {
 Program& Program::add_variable(const Variable& v) {
     chunks.top()->add_variable(v);
     return *this;
+}
+
+Label* Program::get_label() {
+    return new Label{"label" + std::to_string(label_count++)};
 }
 
 Program& Program::push_chunk(Chunk* chunk) {
