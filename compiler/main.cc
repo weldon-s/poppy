@@ -1,6 +1,6 @@
 #include "control/condition.h"
+#include "control/for.h"
 #include "control/if.h"
-#include "control/while.h"
 #include "core/chunk.h"
 #include "core/instruction.h"
 #include "core/program.h"
@@ -13,13 +13,17 @@ int main() {
     Variable i{"i"};
 
     program.add_code(chunk.push_chunk())
-        .add_code(i.declare())
-        .add_code(chunk.write_immediate(i, 1))
         .add_code(Line{
-            new While{
+            new For{
+                i.declare() + chunk.write_immediate(i, 1),
                 le(
                     chunk.read_variable(Register::arithmetic_result, i),
                     movi(Register::arithmetic_result, 100)),
+
+                add(
+                    chunk.read_variable(Register::arithmetic_result, i),
+                    movi(Register::arithmetic_result, 1)) +
+                    chunk.write_variable(i, Register::arithmetic_result),
 
                 Line{new If{
                     eq(
@@ -45,11 +49,7 @@ int main() {
                                 print_str("Buzz"),
                                 chunk.read_variable(Register::scratch, i) +
                                     print_num(Register::scratch)}}}}}} +
-                    print_str("\n") +
-                    add(
-                        chunk.read_variable(Register::arithmetic_result, i),
-                        movi(Register::arithmetic_result, 1)) +
-                    chunk.write_variable(i, Register::arithmetic_result)}})
+                    print_str("\n")}})
         .add_code(chunk.pop_chunk())
         .compile()
         .run();
