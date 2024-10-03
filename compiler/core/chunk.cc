@@ -5,7 +5,7 @@
 
 #include "core/program.h"
 
-Chunk::Chunk() : _size{16} {}
+Chunk::Chunk(Chunk* previous) : _size{16}, _previous{previous} {}
 
 void Chunk::add_variable(const Variable& v) {
     size_t old_count{offsets.size()};
@@ -23,6 +23,16 @@ void Chunk::add_variable(const Variable& v) {
 int Chunk::size() const {
     return _size;
 }
+
+Chunk* Chunk::previous() const {
+    return _previous;
+}
+
+// TODO remove this mutator
+void Chunk::set_previous(Chunk* previous) {
+    _previous = previous;
+}
+
 class PushChunkCode : public Code {
     Chunk* chunk;
 

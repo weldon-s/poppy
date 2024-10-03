@@ -12,9 +12,10 @@
 class Chunk {
     std::map<Variable, int> offsets;
     int _size;
+    Chunk* _previous;
 
    public:
-    Chunk();
+    Chunk(Chunk* previous = nullptr);
 
     // adds a variable to the chunk
     void add_variable(const Variable& v);
@@ -26,6 +27,9 @@ class Chunk {
     Line read_variable(const Register& reg, const Variable& variable) const;
     Line write_variable(const Variable& variable, const Register& reg) const;
     Line write_immediate(const Variable& variable, long long imm) const;
+
+    Chunk* previous() const;
+    void set_previous(Chunk* previous);
 };
 
 #endif

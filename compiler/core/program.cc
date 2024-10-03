@@ -46,7 +46,9 @@ Label* Program::get_label() {
 }
 
 Program& Program::push_chunk(Chunk* chunk) {
+    Chunk* previous{chunks.empty() ? nullptr : chunks.top()};
     chunks.push(chunk);
+    chunk->set_previous(previous);
     return *this;
 }
 
