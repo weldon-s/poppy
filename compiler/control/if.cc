@@ -10,24 +10,24 @@ If::If(Line condition, Line then_block, Line else_block)
       else_block{std::move(else_block)} {}
 
 Line If::simplify(Program& program) {
-    Label* after_then = program.get_label();
-    Label* after_else = program.get_label();
+    Label after_then = program.get_label();
+    Label after_else = program.get_label();
 
     Line beginning =
         get_simplified(std::move(condition), program) +
         Line(new Instruction{std::format("cmp {}, #1", Register::arithmetic_result)}) +
-        Line(new Instruction{"bne " + after_then->label()}) +
+        after_then.bne() +
         get_simplified(std::move(then_block), program);
 
     if (else_block) {
         return std::move(beginning) +
-               Line(new Instruction{"b " + after_else->label()}) +
-               Line(after_then) +
+               after_else.b() +
+               after_then.declare() +
                get_simplified(std::move(else_block), program) +
-               Line(after_else);
+               after_else.declare();
     }
 
-    return std::move(beginning) + Line(after_then);
+    return std::move(beginning) + after_then.declare();
 }
 
 void If::allocate(Program& program) {

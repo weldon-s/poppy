@@ -41,8 +41,8 @@ Program& Program::add_variable(const Variable& v) {
     return *this;
 }
 
-Label* Program::get_label() {
-    return new Label{"label" + std::to_string(label_count++)};
+Label Program::get_label() {
+    return Label{"label" + std::to_string(label_count++)};
 }
 
 Program& Program::push_chunk(Chunk* chunk) {
