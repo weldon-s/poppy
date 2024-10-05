@@ -29,11 +29,6 @@ Chunk* Chunk::previous() const {
     return _previous;
 }
 
-// TODO remove this mutator
-void Chunk::set_previous(Chunk* previous) {
-    _previous = previous;
-}
-
 class PushChunkCode : public Code {
     Chunk* chunk;
 
@@ -57,10 +52,8 @@ class PushChunkCode : public Code {
 };
 
 class PopChunkCode : public Code {
-    Chunk* chunk;
-
    public:
-    PopChunkCode(Chunk* chunk) : Code{false}, chunk{chunk} {}
+    PopChunkCode() : Code{false} {}
 
     Line simplify(Program& program) override {
         program.pop_chunk();
@@ -80,7 +73,7 @@ Line Chunk::push_chunk() {
 }
 
 Line Chunk::pop_chunk() {
-    return Line(new PopChunkCode(this));
+    return Line(new PopChunkCode());
 }
 
 /*  reads/writes need to be evaluated after allocation as the offset can't be known before we allocate the variables

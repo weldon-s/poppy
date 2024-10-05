@@ -50,7 +50,7 @@ class Program {
     Program& add_variable(const memory::Variable& v);
     Program& push_chunk(memory::Chunk* chunk);
     Program& pop_chunk();
-    const memory::Chunk& top_chunk();
+    memory::Chunk& top_chunk();
     control::Label get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable

@@ -46,9 +46,7 @@ control::Label Program::get_label() {
 }
 
 Program& Program::push_chunk(memory::Chunk* chunk) {
-    memory::Chunk* previous{chunks.empty() ? nullptr : chunks.top()};
     chunks.push(chunk);
-    chunk->set_previous(previous);
     return *this;
 }
 
@@ -57,7 +55,7 @@ Program& Program::pop_chunk() {
     return *this;
 }
 
-const memory::Chunk& Program::top_chunk() {
+memory::Chunk& Program::top_chunk() {
     return *chunks.top();
 }
 

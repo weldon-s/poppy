@@ -21,7 +21,7 @@ class Chunk {
     void add_variable(const Variable& v);
 
     Line push_chunk();
-    Line pop_chunk();
+    static Line pop_chunk();
     int size() const;
 
     Line read_variable(const Register& reg, const Variable& variable) const;
@@ -29,7 +29,6 @@ class Chunk {
     Line write_immediate(const Variable& variable, long long imm) const;
 
     Chunk* previous() const;
-    void set_previous(Chunk* previous);
 };
 }  // namespace memory
 
