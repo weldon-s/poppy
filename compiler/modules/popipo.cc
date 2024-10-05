@@ -5,6 +5,7 @@
 
 #include "core/instruction.h"
 #include "core/program.h"
+#include "core/register.h"
 
 const std::map<char, char> escape_map{
     {'\'', '\''}, {'\"', '\"'}, {'\?', '?'}, {'\\', '\\'}, {'\a', 'a'}, {'\b', 'b'}, {'\f', 'f'}, {'\n', 'n'}, {'\r', 'r'}, {'\t', 't'}, {'\v', 'v'}};
@@ -43,6 +44,7 @@ class PrintStr : public Code {
     }
 };
 
+namespace popipo {
 Line print_str(const std::string& str) {
     return Line(new PrintStr{str});
 }
@@ -50,3 +52,4 @@ Line print_str(const std::string& str) {
 Line print_num(const Register& reg) {
     return with_include(push(Register(1)) + mov(Register(1), reg) + Line{new Instruction{"bl print_num"}} + pop(Register(1)), "print_num");
 }
+}  // namespace popipo
