@@ -7,12 +7,15 @@
 #include <string>
 #include <vector>
 
-#include "core/instruction.h"
-
-class Code;
+#include "core/code.h"
+namespace memory {
 class Chunk;
-class Label;
 class Variable;
+}  // namespace memory
+
+namespace control {
+class Label;
+}  // namespace control
 
 class Program {
     // assembly path
@@ -33,7 +36,7 @@ class Program {
 
     // the chunks currently in use by the program
     // note: this is only used to allocate variables, hence no ownership is needed
-    std::stack<Chunk*> chunks;
+    std::stack<memory::Chunk*> chunks;
 
     int label_count{0};
 
@@ -44,11 +47,11 @@ class Program {
     Program();
     Program& add_include(const std::string& include);
     Program& add_code(const Line line);
-    Program& add_variable(const Variable& v);
-    Program& push_chunk(Chunk* chunk);
+    Program& add_variable(const memory::Variable& v);
+    Program& push_chunk(memory::Chunk* chunk);
     Program& pop_chunk();
-    const Chunk& top_chunk();
-    Label* get_label();
+    const memory::Chunk& top_chunk();
+    control::Label get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable
     Program& compile();

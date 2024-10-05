@@ -3,16 +3,9 @@
 
 #include "core/code.h"
 
-class If : public Code {
-    Line condition;
-    Line then_block;
-    Line else_block;
-
-    Line simplify(Program& program) override;
-
-   public:
-    If(Line condition, Line then_block, Line else_block = Line{nullptr});
-    void allocate(Program& program) override;
-};
+namespace control {
+Line ifthen(Line condition, Line then_block);
+Line ifthenelse(Line condition, Line then_block, Line else_block);
+}  // namespace control
 
 #endif

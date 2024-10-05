@@ -2,15 +2,19 @@
 #define _LABEL_H_
 
 #include "core/code.h"
-
-class Label : public Code {
+namespace control {
+class Label {
     const std::string _label;
-    std::ostream& stream(std::ostream& os) const override;
-    Line simplify(Program& program) override;
 
    public:
     explicit Label(const std::string& label);
-    const std::string& label() const;
+
+    Line declare() const;
+    Line b() const;
+    Line bl() const;
+    Line beq() const;
+    Line bne() const;
 };
+}  // namespace control
 
 #endif

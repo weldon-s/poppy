@@ -17,6 +17,13 @@ class Code {
     // needs to be overridden if code is assembly
     virtual std::ostream& stream(std::ostream& os) const;
 
+    /*
+    return Line{nullptr} if unchanged
+    this ensures we don't end up with multiple unique_ptrs to the same object
+    necessary because we implement this on Code (instead of on Line)
+
+    program is not const because we may need to modify it (e.g. add includes)
+    */
     virtual Line simplify(Program& program) = 0;
 
    public:
@@ -26,14 +33,6 @@ class Code {
     // process variable allocation (add variables/chunks)
     virtual void allocate(Program& program);
 
-    /*
-    return Line{nullptr} if unchanged
-    this ensures we don't end up with multiple unique_ptrs to the same object
-    necessary because we implement this on Code (instead of on Line)
-
-    program is not const because we may need to modify it (e.g. add includes)
-    */
-
     virtual ~Code();
 
     friend std::ostream& operator<<(std::ostream& os, const Code& code);
@@ -42,6 +41,8 @@ class Code {
 
 Line operator+(Line l1, Line l2);
 Line with_include(Line line, const std::string& include);
+
+// wrapper for simplify to be used elsewhere
 Line get_simplified(Line line, Program& program);
 
 #endif

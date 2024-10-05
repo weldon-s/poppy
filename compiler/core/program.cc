@@ -5,8 +5,8 @@
 #include <fstream>
 
 #include "control/label.h"
-#include "core/chunk.h"
 #include "core/code.h"
+#include "memory/chunk.h"
 
 const std::string Program::assembly_path = "../assembly";
 
@@ -36,17 +36,17 @@ Program& Program::add_code(Line line) {
     return *this;
 }
 
-Program& Program::add_variable(const Variable& v) {
+Program& Program::add_variable(const memory::Variable& v) {
     chunks.top()->add_variable(v);
     return *this;
 }
 
-Label* Program::get_label() {
-    return new Label{"label" + std::to_string(label_count++)};
+control::Label Program::get_label() {
+    return control::Label{"label" + std::to_string(label_count++)};
 }
 
-Program& Program::push_chunk(Chunk* chunk) {
-    Chunk* previous{chunks.empty() ? nullptr : chunks.top()};
+Program& Program::push_chunk(memory::Chunk* chunk) {
+    memory::Chunk* previous{chunks.empty() ? nullptr : chunks.top()};
     chunks.push(chunk);
     chunk->set_previous(previous);
     return *this;
@@ -57,7 +57,7 @@ Program& Program::pop_chunk() {
     return *this;
 }
 
-const Chunk& Program::top_chunk() {
+const memory::Chunk& Program::top_chunk() {
     return *chunks.top();
 }
 

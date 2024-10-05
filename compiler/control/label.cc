@@ -1,15 +1,27 @@
 #include "label.h"
 
-std::ostream& Label::stream(std::ostream& os) const {
-    return os << _label << ":";
+#include "core/instruction.h"
+
+namespace control {
+Label::Label(const std::string& label) : _label{label} {}
+
+Line Label::declare() const {
+    return Line(new Instruction{_label + ":"});
 }
 
-Label::Label(const std::string& label) : Code(true), _label(label) {}
-
-Line Label::simplify(Program& program) {
-    return Line{nullptr};
+Line Label::b() const {
+    return Line(new Instruction{"b " + _label});
 }
 
-const std::string& Label::label() const {
-    return _label;
+Line Label::bl() const {
+    return Line(new Instruction{"bl " + _label});
 }
+
+Line Label::beq() const {
+    return Line(new Instruction{"beq " + _label});
+}
+
+Line Label::bne() const {
+    return Line(new Instruction{"bne " + _label});
+}
+}  // namespace control

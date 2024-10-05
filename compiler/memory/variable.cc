@@ -1,7 +1,8 @@
-#include "core/variable.h"
+#include "memory/variable.h"
 
 #include "core/program.h"
 
+namespace memory {
 int Variable::counter = 0;
 
 Variable::Variable() : name{"var" + std::to_string(counter++)} {}
@@ -39,3 +40,4 @@ class Declaration : public Code {
 Line Variable::declare() const {
     return Line{new Declaration{*this}};
 }
+}  // namespace memory

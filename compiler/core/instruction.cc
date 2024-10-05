@@ -40,6 +40,7 @@ std::ostream& Instruction::stream(std::ostream& os) const {
     return os;
 }
 
+namespace assem {
 Line mov(const Register& dest, const Register& src) {
     return Line{new Instruction{std::format("mov {}, {}", dest, src)}};
 }
@@ -94,3 +95,4 @@ Line add(const Register& dest, const Register& src1, const Register& src2) {
 Line comment(const std::string& comment) {
     return Line{new Instruction{std::format("// {}", comment)}};
 }
+}  // namespace assem
