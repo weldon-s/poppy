@@ -25,6 +25,7 @@ class Instruction : public Code {
     Instruction operator+(const Instruction& instruction) const;
 };
 
+namespace assem {                                                            // asm is a keyword
 Line mov(const Register& dest, const Register& src);                         // move from src to dest
 Line movi(const Register& dest, long long imm);                              // move immediate value to dest (supports 64-bit values)
 Line push(const Register& reg);                                              // push register onto stack
@@ -33,4 +34,5 @@ Line pop(const Register& reg);                                               // 
 Line pop_pair(const Register& reg1, const Register& reg2);                   // pop two registers from stack
 Line add(const Register& dest, const Register& src1, const Register& src2);  // add src1 and src2, store in dest
 Line comment(const std::string& comment);                                    // add a comment to the assembly
+}  // namespace assem
 #endif

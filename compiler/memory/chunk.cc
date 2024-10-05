@@ -46,9 +46,9 @@ class PushChunkCode : public Code {
 
         program.push_chunk(chunk);
 
-        return movi(Register::scratch, chunk->size()) +
+        return assem::movi(Register::scratch, chunk->size()) +
                Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]")) +
-               mov(Register::frame_pointer, Register::stack_pointer);
+               assem::mov(Register::frame_pointer, Register::stack_pointer);
     }
 
     void allocate(Program& program) override {
@@ -67,7 +67,7 @@ class PopChunkCode : public Code {
 
         // add the size back to the stack pointer
         return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9")) +
-               mov(Register::frame_pointer, Register::stack_pointer);
+               assem::mov(Register::frame_pointer, Register::stack_pointer);
     }
 
     void allocate(Program& program) override {
@@ -120,7 +120,7 @@ Line Chunk::write_variable(const Variable& variable, const Register& reg) const 
 }
 
 Line Chunk::write_immediate(const Variable& variable, long long imm) const {
-    return movi(Register::scratch, imm) +
+    return assem::movi(Register::scratch, imm) +
            write_variable(variable, Register::scratch);
 }
 }  // namespace memory

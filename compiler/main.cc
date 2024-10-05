@@ -17,33 +17,33 @@ int main() {
             i.declare() + chunk.write_immediate(i, 1),
             control::le(
                 chunk.read_variable(Register::arithmetic_result, i),
-                movi(Register::arithmetic_result, 100)),
+                assem::movi(Register::arithmetic_result, 100)),
 
             math::add(
                 chunk.read_variable(Register::arithmetic_result, i),
-                movi(Register::arithmetic_result, 1)) +
+                assem::movi(Register::arithmetic_result, 1)) +
                 chunk.write_variable(i, Register::arithmetic_result),
 
             control::ifthenelse(
                 control::eq(
                     math::modulo(
                         chunk.read_variable(Register::arithmetic_result, i),
-                        movi(Register::arithmetic_result, 15)),
-                    movi(Register::arithmetic_result, 0)),
+                        assem::movi(Register::arithmetic_result, 15)),
+                    assem::movi(Register::arithmetic_result, 0)),
                 popipo::print_str("FizzBuzz"),
                 control::ifthenelse(
                     control::eq(
                         math::modulo(
                             chunk.read_variable(Register::arithmetic_result, i),
-                            movi(Register::arithmetic_result, 3)),
-                        movi(Register::arithmetic_result, 0)),
+                            assem::movi(Register::arithmetic_result, 3)),
+                        assem::movi(Register::arithmetic_result, 0)),
                     popipo::print_str("Fizz"),
                     control::ifthenelse(
                         control::eq(
                             math::modulo(
                                 chunk.read_variable(Register::arithmetic_result, i),
-                                movi(Register::arithmetic_result, 5)),
-                            movi(Register::arithmetic_result, 0)),
+                                assem::movi(Register::arithmetic_result, 5)),
+                            assem::movi(Register::arithmetic_result, 0)),
                         popipo::print_str("Buzz"),
                         chunk.read_variable(Register::scratch, i) +
                             popipo::print_num(Register::scratch)))) +

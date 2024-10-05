@@ -12,9 +12,9 @@ class BinaryOperation : public Code {
 
     Line simplify(Program& program) override {
         return get_simplified(std::move(operand1), program) +
-               push(Register::arithmetic_result) +
+               assem::push(Register::arithmetic_result) +
                get_simplified(std::move(operand2), program) +
-               pop(Register::scratch) +
+               assem::pop(Register::scratch) +
                std::move(operation);
     };
 
