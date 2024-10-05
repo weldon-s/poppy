@@ -22,6 +22,7 @@ Register::operator std::string() const {
 
 const Register& Register::scratch{Register{9}};
 const Register& Register::arithmetic_result{Register{10}};
+const Register& Register::arg_chunk_pointer{Register{11}};
 const Register& Register::frame_pointer{Register{29}};
 const Register& Register::link_register{Register{30}};
 
