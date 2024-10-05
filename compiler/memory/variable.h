@@ -5,6 +5,7 @@
 
 #include "core/code.h"
 
+namespace memory {
 // represents a variable
 class Variable {
     static int counter;
@@ -19,4 +20,5 @@ class Variable {
 
     Line declare() const;
 };
+}  // namespace memory
 #endif

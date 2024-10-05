@@ -1,16 +1,16 @@
 #include "control/condition.h"
 #include "control/for.h"
 #include "control/if.h"
-#include "core/chunk.h"
 #include "core/instruction.h"
 #include "core/program.h"
 #include "math/binaryoperation.h"
+#include "memory/chunk.h"
 #include "modules/popipo.h"
 
 int main() {
     Program program;
-    Chunk chunk;
-    Variable i{"i"};
+    memory::Chunk chunk;
+    memory::Variable i{"i"};
 
     program.add_code(chunk.push_chunk())
         .add_code(control::forloop(

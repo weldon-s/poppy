@@ -1,9 +1,10 @@
-#include "core/chunk.h"
+#include "memory/chunk.h"
 
 #include <format>
 #include <functional>
 
 #include "core/program.h"
+namespace memory {
 
 Chunk::Chunk(Chunk* previous) : _size{16}, _previous{previous} {}
 
@@ -122,3 +123,4 @@ Line Chunk::write_immediate(const Variable& variable, long long imm) const {
     return movi(Register::scratch, imm) +
            write_variable(variable, Register::scratch);
 }
+}  // namespace memory

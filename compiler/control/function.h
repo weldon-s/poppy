@@ -5,16 +5,16 @@
 
 #include "control/label.h"
 #include "core/code.h"
-#include "core/variable.h"
+#include "memory/variable.h"
 
 class Function {
-    std::vector<Variable> arguments;
+    std::vector<memory::Variable> arguments;
     Line body;
     control::Label* start_label;
 
    public:
-    Function(std::vector<Variable> arguments, Line body);
-    Line call(std::vector<Variable> arguments) const;
+    Function(std::vector<memory::Variable> arguments, Line body);
+    Line call(std::vector<memory::Variable> arguments) const;
     Line declare(Program& program);
 };
 

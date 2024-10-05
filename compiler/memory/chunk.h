@@ -4,10 +4,10 @@
 #include <map>
 #include <vector>
 
-#include "core/variable.h"
-#include "instruction.h"
-#include "register.h"
-
+#include "core/instruction.h"
+#include "core/register.h"
+#include "memory/variable.h"
+namespace memory {
 // represents a chunk allocated on the stack
 class Chunk {
     std::map<Variable, int> offsets;
@@ -31,5 +31,6 @@ class Chunk {
     Chunk* previous() const;
     void set_previous(Chunk* previous);
 };
+}  // namespace memory
 
 #endif

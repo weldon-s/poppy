@@ -1,9 +1,9 @@
 #include "control/condition.h"
 
-#include "core/chunk.h"
 #include "core/program.h"
 #include "core/register.h"
-#include "core/variable.h"
+#include "memory/chunk.h"
+#include "memory/variable.h"
 
 using namespace control;
 
@@ -11,12 +11,12 @@ class Condition : public Code {
     Line operand1;
     Line operand2;
     const std::string operation;
-    Variable temp;
+    memory::Variable temp;
     Line declaration;
 
    public:
     Condition(Line operand1, Line operand2, const std::string operation)
-        : Code{true}, operand1{std::move(operand1)}, operand2{std::move(operand2)}, operation{operation}, temp{Variable{}}, declaration{temp.declare()} {}
+        : Code{true}, operand1{std::move(operand1)}, operand2{std::move(operand2)}, operation{operation}, temp{memory::Variable{}}, declaration{temp.declare()} {}
 
     void allocate(Program& program) override {
         declaration->allocate(program);
