@@ -2,7 +2,7 @@
 #define _LABEL_H_
 
 #include "core/code.h"
-
+namespace control {
 class Label {
     const std::string _label;
 
@@ -15,5 +15,6 @@ class Label {
     Line beq() const;
     Line bne() const;
 };
+}  // namespace control
 
 #endif

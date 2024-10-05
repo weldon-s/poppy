@@ -2,6 +2,7 @@
 
 #include "core/instruction.h"
 
+namespace control {
 Label::Label(const std::string& label) : _label{label} {}
 
 Line Label::declare() const {
@@ -23,3 +24,4 @@ Line Label::beq() const {
 Line Label::bne() const {
     return Line(new Instruction{"bne " + _label});
 }
+}  // namespace control

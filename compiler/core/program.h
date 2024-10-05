@@ -7,12 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "core/instruction.h"
+#include "core/code.h"
 
-class Code;
 class Chunk;
-class Label;
 class Variable;
+namespace control {
+class Label;
+}  // namespace control
 
 class Program {
     // assembly path
@@ -48,7 +49,7 @@ class Program {
     Program& push_chunk(Chunk* chunk);
     Program& pop_chunk();
     const Chunk& top_chunk();
-    Label get_label();
+    control::Label get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable
     Program& compile();

@@ -1,6 +1,7 @@
 #include "control/if.h"
 
 #include "control/label.h"
+#include "core/instruction.h"
 #include "core/program.h"
 
 class If : public Code {
@@ -9,8 +10,8 @@ class If : public Code {
     Line else_block;
 
     Line simplify(Program& program) override {
-        Label after_then = program.get_label();
-        Label after_else = program.get_label();
+        control::Label after_then = program.get_label();
+        control::Label after_else = program.get_label();
 
         Line beginning =
             get_simplified(std::move(condition), program) +

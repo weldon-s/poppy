@@ -1,6 +1,7 @@
 #include "control/while.h"
 
 #include "control/label.h"
+#include "core/instruction.h"
 #include "core/program.h"
 
 class While : public Code {
@@ -8,8 +9,8 @@ class While : public Code {
     Line body;
 
     Line simplify(Program& program) override {
-        Label start = program.get_label();
-        Label end = program.get_label();
+        control::Label start = program.get_label();
+        control::Label end = program.get_label();
 
         return start.declare() +
                get_simplified(std::move(condition), program) +

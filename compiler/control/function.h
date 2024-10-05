@@ -10,7 +10,7 @@
 class Function {
     std::vector<Variable> arguments;
     Line body;
-    Label* start_label;
+    control::Label* start_label;
 
    public:
     Function(std::vector<Variable> arguments, Line body);
