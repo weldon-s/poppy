@@ -1,6 +1,7 @@
 #include "core/code.h"
 
 #include <algorithm>
+#include <cassert>
 
 #include "core/program.h"
 
@@ -32,7 +33,10 @@ class CombinedCode : public Code {
     CombinedCode(Line l1, Line l2)
         : Code{l1->is_assembly() && l2->is_assembly()},
           line1{std::move(l1)},
-          line2{std::move(l2)} {}
+          line2{std::move(l2)} {
+        assert(line1 != nullptr && "line1 cannot be null");
+        assert(line2 != nullptr && "line2 cannot be null");
+    }
 
     std::ostream& stream(std::ostream& os) const override {
         os << *line1 << std::endl;
