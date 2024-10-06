@@ -13,7 +13,6 @@ const std::string Program::assembly_path = "../assembly";
 const std::string Program::head =
     R""""(.text
 .global _start
-_start:
 )"""";
 
 const std::string Program::tail =
@@ -143,3 +142,7 @@ const std::string Program::_literal_length_label(const std::vector<std::string>:
     // so we CANT reorder them or we will break the program
     return _literal_label(iter) + "len";
 }
+
+Line Program::start() {
+    return Line{new Instruction{"_start:"}};
+};

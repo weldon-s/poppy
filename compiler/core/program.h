@@ -57,6 +57,8 @@ class Program {
     Program& compile();
     Program& run();  // runs the program
 
+    static Line start();  // marks the start of the program
+
     // adds a literal to the program and returns its label and its length's label
     std::pair<const std::string, const std::string> add_literal(const std::string& literal);
     friend std::ostream& operator<<(std::ostream& os, const Program& program);

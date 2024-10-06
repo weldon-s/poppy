@@ -13,10 +13,15 @@ namespace control {
 class Function {
     std::vector<memory::Variable> arguments;
     Line body;
-    std::optional<control::Label> start_label;
+    control::Label start_label;
+    std::unique_ptr<memory::Variable> caller_frame_pointer;
+    std::unique_ptr<memory::Variable> saved_link;
+    std::unique_ptr<memory::Variable> arg_chunk_pointer;
+    std::unique_ptr<memory::Chunk> frame;
+    std::unique_ptr<memory::Chunk> param_chunk;
 
    public:
-    Function(std::vector<memory::Variable> arguments, Line body);
+    Function(const std::string name, std::vector<memory::Variable> arguments, Line body);
     Line call(std::vector<Line> arguments) const;
     Line declare(Program& program);
 };

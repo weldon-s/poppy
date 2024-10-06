@@ -10,9 +10,18 @@
 
 int main() {
     Program program;
-    control::Function p{{}, assem::movi(Register::scratch, 10) + popipo::print_num(Register::scratch)};
+    memory::Variable v{"v"};
 
-    program.add_code(p.declare(program) + p.call({}))
+    control::Function q{"q", {}, assem::movi(Register::scratch, 10) + popipo::print_num(Register::scratch)};
+
+    control::Function p{"p", {}, assem::movi(Register::scratch, 20) + popipo::print_num(Register::scratch) + q.call({})};
+
+    std::vector<Line> l{};
+
+    l.push_back(assem::movi(Register::scratch, 5));
+
+    program.add_code(q.declare(program) + p.declare(program) + Program::start())
+        .add_code(p.call({}))
         .compile()
         .run();
 }

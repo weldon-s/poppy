@@ -9,7 +9,6 @@ namespace memory {
 // represents a variable
 class Variable {
     static int counter;
-    const std::string name;
 
    public:
     Variable();
@@ -19,6 +18,7 @@ class Variable {
     bool operator<(const Variable& other) const;
 
     Line declare() const;
+    const std::string name;
 };
 }  // namespace memory
 #endif
