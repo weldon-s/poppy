@@ -1,6 +1,7 @@
 #ifndef _CODE_H_
 #define _CODE_H_
 
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -41,6 +42,8 @@ class Code {
 
 Line operator+(Line l1, Line l2);
 Line with_include(Line line, const std::string& include);
+Line lazy(std::function<Line(Program&)> f);
+Line lazy(std::function<Line()> f);
 
 // wrapper for simplify to be used elsewhere
 Line get_simplified(Line line, Program& program);

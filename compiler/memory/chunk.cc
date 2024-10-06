@@ -21,6 +21,10 @@ void Chunk::add_variable(const Variable& v) {
     }
 }
 
+bool Chunk::has_variable(const Variable& v) const {
+    return offsets.find(v) != offsets.end();
+}
+
 int Chunk::size() const {
     return _size;
 }
@@ -81,35 +85,22 @@ Line Chunk::pop_chunk() {
     allocated for the current chunk
 */
 
-class LazilyEvaluatedCode : public Code {
-    const Chunk* chunk;
-    const std::function<Line(const Chunk*)> evaluator;
-
-   public:
-    LazilyEvaluatedCode(const Chunk* chunk, const std::function<Line(const Chunk*)> evaluator)
-        : Code{false}, chunk{chunk}, evaluator{evaluator} {}
-
-    Line simplify(Program& program) override {
-        return evaluator(chunk);
-    }
-};
-
-Line Chunk::read_variable(const Register& reg, const Variable& variable) const {
-    auto evaluator = [reg, variable](const Chunk* chunk) {
+Line Chunk::read_variable(const Register& reg, const Variable& variable, const Register& address) const {
+    auto evaluator = [reg, variable, address, this]() {
         // read the variable from the stack
-        return Line(new Instruction(std::format("ldr {}, [{}, #{}]", reg, Register::frame_pointer, chunk->offsets.at(variable))));
+        return Line(new Instruction(std::format("ldr {}, [{}, #{}]", reg, address, offsets.at(variable))));
     };
 
-    return Line{new LazilyEvaluatedCode{this, evaluator}};
+    return lazy(evaluator);
 }
 
-Line Chunk::write_variable(const Variable& variable, const Register& reg) const {
-    auto evaluator = [variable, reg](const Chunk* chunk) {
+Line Chunk::write_variable(const Variable& variable, const Register& reg, const Register& address) const {
+    auto evaluator = [variable, reg, address, this]() {
         // write the variable to the stack
-        return Line(new Instruction(std::format("str {}, [{}, #{}]", reg, Register::frame_pointer, chunk->offsets.at(variable))));
+        return Line(new Instruction(std::format("str {}, [{}, #{}]", reg, address, offsets.at(variable))));
     };
 
-    return Line{new LazilyEvaluatedCode{this, evaluator}};
+    return lazy(evaluator);
 }
 
 Line Chunk::write_immediate(const Variable& variable, long long imm) const {

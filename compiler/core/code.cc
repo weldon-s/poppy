@@ -82,12 +82,44 @@ class IncludeCode : public Code {
     };
 };
 
+class LazilyEvaluatedCode : public Code {
+    const std::function<Line()> evaluator;
+
+   public:
+    LazilyEvaluatedCode(const std::function<Line()> evaluator)
+        : Code{false}, evaluator{evaluator} {}
+
+    Line simplify(Program& program) override {
+        return get_simplified(evaluator(), program);
+    }
+};
+
+class LazilyEvaluatedProgramCode : public Code {
+    const std::function<Line(Program&)> evaluator;
+
+   public:
+    LazilyEvaluatedProgramCode(const std::function<Line(Program&)> evaluator)
+        : Code{false}, evaluator{evaluator} {}
+
+    Line simplify(Program& program) override {
+        return get_simplified(evaluator(program), program);
+    }
+};
+
 Line operator+(Line l1, Line l2) {
     return Line{new CombinedCode{std::move(l1), std::move(l2)}};
 }
 
 Line with_include(Line line, const std::string& include) {
     return Line{new IncludeCode{std::move(line), include}};
+}
+
+Line lazy(std::function<Line(Program&)> f) {
+    return Line{new LazilyEvaluatedProgramCode{f}};
+}
+
+Line lazy(std::function<Line()> f) {
+    return Line{new LazilyEvaluatedCode{f}};
 }
 
 Line get_simplified(Line line, Program& program) {
