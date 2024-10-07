@@ -50,12 +50,14 @@ class Program {
     Program& add_variable(const memory::Variable& v);
     Program& push_chunk(memory::Chunk* chunk);
     Program& pop_chunk();
-    const memory::Chunk& top_chunk();
+    memory::Chunk& top_chunk();
     control::Label get_label();
 
     Program& compile(const std::string& name);  // compiles the program into an executable
     Program& compile();
     Program& run();  // runs the program
+
+    static Line start();  // marks the start of the program
 
     // adds a literal to the program and returns its label and its length's label
     std::pair<const std::string, const std::string> add_literal(const std::string& literal);

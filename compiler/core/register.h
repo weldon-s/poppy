@@ -20,6 +20,7 @@ class Register {
     static const Register& link_register;
     static const Register& stack_pointer;
     static const Register& arithmetic_result;
+    static const Register& arg_chunk_pointer;
 };
 
 template <>

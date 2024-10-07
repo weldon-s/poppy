@@ -1,6 +1,7 @@
 #include "core/code.h"
 
 #include <algorithm>
+#include <cassert>
 
 #include "core/program.h"
 
@@ -32,7 +33,10 @@ class CombinedCode : public Code {
     CombinedCode(Line l1, Line l2)
         : Code{l1->is_assembly() && l2->is_assembly()},
           line1{std::move(l1)},
-          line2{std::move(l2)} {}
+          line2{std::move(l2)} {
+        assert(line1 != nullptr && "line1 cannot be null");
+        assert(line2 != nullptr && "line2 cannot be null");
+    }
 
     std::ostream& stream(std::ostream& os) const override {
         os << *line1 << std::endl;
@@ -78,12 +82,44 @@ class IncludeCode : public Code {
     };
 };
 
+class LazilyEvaluatedCode : public Code {
+    const std::function<Line()> evaluator;
+
+   public:
+    LazilyEvaluatedCode(const std::function<Line()> evaluator)
+        : Code{false}, evaluator{evaluator} {}
+
+    Line simplify(Program& program) override {
+        return get_simplified(evaluator(), program);
+    }
+};
+
+class LazilyEvaluatedProgramCode : public Code {
+    const std::function<Line(Program&)> evaluator;
+
+   public:
+    LazilyEvaluatedProgramCode(const std::function<Line(Program&)> evaluator)
+        : Code{false}, evaluator{evaluator} {}
+
+    Line simplify(Program& program) override {
+        return get_simplified(evaluator(program), program);
+    }
+};
+
 Line operator+(Line l1, Line l2) {
     return Line{new CombinedCode{std::move(l1), std::move(l2)}};
 }
 
 Line with_include(Line line, const std::string& include) {
     return Line{new IncludeCode{std::move(line), include}};
+}
+
+Line lazy(std::function<Line(Program&)> f) {
+    return Line{new LazilyEvaluatedProgramCode{f}};
+}
+
+Line lazy(std::function<Line()> f) {
+    return Line{new LazilyEvaluatedCode{f}};
 }
 
 Line get_simplified(Line line, Program& program) {

@@ -1,5 +1,6 @@
 #include "control/condition.h"
 #include "control/for.h"
+#include "control/function.h"
 #include "control/if.h"
 #include "core/instruction.h"
 #include "core/program.h"
@@ -7,48 +8,36 @@
 #include "memory/chunk.h"
 #include "modules/popipo.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     Program program;
-    memory::Chunk chunk;
-    memory::Variable i{"i"};
+    memory::Variable v{"v"};
 
-    program.add_code(chunk.push_chunk())
-        .add_code(control::forloop(
-            i.declare() + chunk.write_immediate(i, 1),
+    control::Function p{"p", {v}};
+
+    std::vector<Line> args1{};
+    std::vector<Line> args2{};
+    args1.push_back(math::subtract(p.read_variable(Register::arithmetic_result, v),
+                                   assem::movi(Register::arithmetic_result, 1)));
+
+    args2.push_back(math::subtract(p.read_variable(Register::arithmetic_result, v),
+                                   assem::movi(Register::arithmetic_result, 2)));
+
+    p.set_body(
+        control::ifthenelse(
             control::le(
-                chunk.read_variable(Register::arithmetic_result, i),
-                assem::movi(Register::arithmetic_result, 100)),
-
+                p.read_variable(Register::arithmetic_result, v),
+                assem::movi(Register::arithmetic_result, 1)),
+            p.read_variable(Register::arithmetic_result, v),
             math::add(
-                chunk.read_variable(Register::arithmetic_result, i),
-                assem::movi(Register::arithmetic_result, 1)) +
-                chunk.write_variable(i, Register::arithmetic_result),
+                p.call(args1), p.call(args2))));
 
-            control::ifthenelse(
-                control::eq(
-                    math::modulo(
-                        chunk.read_variable(Register::arithmetic_result, i),
-                        assem::movi(Register::arithmetic_result, 15)),
-                    assem::movi(Register::arithmetic_result, 0)),
-                popipo::print_str("FizzBuzz"),
-                control::ifthenelse(
-                    control::eq(
-                        math::modulo(
-                            chunk.read_variable(Register::arithmetic_result, i),
-                            assem::movi(Register::arithmetic_result, 3)),
-                        assem::movi(Register::arithmetic_result, 0)),
-                    popipo::print_str("Fizz"),
-                    control::ifthenelse(
-                        control::eq(
-                            math::modulo(
-                                chunk.read_variable(Register::arithmetic_result, i),
-                                assem::movi(Register::arithmetic_result, 5)),
-                            assem::movi(Register::arithmetic_result, 0)),
-                        popipo::print_str("Buzz"),
-                        chunk.read_variable(Register::scratch, i) +
-                            popipo::print_num(Register::scratch)))) +
-                popipo::print_str("\n")))
-        .add_code(chunk.pop_chunk())
+    std::vector<Line> l{};
+    l.push_back(assem::movi(Register::arithmetic_result, 20));
+
+    program.add_code(p.declare(program))
+        .add_code(Program::start())
+        .add_code(p.call(l))
+        .add_code(popipo::print_num(Register::arithmetic_result))
         .compile()
         .run();
 }

@@ -21,17 +21,16 @@ void Chunk::add_variable(const Variable& v) {
     }
 }
 
+bool Chunk::has_variable(const Variable& v) const {
+    return offsets.find(v) != offsets.end();
+}
+
 int Chunk::size() const {
     return _size;
 }
 
 Chunk* Chunk::previous() const {
     return _previous;
-}
-
-// TODO remove this mutator
-void Chunk::set_previous(Chunk* previous) {
-    _previous = previous;
 }
 
 class PushChunkCode : public Code {
@@ -47,8 +46,7 @@ class PushChunkCode : public Code {
         program.push_chunk(chunk);
 
         return assem::movi(Register::scratch, chunk->size()) +
-               Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]")) +
-               assem::mov(Register::frame_pointer, Register::stack_pointer);
+               Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]"));
     }
 
     void allocate(Program& program) override {
@@ -57,17 +55,14 @@ class PushChunkCode : public Code {
 };
 
 class PopChunkCode : public Code {
-    Chunk* chunk;
-
    public:
-    PopChunkCode(Chunk* chunk) : Code{false}, chunk{chunk} {}
+    PopChunkCode() : Code{false} {}
 
     Line simplify(Program& program) override {
         program.pop_chunk();
 
         // add the size back to the stack pointer
-        return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9")) +
-               assem::mov(Register::frame_pointer, Register::stack_pointer);
+        return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9"));
     }
 
     void allocate(Program& program) override {
@@ -80,7 +75,7 @@ Line Chunk::push_chunk() {
 }
 
 Line Chunk::pop_chunk() {
-    return Line(new PopChunkCode(this));
+    return Line(new PopChunkCode());
 }
 
 /*  reads/writes need to be evaluated after allocation as the offset can't be known before we allocate the variables
@@ -88,35 +83,22 @@ Line Chunk::pop_chunk() {
     allocated for the current chunk
 */
 
-class LazilyEvaluatedCode : public Code {
-    const Chunk* chunk;
-    const std::function<Line(const Chunk*)> evaluator;
-
-   public:
-    LazilyEvaluatedCode(const Chunk* chunk, const std::function<Line(const Chunk*)> evaluator)
-        : Code{false}, chunk{chunk}, evaluator{evaluator} {}
-
-    Line simplify(Program& program) override {
-        return evaluator(chunk);
-    }
-};
-
-Line Chunk::read_variable(const Register& reg, const Variable& variable) const {
-    auto evaluator = [reg, variable](const Chunk* chunk) {
+Line Chunk::read_variable(const Register& reg, const Variable& variable, const Register& address) const {
+    auto evaluator = [reg, variable, address, this]() {
         // read the variable from the stack
-        return Line(new Instruction(std::format("ldr {}, [{}, #{}]", reg, Register::frame_pointer, chunk->offsets.at(variable))));
+        return Line(new Instruction(std::format("ldr {}, [{}, #{}]", reg, address, offsets.at(variable))));
     };
 
-    return Line{new LazilyEvaluatedCode{this, evaluator}};
+    return lazy(evaluator);
 }
 
-Line Chunk::write_variable(const Variable& variable, const Register& reg) const {
-    auto evaluator = [variable, reg](const Chunk* chunk) {
+Line Chunk::write_variable(const Variable& variable, const Register& reg, const Register& address) const {
+    auto evaluator = [variable, reg, address, this]() {
         // write the variable to the stack
-        return Line(new Instruction(std::format("str {}, [{}, #{}]", reg, Register::frame_pointer, chunk->offsets.at(variable))));
+        return Line(new Instruction(std::format("str {}, [{}, #{}]", reg, address, offsets.at(variable))));
     };
 
-    return Line{new LazilyEvaluatedCode{this, evaluator}};
+    return lazy(evaluator);
 }
 
 Line Chunk::write_immediate(const Variable& variable, long long imm) const {

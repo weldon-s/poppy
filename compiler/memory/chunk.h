@@ -19,17 +19,17 @@ class Chunk {
 
     // adds a variable to the chunk
     void add_variable(const Variable& v);
+    bool has_variable(const Variable& v) const;
 
     Line push_chunk();
-    Line pop_chunk();
+    static Line pop_chunk();
     int size() const;
 
-    Line read_variable(const Register& reg, const Variable& variable) const;
-    Line write_variable(const Variable& variable, const Register& reg) const;
+    Line read_variable(const Register& reg, const Variable& variable, const Register& address = Register::frame_pointer) const;
+    Line write_variable(const Variable& variable, const Register& reg, const Register& address = Register::frame_pointer) const;
     Line write_immediate(const Variable& variable, long long imm) const;
 
     Chunk* previous() const;
-    void set_previous(Chunk* previous);
 };
 }  // namespace memory
 
