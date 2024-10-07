@@ -46,8 +46,7 @@ class PushChunkCode : public Code {
         program.push_chunk(chunk);
 
         return assem::movi(Register::scratch, chunk->size()) +
-               Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]")) +
-               assem::mov(Register::frame_pointer, Register::stack_pointer);
+               Line(new Instruction(Instruction("sub sp, sp, x9") + "str x9, [sp]"));
     }
 
     void allocate(Program& program) override {
@@ -63,8 +62,7 @@ class PopChunkCode : public Code {
         program.pop_chunk();
 
         // add the size back to the stack pointer
-        return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9")) +
-               assem::mov(Register::frame_pointer, Register::stack_pointer);
+        return Line(new Instruction(Instruction("ldr x9, [sp]") + "add sp, sp, x9"));
     }
 
     void allocate(Program& program) override {

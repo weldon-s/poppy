@@ -21,12 +21,13 @@ class Function {
     std::unique_ptr<memory::Chunk> param_chunk;
 
    public:
-    Function(const std::string name, std::vector<memory::Variable> arguments, Line body);
-    Line call(std::vector<Line> arguments) const;
+    Function(const std::string name, std::vector<memory::Variable> arguments);
+    Line call(std::vector<Line>& arguments) const;
+    Line read_variable(const Register& reg, const memory::Variable& variable) const;
+    Line write_variable(const memory::Variable& variable, const Register& reg) const;
     Line declare(Program& program);
+    void set_body(Line body);
 };
-
-Line ret();
 }  // namespace control
 
 #endif

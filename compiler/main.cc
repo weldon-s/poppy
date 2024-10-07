@@ -8,20 +8,36 @@
 #include "memory/chunk.h"
 #include "modules/popipo.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     Program program;
     memory::Variable v{"v"};
 
-    control::Function q{"q", {}, assem::movi(Register::scratch, 10) + popipo::print_num(Register::scratch)};
+    control::Function p{"p", {v}};
 
-    control::Function p{"p", {}, assem::movi(Register::scratch, 20) + popipo::print_num(Register::scratch) + q.call({})};
+    std::vector<Line> args1{};
+    std::vector<Line> args2{};
+    args1.push_back(math::subtract(p.read_variable(Register::arithmetic_result, v),
+                                   assem::movi(Register::arithmetic_result, 1)));
+
+    args2.push_back(math::subtract(p.read_variable(Register::arithmetic_result, v),
+                                   assem::movi(Register::arithmetic_result, 2)));
+
+    p.set_body(
+        control::ifthenelse(
+            control::le(
+                p.read_variable(Register::arithmetic_result, v),
+                assem::movi(Register::arithmetic_result, 1)),
+            p.read_variable(Register::arithmetic_result, v),
+            math::add(
+                p.call(args1), p.call(args2))));
 
     std::vector<Line> l{};
+    l.push_back(assem::movi(Register::arithmetic_result, 20));
 
-    l.push_back(assem::movi(Register::scratch, 5));
-
-    program.add_code(q.declare(program) + p.declare(program) + Program::start())
-        .add_code(p.call({}))
+    program.add_code(p.declare(program))
+        .add_code(Program::start())
+        .add_code(p.call(l))
+        .add_code(popipo::print_num(Register::arithmetic_result))
         .compile()
         .run();
 }
