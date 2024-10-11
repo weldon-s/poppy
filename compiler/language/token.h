@@ -51,8 +51,7 @@ enum class TokenType {
     CONSTANT,
     STRINGLIT,  // string literal
     CHARLIT,    // character literal
-    COMMENT,
-    END  // end of input
+    END         // end of input
 };
 
 #endif

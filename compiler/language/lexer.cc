@@ -27,9 +27,42 @@ Token Lexer::next_token(int* position) {
         return Token("", TokenType::END);
     }
 
-    // skip whitespace
-    while (std::isspace(static_cast<unsigned char>(source[*position]))) {
-        ++*position;
+    bool any_skipped = true;
+
+    while (any_skipped) {
+        any_skipped = false;
+
+        // skip whitespace
+        while (std::isspace(static_cast<unsigned char>(source[*position]))) {
+            ++*position;
+            any_skipped = true;
+        }
+
+        // skip comment
+        if (*position + 1 < source.size() && source[*position] == '!' && source[*position + 1] == '!') {
+            *position += 2;
+            while (*position < source.size() && source[*position] != '\n') {
+                ++*position;
+            }
+
+            any_skipped = true;
+        }
+
+        // skip multiline comment
+
+        if (*position + 1 < source.size() && source[*position] == '!' && source[*position + 1] == '-') {
+            *position += 2;
+            while (*position + 1 < source.size() && !(source[*position] == '-' && source[*position + 1] == '!')) {
+                ++*position;
+            }
+
+            if (*position + 1 >= source.size()) {
+                throw std::runtime_error("unterminated comment");
+            }
+
+            *position += 2;
+            any_skipped = true;
+        }
     }
 
     // check for end of input after skipping whitespace
@@ -120,8 +153,6 @@ Token Lexer::next_token(int* position) {
                 return Token("!=", TokenType::NE);
             }
 
-            // TODO comments
-
             ++*position;
             return Token("!", TokenType::NOT);
 
@@ -173,6 +204,10 @@ Token Lexer::next_token(int* position) {
                 return result;
             }
 
+        case '0':
+            ++*position;
+            return Token("0", TokenType::CONSTANT);
+
         case '1':
         case '2':
         case '3':
@@ -196,8 +231,18 @@ Token Lexer::next_token(int* position) {
         default:
             // now, find next whitespace
             {
-                std::string value;
-                while (*position < source.size() && !std::isspace(static_cast<unsigned char>(source[*position]))) {
+                const std::string identifier_start{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"};
+                const std::string identifier_middle{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"};
+
+                if (identifier_start.find(source[*position]) == std::string::npos) {
+                    throw std::runtime_error("invalid character " + source[*position]);
+                }
+
+                std::string value{source[*position]};
+
+                ++*position;
+
+                while (*position < source.size() && identifier_middle.find(source[*position]) != std::string::npos) {
                     value += source[*position];
                     ++*position;
                 }
@@ -232,12 +277,6 @@ Token Lexer::next_token(int* position) {
 
                 if (value == "while") {
                     return Token(value, TokenType::WHILE);
-                }
-
-                const std::regex identifier_regex{"[A-Za-z_][a-zA-Z0-9_]*"};
-
-                if (!std::regex_match(value, identifier_regex)) {
-                    throw std::runtime_error("invalid identifier");
                 }
 
                 return Token(value, TokenType::IDENTIFIER);
