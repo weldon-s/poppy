@@ -14,7 +14,7 @@ std::vector<Token> Lexer::scan() {
         Token token = next_token(&position);
         tokens.push_back(token);
 
-        if (token.type() == TokenType::END) {
+        if (token.type() == Symbol::END) {
             break;
         }
     }
@@ -24,7 +24,7 @@ std::vector<Token> Lexer::scan() {
 
 Token Lexer::next_token(int* position) {
     if (*position >= source.size()) {
-        return Token("", TokenType::END);
+        return Token("", Symbol::END);
     }
 
     bool any_skipped = true;
@@ -67,101 +67,101 @@ Token Lexer::next_token(int* position) {
 
     // check for end of input after skipping whitespace
     if (*position >= source.size()) {
-        return Token("", TokenType::END);
+        return Token("", Symbol::END);
     }
 
     // check for single character tokens that aren't prefixes of longer tokens
     switch (source[*position]) {
         case '(':
             ++*position;
-            return Token("(", TokenType::LPAREN);
+            return Token("(", Symbol::LPAREN);
         case ')':
             ++*position;
-            return Token(")", TokenType::RPAREN);
+            return Token(")", Symbol::RPAREN);
         case '{':
             ++*position;
-            return Token("{", TokenType::LBRACE);
+            return Token("{", Symbol::LBRACE);
         case '}':
             ++*position;
-            return Token("}", TokenType::RBRACE);
+            return Token("}", Symbol::RBRACE);
         case '*':
             ++*position;
-            return Token("*", TokenType::TIMES);
+            return Token("*", Symbol::TIMES);
         case '/':
             ++*position;
-            return Token("/", TokenType::DIVIDE);
+            return Token("/", Symbol::DIVIDE);
         case '%':
             ++*position;
-            return Token("%", TokenType::MOD);
+            return Token("%", Symbol::MOD);
         case ',':
             ++*position;
-            return Token(",", TokenType::COMMA);
+            return Token(",", Symbol::COMMA);
         case ';':
             ++*position;
-            return Token(";", TokenType::SEMICOLON);
+            return Token(";", Symbol::SEMICOLON);
 
         // check for single character tokens that are prefixes of longer tokens
         case '+':
             if (*position + 1 < source.size() && source[*position + 1] == '+') {
                 *position += 2;
-                return Token("++", TokenType::INC);
+                return Token("++", Symbol::INC);
             }
 
             ++*position;
-            return Token("+", TokenType::PLUS);
+            return Token("+", Symbol::PLUS);
 
         case '-':
 
             if (*position + 1 < source.size() && source[*position + 1] == '-') {
                 *position += 2;
-                return Token("--", TokenType::DEC);
+                return Token("--", Symbol::DEC);
             }
 
             ++*position;
-            return Token("-", TokenType::MINUS);
+            return Token("-", Symbol::MINUS);
 
         case '<':
             if (*position + 1 < source.size() && source[*position + 1] == '=') {
                 *position += 2;
-                return Token("<=", TokenType::LE);
+                return Token("<=", Symbol::LE);
             }
 
             ++*position;
-            return Token("<", TokenType::LT);
+            return Token("<", Symbol::LT);
 
         case '>':
             if (*position + 1 < source.size() && source[*position + 1] == '=') {
                 *position += 2;
-                return Token(">=", TokenType::GE);
+                return Token(">=", Symbol::GE);
             }
 
             ++*position;
-            return Token(">", TokenType::GT);
+            return Token(">", Symbol::GT);
 
         case '=':
             if (*position + 1 < source.size() && source[*position + 1] == '=') {
                 *position += 2;
-                return Token("==", TokenType::EQ);
+                return Token("==", Symbol::EQ);
             }
 
             ++*position;
-            return Token("=", TokenType::ASSIGN);
+            return Token("=", Symbol::ASSIGN);
 
         case '!':
             if (*position + 1 < source.size() && source[*position + 1] == '=') {
                 *position += 2;
-                return Token("!=", TokenType::NE);
+                return Token("!=", Symbol::NE);
             }
 
             ++*position;
-            return Token("!", TokenType::NOT);
+            return Token("!", Symbol::NOT);
 
             // check for multi-character tokens with only one value
 
         case '&':
             if (*position + 1 < source.size() && source[*position + 1] == '&') {
                 *position += 2;
-                return Token("&&", TokenType::AND);
+                return Token("&&", Symbol::AND);
             }
 
             throw std::runtime_error("unexpected character &");
@@ -169,7 +169,7 @@ Token Lexer::next_token(int* position) {
         case '|':
             if (*position + 1 < source.size() && source[*position + 1] == '|') {
                 *position += 2;
-                return Token("||", TokenType::OR);
+                return Token("||", Symbol::OR);
             }
 
             throw std::runtime_error("unexpected character |");
@@ -189,7 +189,7 @@ Token Lexer::next_token(int* position) {
                 }
 
                 ++*position;
-                return Token(value, TokenType::STRINGLIT);
+                return Token(value, Symbol::STRINGLIT);
             }
 
         case '\'':
@@ -199,14 +199,14 @@ Token Lexer::next_token(int* position) {
                     throw std::runtime_error("invalid character literal");
                 }
 
-                Token result{source[*position + 1] + "", TokenType::CHARLIT};
+                Token result{source[*position + 1] + "", Symbol::CHARLIT};
                 *position += 3;
                 return result;
             }
 
         case '0':
             ++*position;
-            return Token("0", TokenType::CONSTANT);
+            return Token("0", Symbol::CONSTANT);
 
         case '1':
         case '2':
@@ -225,7 +225,7 @@ Token Lexer::next_token(int* position) {
                     ++*position;
                 }
 
-                return Token(value, TokenType::CONSTANT);
+                return Token(value, Symbol::CONSTANT);
             }
 
         default:
@@ -248,38 +248,38 @@ Token Lexer::next_token(int* position) {
                 }
 
                 if (value == "char") {
-                    return Token(value, TokenType::CHAR);
+                    return Token(value, Symbol::CHAR);
                 }
 
                 if (value == "else") {
-                    return Token(value, TokenType::ELSE);
+                    return Token(value, Symbol::ELSE);
                 }
 
                 if (value == "for") {
-                    return Token(value, TokenType::FOR);
+                    return Token(value, Symbol::FOR);
                 }
 
                 if (value == "hop") {
-                    return Token(value, TokenType::HOP);
+                    return Token(value, Symbol::HOP);
                 }
 
                 if (value == "if") {
-                    return Token(value, TokenType::IF);
+                    return Token(value, Symbol::IF);
                 }
 
                 if (value == "int") {
-                    return Token(value, TokenType::INT);
+                    return Token(value, Symbol::INT);
                 }
 
                 if (value == "string") {
-                    return Token(value, TokenType::STRING);
+                    return Token(value, Symbol::STRING);
                 }
 
                 if (value == "while") {
-                    return Token(value, TokenType::WHILE);
+                    return Token(value, Symbol::WHILE);
                 }
 
-                return Token(value, TokenType::IDENTIFIER);
+                return Token(value, Symbol::IDENTIFIER);
             }
     }
 }

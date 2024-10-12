@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "language/symbol.h"
 #include "language/token.h"
 
 class Lexer {

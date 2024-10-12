@@ -2,7 +2,7 @@
 
 Terminal symbols: all tokens for the language.
 
-Nonterminal symbols: $\{\text{program, defns, defn, type, optparams, stmts, params, param, stmt, semistmt, expr, cond, optelse, addexpr, multexpr, unexpr}\}$
+Nonterminal symbols: $\{\text{program, defns, defn, type, optparams, stmts, params, param, stmt, semistmt, expr, cond, andcond, orcond, uncond, optelse, addexpr, multexpr, unexpr}\}$
 
 Start symbol: $\text{program}$
 
@@ -30,21 +30,21 @@ $$\begin{align*}
 \text{stmt} &\rightarrow \text{IF LPAREN cond RPAREN LRBACE stmts RBRACE optelse}  \\
 \text{optelse} &\rightarrow \varnothing  \\
 \text{optelse} &\rightarrow \text{ELSE LBRACE stmts RBRACE}  \\
-
-
-\text{stmt} &\rightarrow \text{IF LPAREN cond RPAREN LRBACE stmts RBRACE ELSE LBRACE stmts RBRACE}  \\
 \text{stmt} &\rightarrow \text{WHILE LPAREN cond RPAREN LBRACE stmts RBRACE}  \\
-\text{stmt} &\rightarrow \text{FOR LPAREN semistmt SEMICOLON semistmt SEMICOLON semistmt RPAREN LBRACE stmts RBRACE}  \\
-\text{stmt} &\rightarrow \text{FOR LPAREN semistmt SEMICOLON semistmt SEMICOLON semistmt RPAREN LBRACE stmts RBRACE}  \\
-\text{cond} &\rightarrow \text{cond AND cond}  \\
-\text{cond} &\rightarrow \text{cond OR cond}  \\
-\text{cond} &\rightarrow \text{NOT cond}  \\
-\text{cond} &\rightarrow \text{expr LT expr}  \\
-\text{cond} &\rightarrow \text{expr GT expr}  \\
-\text{cond} &\rightarrow \text{expr LE expr}  \\
-\text{cond} &\rightarrow \text{expr GE expr}  \\
-\text{cond} &\rightarrow \text{expr EQ expr}  \\
-\text{cond} &\rightarrow \text{expr NE expr}  \\
+\text{stmt} &\rightarrow \text{FOR LPAREN semistmt SEMICOLON cond SEMICOLON semistmt RPAREN LBRACE stmts RBRACE}  \\
+\text{cond} &\rightarrow \text{andcond}  \\
+\text{andcond} &\rightarrow \text{andcond AND orcond}  \\
+\text{andcond} &\rightarrow \text{orcond}  \\
+\text{orcond} &\rightarrow \text{orcond OR uncond}  \\
+\text{orcond} &\rightarrow \text{uncond}  \\
+\text{uncond} &\rightarrow \text{NOT cond}  \\
+\text{uncond} &\rightarrow \text{LPAREN cond RPAREN}  \\
+\text{uncond} &\rightarrow \text{expr LT expr}  \\
+\text{uncond} &\rightarrow \text{expr GT expr}  \\
+\text{uncond} &\rightarrow \text{expr LE expr}  \\
+\text{uncond} &\rightarrow \text{expr GE expr}  \\
+\text{uncond} &\rightarrow \text{expr EQ expr}  \\
+\text{uncond} &\rightarrow \text{expr NE expr}  \\
 \text{expr} &\rightarrow \text{addexpr}  \\
 \text{addexpr} &\rightarrow \text{addexpr PLUS multexpr}  \\
 \text{addexpr} &\rightarrow \text{addexpr MINUS multexpr}  \\

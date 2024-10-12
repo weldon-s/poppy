@@ -3,55 +3,16 @@
 
 #include <string>
 
-enum class TokenType;
+enum class Symbol;
 
 class Token {
     const std::string _value;
-    const TokenType _type;
+    const Symbol _type;
 
    public:
-    Token(std::string value, TokenType type);
+    Token(std::string value, Symbol type);
     const std::string& value() const;
-    TokenType type() const;
-};
-
-enum class TokenType {
-    LPAREN,     // (
-    RPAREN,     // )
-    LBRACE,     // {
-    RBRACE,     // }
-    INC,        // ++
-    DEC,        // --
-    AND,        // &&
-    OR,         // ||
-    NOT,        // !
-    PLUS,       // +
-    MINUS,      // -
-    TIMES,      // *
-    DIVIDE,     // /
-    MOD,        // %
-    LT,         // <
-    GT,         // >
-    LE,         // <=
-    GE,         // >=
-    EQ,         // ==
-    NE,         // !=
-    ASSIGN,     // =
-    COMMA,      // ,
-    SEMICOLON,  // ;
-    CHAR,
-    ELSE,
-    FOR,
-    HOP,
-    IF,
-    INT,
-    STRING,
-    WHILE,
-    IDENTIFIER,
-    CONSTANT,
-    STRINGLIT,  // string literal
-    CHARLIT,    // character literal
-    END         // end of input
+    Symbol type() const;
 };
 
 #endif
