@@ -2,8 +2,10 @@
 
 #include <algorithm>
 
-#include "symbol.h"
+#include "language/lexing/symbol.h"
+
 namespace lang {
+
 Grammar::Grammar(Symbol start, std::vector<Rule> rules) : _start{start}, _rules{rules}, _nonempty_rules{}, _nullable{} {
     for (size_t i = 0; i < _rules.size(); ++i) {
         bool current_nullable = true;

@@ -2,7 +2,8 @@
 
 #include <algorithm>
 
-#include "token.h"
+#include "language/lexing/symbol.h"
+#include "language/lexing/token.h"
 namespace lang {
 Parser::Parser(const Grammar* grammar) : grammar{grammar} {}
 

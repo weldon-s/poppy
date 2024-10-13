@@ -5,7 +5,7 @@ AS = aarch64-linux-gnu-as
 LD = aarch64-linux-gnu-ld
 STAGING_DIR = staging
 
-SRC = $(wildcard $(STAGING_DIR)/**/*.s) $(wildcard $(STAGING_DIR)/*.s)
+SRC = $(shell find $(STAGING_DIR) -name "*.s" -type f)
 
 OBJ = $(SRC:.s=.o)
 EXEC = arm64

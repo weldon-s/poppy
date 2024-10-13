@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "language/symbol.h"
-#include "language/token.h"
+#include "symbol.h"
+#include "token.h"
 
 namespace lang {
 class Lexer {

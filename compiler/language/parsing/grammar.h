@@ -4,8 +4,9 @@
 #include <vector>
 
 #include "rule.h"
-#include "symbol.h"
 namespace lang {
+
+enum class Symbol;
 class Grammar {
     const Symbol _start;
     const std::vector<Rule> _rules;

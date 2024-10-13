@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "language/lexer.h"
-#include "language/parser.h"
-#include "language/poppygrammar.h"
+#include "language/lexing/lexer.h"
+#include "language/parsing/parser.h"
+#include "language/parsing/poppygrammar.h"
 
 int main(int argc, char* argv[]) {
     lang::Lexer l{
