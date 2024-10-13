@@ -4,7 +4,7 @@
 
 #include "symbol.h"
 
-Grammar::Grammar(Symbol start, std::vector<Rule> rules) : _start{start}, _rules{rules}, _nullable{} {
+Grammar::Grammar(Symbol start, std::vector<Rule> rules) : _start{start}, _rules{rules}, _nonempty_rules{}, _nullable{} {
     for (size_t i = 0; i < _rules.size(); ++i) {
         bool current_nullable = true;
 
@@ -19,6 +19,12 @@ Grammar::Grammar(Symbol start, std::vector<Rule> rules) : _start{start}, _rules{
             _nullable.push_back(_rules[i].lhs());
         }
     }
+
+    for (Rule& rule : rules) {
+        if (!rule.rhs().empty()) {
+            _nonempty_rules.push_back(rule);
+        }
+    }
 }
 
 Symbol Grammar::start() const {
@@ -27,6 +33,10 @@ Symbol Grammar::start() const {
 
 const std::vector<Rule>& Grammar::rules() const {
     return _rules;
+}
+
+const std::vector<Rule>& Grammar::nonempty_rules() const {
+    return _nonempty_rules;
 }
 
 bool Grammar::nullable(Symbol s) const {

@@ -1,31 +1,60 @@
 #include <iostream>
 
 #include "language/lexer.h"
+#include "language/parser.h"
+#include "language/poppygrammar.h"
 
 int main(int argc, char* argv[]) {
     Lexer l{
         R"""(
-    !! hello
-    !!
-    int fib(int n){
-        if (n <= 1){
+    !!hello 
+    char f(int n, int m) {
+        if (n <= 1) {
             hop n;
         }
-        !-
-        long comment...
-        -!
 
-        hop fib(n - 1) + fib(n - 2);
+        1 * 2 + d / 4 % 5050 - 'r';
+
+        if (n == 2 || n == 3) {
+            hop 1;
+        }
+        else {
+            string s = "dddd";
+            s = 4;
+        }
+
+        while(!(n > 0 && n <= 0 && n != 0)) {
+            hop n;
+
+            for(int i = 0; !i >= 10; i = i + 1) {
+                print(i);
+            }
+
+            n = n - 1;
+        }
+
+
+
+        hop f(n - 'f') + f(f(--n) - 2);
     }
 
+    !-long comment...
+    words words words
+    ...
+    -!
     int main(){
-        print(fib(10));
-
+        print(f(10));
         hop 0;
     }
             )"""};
 
-    for (const auto& token : l.scan()) {
+    std::vector<Token> tokens = l.scan();
+
+    for (const auto& token : tokens) {
         std::cout << token.value() << std::endl;
     }
+
+    Parser p{&poppy_grammar};
+
+    std::cout << p.parse(tokens) << std::endl;
 }

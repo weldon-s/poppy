@@ -59,7 +59,9 @@ enum class Symbol {
     OPTELSE,
     ADDEXPR,
     MULTEXPR,
-    UNEXPR
+    UNEXPR,
+    OPTARGS,
+    ARGS
 };
 
 constexpr bool is_terminal(Symbol s) {

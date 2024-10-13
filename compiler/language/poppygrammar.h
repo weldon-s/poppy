@@ -1,6 +1,6 @@
 #include "grammar.h"
 
-Grammar poppy_grammar = Grammar{
+const Grammar poppy_grammar = Grammar{
     Symbol::PROGRAM,
     {
         Rule(Symbol::PROGRAM, {Symbol::DEFNS, Symbol::END}),
@@ -49,7 +49,11 @@ Grammar poppy_grammar = Grammar{
         Rule(Symbol::MULTEXPR, {Symbol::MULTEXPR, Symbol::MOD, Symbol::UNEXPR}),
         Rule(Symbol::MULTEXPR, {Symbol::UNEXPR}),
         Rule(Symbol::UNEXPR, {Symbol::LPAREN, Symbol::EXPR, Symbol::RPAREN}),
-        Rule(Symbol::UNEXPR, {Symbol::IDENTIFIER, Symbol::LPAREN, Symbol::OPTPARAMS, Symbol::RPAREN}),
+        Rule(Symbol::UNEXPR, {Symbol::IDENTIFIER, Symbol::LPAREN, Symbol::OPTARGS, Symbol::RPAREN}),
+        Rule(Symbol::OPTARGS, {}),
+        Rule(Symbol::OPTARGS, {Symbol::ARGS}),
+        Rule(Symbol::ARGS, {Symbol::EXPR}),
+        Rule(Symbol::ARGS, {Symbol::EXPR, Symbol::COMMA, Symbol::ARGS}),
         Rule(Symbol::UNEXPR, {Symbol::INC, Symbol::IDENTIFIER}),
         Rule(Symbol::UNEXPR, {Symbol::DEC, Symbol::IDENTIFIER}),
         Rule(Symbol::UNEXPR, {Symbol::IDENTIFIER}),
