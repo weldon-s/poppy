@@ -7,6 +7,7 @@
 #include "language/symbol.h"
 #include "language/token.h"
 
+namespace lang {
 class Lexer {
     const std::string source;
 
@@ -17,5 +18,6 @@ class Lexer {
     Lexer(std::string source);
     std::vector<Token> scan();
 };
+}  // namespace lang
 
 #endif

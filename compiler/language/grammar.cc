@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "symbol.h"
-
+namespace lang {
 Grammar::Grammar(Symbol start, std::vector<Rule> rules) : _start{start}, _rules{rules}, _nonempty_rules{}, _nullable{} {
     for (size_t i = 0; i < _rules.size(); ++i) {
         bool current_nullable = true;
@@ -42,3 +42,4 @@ const std::vector<Rule>& Grammar::nonempty_rules() const {
 bool Grammar::nullable(Symbol s) const {
     return std::find(_nullable.begin(), _nullable.end(), s) != _nullable.end();
 }
+}  // namespace lang

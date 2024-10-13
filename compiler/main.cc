@@ -5,7 +5,7 @@
 #include "language/poppygrammar.h"
 
 int main(int argc, char* argv[]) {
-    Lexer l{
+    lang::Lexer l{
         R"""(
     !!hello 
     char f(int n, int m) {
@@ -48,13 +48,13 @@ int main(int argc, char* argv[]) {
     }
             )"""};
 
-    std::vector<Token> tokens = l.scan();
+    std::vector<lang::Token> tokens = l.scan();
 
     for (const auto& token : tokens) {
         std::cout << token.value() << std::endl;
     }
 
-    Parser p{&poppy_grammar};
+    lang::Parser p{&poppy_grammar};
 
     std::cout << p.parse(tokens) << std::endl;
 }

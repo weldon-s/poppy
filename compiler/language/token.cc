@@ -1,5 +1,6 @@
 #include "token.h"
 
+namespace lang {
 Token::Token(std::string value, Symbol type) : _value{value}, _type{type} {}
 
 const std::string& Token::value() const {
@@ -9,3 +10,4 @@ const std::string& Token::value() const {
 Symbol Token::type() const {
     return _type;
 }
+}  // namespace lang

@@ -3,6 +3,7 @@
 
 #include <string>
 
+namespace lang {
 enum class Symbol;
 
 class Token {
@@ -14,5 +15,6 @@ class Token {
     const std::string& value() const;
     Symbol type() const;
 };
+}  // namespace lang
 
 #endif

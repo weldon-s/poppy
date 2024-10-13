@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "token.h"
-
+namespace lang {
 Parser::Parser(const Grammar* grammar) : grammar{grammar} {}
 
 // ancillary function to add items if they are not already present
@@ -97,3 +97,4 @@ bool Parser::parse(const std::vector<Token>& tokens) {
 
     return false;
 }
+}  // namespace lang

@@ -3,6 +3,7 @@
 
 #include <vector>
 
+namespace lang {
 enum class Symbol;
 
 class Rule {
@@ -14,5 +15,6 @@ class Rule {
     Symbol lhs() const;
     const std::vector<Symbol>& rhs() const;
 };
+}  // namespace lang
 
 #endif

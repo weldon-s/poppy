@@ -5,7 +5,7 @@
 
 #include "rule.h"
 #include "symbol.h"
-
+namespace lang {
 class Grammar {
     const Symbol _start;
     const std::vector<Rule> _rules;
@@ -19,5 +19,6 @@ class Grammar {
     const std::vector<Rule>& nonempty_rules() const;
     bool nullable(Symbol s) const;
 };
+}  // namespace lang
 
 #endif

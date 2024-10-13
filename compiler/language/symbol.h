@@ -1,6 +1,7 @@
 #ifndef _SYMBOL_H_
 #define _SYMBOL_H_
 
+namespace lang {
 enum class Symbol {
     // terminal symbols
     LPAREN,     // (
@@ -67,5 +68,7 @@ enum class Symbol {
 constexpr bool is_terminal(Symbol s) {
     return s <= Symbol::END;
 }
+
+}  // namespace lang
 
 #endif

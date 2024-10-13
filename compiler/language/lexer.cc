@@ -4,6 +4,7 @@
 #include <regex>
 #include <stdexcept>
 
+namespace lang {
 Lexer::Lexer(std::string source) : source{source} {}
 
 std::vector<Token> Lexer::scan() {
@@ -283,3 +284,4 @@ Token Lexer::next_token(int* position) {
             }
     }
 }
+}  // namespace lang

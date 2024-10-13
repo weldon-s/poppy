@@ -2,7 +2,7 @@
 #define _PARSER_H_
 
 #include "grammar.h"
-
+namespace lang {
 class Token;
 
 class Parser {
@@ -12,5 +12,5 @@ class Parser {
     Parser(const Grammar* grammar);
     bool parse(const std::vector<Token>& tokens);
 };
-
+}  // namespace lang
 #endif

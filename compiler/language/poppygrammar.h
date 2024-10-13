@@ -1,5 +1,7 @@
 #include "grammar.h"
 
+using namespace lang;
+
 const Grammar poppy_grammar = Grammar{
     Symbol::PROGRAM,
     {
