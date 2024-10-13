@@ -1,7 +1,10 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+#include <optional>
+
 #include "grammar.h"
+#include "parsetree.h"
 namespace lang {
 class Token;
 
@@ -10,7 +13,7 @@ class Parser {
 
    public:
     Parser(const Grammar* grammar);
-    bool parse(const std::vector<Token>& tokens);
+    std::optional<ParseTree> parse(const std::vector<Token>& tokens);
 };
 }  // namespace lang
 #endif

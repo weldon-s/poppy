@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "language/lexing/symbol.h"
 #include "language/lexing/token.h"
@@ -8,11 +9,15 @@ namespace lang {
 Parser::Parser(const Grammar* grammar) : grammar{grammar} {}
 
 // ancillary function to add items if they are not already present
-template <class T>
-void add_if_not_present(std::vector<T>& items, T item) {
-    if (std::find(items.begin(), items.end(), item) == items.end()) {
-        items.push_back(item);
+template <class T, class U>
+void add_if_not_present(std::vector<std::pair<T, U>>& items, T t, U u) {
+    for (const auto& item : items) {
+        if (item.first == t) {
+            return;
+        }
     }
+
+    items.emplace_back(t, u);
 }
 
 // Earley item
@@ -29,8 +34,10 @@ struct Item {
     }
 };
 
-bool Parser::parse(const std::vector<Token>& tokens) {
-    std::vector<std::vector<Item>> state_sets;
+typedef std::pair<Item, ParseTree> State;
+
+std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
+    std::vector<std::vector<State>> state_sets;
 
     for (size_t i = 0; i <= tokens.size(); ++i) {
         state_sets.push_back({});
@@ -38,51 +45,60 @@ bool Parser::parse(const std::vector<Token>& tokens) {
 
     for (const Rule& rule : grammar->rules()) {
         if (rule.lhs() == grammar->start()) {
-            state_sets[0].emplace_back(&rule, 0, 0);
+            state_sets[0].emplace_back(Item{&rule, 0, 0}, ParseTree{rule.lhs(), 0});
         }
     }
 
     // all tokens with index less than i have been processed
     for (size_t i = 0; i <= tokens.size(); ++i) {
         for (size_t j = 0; j < state_sets[i].size(); ++j) {
-            const Item item = state_sets[i][j];
+            const State item = state_sets[i][j];
 
             // prediction
-            if (!item.done() && !is_terminal(item.rule->rhs()[item.dot])) {
-                Symbol next_symbol = item.rule->rhs()[item.dot];
+            if (!item.first.done() && !is_terminal(item.first.rule->rhs()[item.first.dot])) {
+                Symbol next_symbol = item.first.rule->rhs()[item.first.dot];
 
                 for (const Rule& rule : grammar->rules()) {
                     // add all rules with the next symbol on the left hand side
                     if (rule.lhs() == next_symbol) {
-                        add_if_not_present(state_sets[i], {&rule, 0, i});
+                        add_if_not_present(state_sets[i], {&rule, 0, i}, {rule.lhs(), i});
                     }
                 }
 
                 // if next symbol is nullable, advance the current rule
                 if (grammar->nullable(next_symbol)) {
-                    add_if_not_present(state_sets[i], {item.rule, item.dot + 1, item.start});
+                    std::vector<ParseTree> children = item.second.children();
+                    children.push_back(ParseTree{next_symbol, i});
+
+                    add_if_not_present(state_sets[i], {item.first.rule, item.first.dot + 1, item.first.start},
+                                       {item.first.rule->lhs(), children});
                 }
             }
 
             // scanning
-            if (!item.done() && is_terminal(item.rule->rhs()[item.dot])) {
+            if (!item.first.done() && is_terminal(item.first.rule->rhs()[item.first.dot])) {
                 // check if the token matches the expected terminal
                 // if it does, add the item to the next state set
-                if ((i < tokens.size()) && (item.rule->rhs()[item.dot] == tokens[i].type())) {
-                    add_if_not_present(state_sets[i + 1], {item.rule, item.dot + 1, item.start});
+                if ((i < tokens.size()) && (item.first.rule->rhs()[item.first.dot] == tokens[i].type())) {
+                    std::vector<ParseTree> children = item.second.children();
+                    children.push_back(ParseTree{tokens[i], i});
+                    add_if_not_present(state_sets[i + 1], {item.first.rule, item.first.dot + 1, item.first.start}, {item.first.rule->lhs(), children});
                 }
             }
 
             // completion
-            if (item.done()) {
+            if (item.first.done()) {
                 // advance all items in the relevant state set that expect the completed item's LHS
-                for (size_t k = 0; k < state_sets[item.start].size(); ++k) {
-                    const Item& start_item = state_sets[item.start][k];
+                for (size_t k = 0; k < state_sets[item.first.start].size(); ++k) {
+                    const State& start_item = state_sets[item.first.start][k];
 
-                    if ((!start_item.done()) &&
-                        (!start_item.rule->rhs().empty()) &&
-                        (start_item.rule->rhs()[start_item.dot] == item.rule->lhs())) {
-                        add_if_not_present(state_sets[i], {start_item.rule, start_item.dot + 1, start_item.start});
+                    if ((!start_item.first.done()) &&
+                        (!start_item.first.rule->rhs().empty()) &&
+                        (start_item.first.rule->rhs()[start_item.first.dot] == item.first.rule->lhs())) {
+                        std::vector<ParseTree> children = start_item.second.children();
+                        children.push_back(item.second);
+                        add_if_not_present(state_sets[i], {start_item.first.rule, start_item.first.dot + 1, start_item.first.start},
+                                           {start_item.first.rule->lhs(), children});
                     }
                 }
             }
@@ -90,12 +106,11 @@ bool Parser::parse(const std::vector<Token>& tokens) {
     }
 
     // check if the last state set contains a completed item with the start symbol
-    for (const Item& item : state_sets.back()) {
-        if (item.done() && (item.rule->lhs() == grammar->start()) && (item.start == 0)) {
-            return true;
+    for (const State& item : state_sets.back()) {
+        if (item.first.done() && (item.first.rule->lhs() == grammar->start()) && (item.first.start == 0)) {
+            return item.second;
         }
     }
-
-    return false;
+    return std::nullopt;
 }
 }  // namespace lang
