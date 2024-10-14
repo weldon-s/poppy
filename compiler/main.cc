@@ -2,17 +2,16 @@
 
 #include "language/lexing/lexer.h"
 #include "language/parsing/parser.h"
-#include "language/parsing/parsetree.h"
 #include "language/parsing/poppygrammar.h"
 
-void print_tree(const ParseTree& tree, int depth) {
+void print_tree(const Parser::Tree& tree, int depth) {
     for (int i = 0; i < depth; ++i) {
         std::cout << "  ";
     }
     std::cout << (int)tree.data().type() << ": ";
     std::cout << tree.data().value() << std::endl;
 
-    for (const ParseTree& child : tree.children()) {
+    for (const Parser::Tree& child : tree.children()) {
         print_tree(child, depth + 1);
     }
 }
@@ -67,7 +66,7 @@ int main(int argc, char* argv[]) {
 
     lang::Parser p{&poppy_grammar};
 
-    std::optional<ParseTree> tree = p.parse(tokens);
+    std::optional<Parser::Tree> tree = p.parse(tokens);
 
     if (tree) {
         print_tree(*tree, 0);

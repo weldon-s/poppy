@@ -21,6 +21,24 @@ void add_if_not_present(std::vector<std::pair<T, U>>& items, T t, U u) {
     items.emplace_back(t, u);
 }
 
+Parser::Tree::Tree(Token token) : _data{token}, _children{} {}
+
+Parser::Tree::Tree(Symbol s, std::vector<Tree>& children)
+    : _data{Token{"", s}},
+      _children{children} {}
+
+Parser::Tree::Tree(Symbol s, std::vector<Tree>&& children)
+    : _data{Token{"", s}},
+      _children{children} {}
+
+const std::vector<Parser::Tree>& Parser::Tree::children() const {
+    return _children;
+}
+
+const Token& Parser::Tree::data() const {
+    return _data;
+}
+
 // Earley item
 struct Item {
     const Rule* rule;
@@ -35,9 +53,9 @@ struct Item {
     }
 };
 
-typedef std::pair<Item, ParseTree> State;
+typedef std::pair<Item, Parser::Tree> State;
 
-std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
+std::optional<Parser::Tree> Parser::parse(const std::vector<Token>& tokens) {
     std::vector<std::vector<State>> state_sets;
 
     for (size_t i = 0; i <= tokens.size(); ++i) {
@@ -46,7 +64,7 @@ std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
 
     for (const Rule& rule : grammar->rules()) {
         if (rule.lhs() == grammar->start()) {
-            state_sets[0].emplace_back(Item{&rule, 0, 0}, ParseTree{rule.lhs()});
+            state_sets[0].emplace_back(Item{&rule, 0, 0}, Tree{rule.lhs()});
         }
     }
 
@@ -68,7 +86,7 @@ std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
 
                 // if next symbol is nullable, advance the current rule
                 if (grammar->nullable(next_symbol)) {
-                    item.second._children.push_back(ParseTree{next_symbol});
+                    item.second._children.push_back(Tree{next_symbol});
 
                     add_if_not_present(state_sets[i], {item.first.rule, item.first.dot + 1, item.first.start},
                                        {item.first.rule->lhs(), std::move(item.second._children)});
@@ -80,7 +98,7 @@ std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
                 // check if the token matches the expected terminal
                 // if it does, add the item to the next state set
                 if ((i < tokens.size()) && (item.first.rule->rhs()[item.first.dot] == tokens[i].type())) {
-                    item.second._children.push_back(ParseTree{tokens[i]});
+                    item.second._children.push_back(Tree{tokens[i]});
                     add_if_not_present(state_sets[i + 1],
                                        {item.first.rule, item.first.dot + 1, item.first.start},
                                        {item.first.rule->lhs(), std::move(item.second._children)});
@@ -96,7 +114,7 @@ std::optional<ParseTree> Parser::parse(const std::vector<Token>& tokens) {
                     if ((!start_item.first.done()) &&
                         (!start_item.first.rule->rhs().empty()) &&
                         (start_item.first.rule->rhs()[start_item.first.dot] == item.first.rule->lhs())) {
-                        std::vector<ParseTree> children = start_item.second.children();
+                        std::vector<Tree> children = start_item.second.children();
                         children.push_back(item.second);
                         add_if_not_present(state_sets[i], {start_item.first.rule, start_item.first.dot + 1, start_item.first.start},
                                            {start_item.first.rule->lhs(), std::move(children)});
