@@ -200,7 +200,7 @@ Token Lexer::next_token(int* position) {
                     throw std::runtime_error("invalid character literal");
                 }
 
-                Token result{source[*position + 1] + "", Symbol::CHARLIT};
+                Token result{{source[*position + 1]}, Symbol::CHARLIT};
                 *position += 3;
                 return result;
             }
