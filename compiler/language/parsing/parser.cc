@@ -39,6 +39,20 @@ const Token& Parser::Tree::data() const {
     return _data;
 }
 
+const Parser::Tree* Parser::Tree::parent() const {
+    return _parent;
+}
+
+std::string Parser::Tree::to_string() const {
+    std::string result = _data.value();
+    if (!_children.empty()) {
+        for (size_t i = 0; i < _children.size(); ++i) {
+            result += _children[i].to_string();
+        }
+    }
+    return result;
+}
+
 // Earley item
 struct Item {
     const Rule* rule;

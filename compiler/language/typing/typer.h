@@ -1,33 +1,37 @@
 #ifndef _TYPER_H_
 #define _TYPER_H_
 
+#include <map>
+#include <memory>
+#include <set>
+
 #include "language/parsing/parser.h"
 #include "language/typing/type.h"
 
 namespace lang {
 class Typer {
-    class Tree;
+    struct SymbolTableEntry {
+        const std::string name;
+        const lang::Type type;
+        const Parser::Tree* tree;
 
-    Tree construct(const Parser::Tree& tree);
-
-   public:
-    class Tree {
-        Type _type;
-        std::vector<Tree> _children;
-        std::optional<std::string> _value;  // for terminals
-
-        Tree(Type type, std::vector<Tree>& children);
-        Tree(Type type, std::string value);
-
-        friend class Typer;
-
-       public:
-        Type type() const;
-        const std::vector<Tree>& children() const;
-        std::optional<std::string> value() const;
+        bool operator<(const SymbolTableEntry&) const;
     };
 
-    Typer(Parser::Tree tree);
+    std::set<SymbolTableEntry> _symbol_table;
+    std::map<const Parser::Tree*, lang::Type> _type_table;
+    Parser::Tree _tree;
+
+    void construct(const Parser::Tree&);
+    void construct_program_tree(const Parser::Tree&);
+    void construct_defn_tree(const Parser::Tree&);
+    void construct_stmt_tree(const Parser::Tree&);
+
+    void add_symbol(std::string, Type, const Parser::Tree*);
+    Type parse_params(const Parser::Tree&);
+
+   public:
+    Typer(Parser::Tree);
 };
 }  // namespace lang
 

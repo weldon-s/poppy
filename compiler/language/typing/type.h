@@ -5,9 +5,7 @@
 #include <vector>
 namespace lang {
 class Type {
-    const std::string _name;
-
-   private:
+    std::string _name;
     Type(std::string name);
 
    public:

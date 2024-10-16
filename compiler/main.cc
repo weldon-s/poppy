@@ -3,6 +3,7 @@
 #include "language/lexing/lexer.h"
 #include "language/parsing/parser.h"
 #include "language/parsing/poppygrammar.h"
+#include "language/typing/typer.h"
 
 void print_tree(const Parser::Tree& tree, int depth) {
     for (int i = 0; i < depth; ++i) {
@@ -17,45 +18,63 @@ void print_tree(const Parser::Tree& tree, int depth) {
 }
 
 int main(int argc, char* argv[]) {
+    // lang::Lexer l{
+    //     R"""(
+    // !!hello
+    // char f(int n, int m) {
+    //     if (n <= 1) {
+    //         hop n;
+    //     }
+
+    //     1 * 2 + d / 4 % 5050 - 'r';
+
+    //     if (n == 2 || n == 3) {
+    //         hop 1;
+    //     }
+    //     else {
+    //         string s = "dddd";
+    //         s = 4;
+    //     }
+
+    //     while(!(n > 0 && n <= 0 && n != 0)) {
+    //         hop n;
+
+    //         for(int i = 0; !i >= 10; i = i + 1) {
+    //             print(i);
+    //         }
+
+    //         n = n - 1;
+    //     }
+
+    //     hop f(n - 'f') + f(f(--n) - 2);
+    // }
+
+    // !-long comment...
+    // words words words
+    // ...
+    // -!
+    // int main(){
+    //     print(f(10));
+    //     hop 0;
+    // }
+    //         )"""};
+
     lang::Lexer l{
         R"""(
-    !!hello
-    char f(int n, int m) {
-        if (n <= 1) {
-            hop n;
-        }
-
-        1 * 2 + d / 4 % 5050 - 'r';
-
-        if (n == 2 || n == 3) {
-            hop 1;
-        }
-        else {
-            string s = "dddd";
-            s = 4;
-        }
-
-        while(!(n > 0 && n <= 0 && n != 0)) {
-            hop n;
-
-            for(int i = 0; !i >= 10; i = i + 1) {
-                print(i);
+        int f(int n) {
+            if(n <= 1) {
+                hop n;
+            }
+            else {
+                hop f(n - 1) + f(n - 2);
             }
 
-            n = n - 1;
+            hop n;
         }
 
-        hop f(n - 'f') + f(f(--n) - 2);
-    }
-
-    !-long comment...
-    words words words
-    ...
-    -!
-    int main(){
-        print(f(10));
-        hop 0;
-    }
+        int main() {
+            hop f(10);
+        }
             )"""};
 
     std::vector<lang::Token> tokens = l.scan();
@@ -68,9 +87,16 @@ int main(int argc, char* argv[]) {
 
     std::optional<Parser::Tree> tree = p.parse(tokens);
 
-    if (tree) {
-        print_tree(*tree, 0);
-    } else {
+    if (!tree) {
         std::cout << "Parse error" << std::endl;
+        return 1;
     }
+
+    lang::Typer t{*tree};
+
+    // if (tree) {
+    //     print_tree(*tree, 0);
+    // } else {
+    //     std::cout << "Parse error" << std::endl;
+    // }
 }

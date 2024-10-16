@@ -13,6 +13,7 @@ class Parser {
     class Tree {
         const Token _data;
         std::vector<Tree> _children;
+        Tree* _parent;
 
         Tree(Token token);                                  // for terminal nodes
         Tree(Symbol s, std::vector<Tree>& children);        // for non-terminal nodes
@@ -21,6 +22,8 @@ class Parser {
        public:
         const Token& data() const;
         const std::vector<Tree>& children() const;
+        const Tree* parent() const;
+        std::string to_string() const;
 
         friend class Parser;
     };
