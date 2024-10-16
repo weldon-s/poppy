@@ -24,8 +24,12 @@ $$\begin{align*}
 \text{stmts} &\rightarrow \text{stmt stmts}  \\
 \text{stmt} &\rightarrow \text{semistmt SEMICOLON}  \\
 \text{semistmt} &\rightarrow \text{type IDENTIFIER ASSIGN expr}  \\
-\text{semistmt} &\rightarrow \text{IDENTIFIER ASSIGN expr}  \\
-\text{semistmt} &\rightarrow \text{HOP expr}  \\
+\text{semistmt} &\rightarrow \text{vardec}  \\
+\text{vardec} &\rightarrow \text{type IDENTIFIER ASSIGN expr}  \\
+\text{semistmt} &\rightarrow \text{varasst}  \\
+\text{varasst} &\rightarrow \text{IDENTIFIER ASSIGN expr}  \\
+\text{semistmt} &\rightarrow \text{ret}  \\
+\text{ret} &\rightarrow \text{HOP expr}  \\
 \text{semistmt} &\rightarrow \text{expr} \\
 \text{stmt} &\rightarrow \text{IF LPAREN cond RPAREN LRBACE stmts RBRACE optelse}  \\
 \text{optelse} &\rightarrow \varnothing  \\

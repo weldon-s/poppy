@@ -14,8 +14,6 @@ $$
 \text{optparams}&\rightarrow \text{params}\\
 \text{params}&\rightarrow \text{param, params}\\
 \text{param}&\rightarrow \text{assignable}\\
-\text{param}&\rightarrow \text{void}\\
-\text{param}&\rightarrow \text{bool}\\
 \end{align*}
 $$
 

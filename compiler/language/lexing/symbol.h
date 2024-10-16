@@ -62,7 +62,10 @@ enum class Symbol {
     MULTEXPR,
     UNEXPR,
     OPTARGS,
-    ARGS
+    ARGS,
+    VARDEC,
+    VARASST,
+    RET
 };
 
 constexpr bool is_terminal(Symbol s) {
