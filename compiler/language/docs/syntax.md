@@ -23,9 +23,9 @@ $$\begin{align*}
 \text{stmts} &\rightarrow \text{stmt}  \\
 \text{stmts} &\rightarrow \text{stmt stmts}  \\
 \text{stmt} &\rightarrow \text{semistmt SEMICOLON}  \\
-\text{semistmt} &\rightarrow \text{type IDENTIFIER ASSIGN expr}  \\
 \text{semistmt} &\rightarrow \text{vardec}  \\
 \text{vardec} &\rightarrow \text{type IDENTIFIER ASSIGN expr}  \\
+\text{vardec} &\rightarrow \text{type IDENTIFIER}  \\
 \text{semistmt} &\rightarrow \text{varasst}  \\
 \text{varasst} &\rightarrow \text{IDENTIFIER ASSIGN expr}  \\
 \text{semistmt} &\rightarrow \text{ret}  \\

@@ -14,14 +14,6 @@ std::string Type::name() const {
     return _name;
 }
 
-constexpr bool Type::operator==(const Type &other) {
-    return _name == other._name;
-}
-
-constexpr bool Type::is_function() const {
-    return _name[0] == '(';
-}
-
 Type Type::function(Type return_type, std::vector<Type> args) {
     std::string name = "(";
     for (size_t i = 0; i < args.size(); i++) {
@@ -33,5 +25,27 @@ Type Type::function(Type return_type, std::vector<Type> args) {
     name += ") -> ";
     name += return_type.name();
     return Type(name);
+}
+
+Type Type::return_type() const {
+    size_t start = _name.find("-> ") + 3;
+    return Type(_name.substr(start));
+}
+
+std::vector<Type> Type::arg_types() const {
+    size_t start = _name.find("(") + 1;
+    size_t end = _name.find(")");
+    std::string args = _name.substr(start, end - start);
+    std::vector<Type> result;
+    size_t pos = 0;
+    while (pos < args.size()) {
+        size_t comma = args.find(", ", pos);
+        if (comma == std::string::npos) {
+            comma = args.size();
+        }
+        result.push_back(Type(args.substr(pos, comma - pos)));
+        pos = comma + 2;
+    }
+    return result;
 }
 }  // namespace lang

@@ -10,8 +10,17 @@ class Type {
 
    public:
     std::string name() const;
-    constexpr bool operator==(const Type &other);
-    constexpr bool is_function() const;
+    constexpr bool operator==(const Type &other) const {
+        return _name == other._name;
+    }
+
+    constexpr bool is_function() const {
+        return _name[0] == '(';
+    }
+
+    // undefined behavior if not a function type
+    Type return_type() const;
+    std::vector<Type> arg_types() const;
 
     const static Type INT;
     const static Type CHAR;

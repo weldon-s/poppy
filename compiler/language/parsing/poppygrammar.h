@@ -22,6 +22,7 @@ const Grammar poppy_grammar = Grammar{
         Rule(Symbol::STMT, {Symbol::SEMISTMT, Symbol::SEMICOLON}),
         Rule(Symbol::SEMISTMT, {Symbol::VARDEC}),
         Rule(Symbol::VARDEC, {Symbol::TYPE, Symbol::IDENTIFIER, Symbol::ASSIGN, Symbol::EXPR}),
+        Rule(Symbol::VARDEC, {Symbol::TYPE, Symbol::IDENTIFIER}),
         Rule(Symbol::SEMISTMT, {Symbol::VARASST}),
         Rule(Symbol::VARASST, {Symbol::IDENTIFIER, Symbol::ASSIGN, Symbol::EXPR}),
         Rule(Symbol::SEMISTMT, {Symbol::RET}),
