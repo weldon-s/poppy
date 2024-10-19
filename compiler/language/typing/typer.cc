@@ -106,7 +106,7 @@ Type Typer::parse_params(const Parser::Tree& tree) {
     return Type::function(return_type, param_types);
 }
 
-void Typer::construct_program_tree(const Parser::Tree& tree) {
+Type Typer::construct_program_tree(const Parser::Tree& tree) {
     assert(tree.data().type() == Symbol::PROGRAM);
 
     const Parser::Tree* defns = &tree.children()[0];
@@ -135,86 +135,76 @@ void Typer::construct_program_tree(const Parser::Tree& tree) {
     }
 
     construct_defn_tree(defns->children().front());
+    return Type::NONE;
 }
 
-void Typer::construct_defn_tree(const Parser::Tree& tree) {
+Type Typer::construct_defn_tree(const Parser::Tree& tree) {
     assert(tree.data().type() == Symbol::DEFN);
     std::cout << "Defn: " << tree.to_string() << std::endl;
-    const Parser::Tree* inner = &tree.children()[6];  // STMTS
+    Type stmts = construct_stmts_tree(tree.children()[6], tree);
 
-    construct_stmts_tree(*inner, tree);
-
-    if (_type_table.at(inner) != symbol_to_type(tree.children().front())) {
+    if (stmts != symbol_to_type(tree.children().front())) {
         throw std::runtime_error("Return type mismatch in function " + tree.children()[1].data().value());
     }
+
+    return Type::NONE;
 }
 
-void Typer::construct_stmts_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_stmts_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMTS);
 
     // STMTS -> STMT | STMT STMTS
 
     if (tree.children().size() == 2) {
         construct_stmt_tree(tree.children().front(), defn);
-        construct_stmts_tree(tree.children().back(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().back()));  // statements rule 1
-    } else {
-        construct_stmt_tree(tree.children().front(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
+        Type ret = construct_stmts_tree(tree.children().back(), defn);
+        return ret;  // statements rule 1
     }
+
+    return construct_stmt_tree(tree.children().front(), defn);
 }
 
-void Typer::construct_stmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_stmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMT);
     std::cout << tree.to_string() << std::endl;
     if (tree.children().size() == 2) {  // SEMISTMT
-        construct_semistmt_tree(tree.children().front(), defn);
+        return construct_semistmt_tree(tree.children().front(), defn);
     }
 
     // STMT -> IF ( COND ) { STMTS } OPTELSE
     if (tree.children().front().data().type() == Symbol::IF) {
-        construct_if_tree(tree, defn);
-        return;
+        return construct_if_tree(tree, defn);
     }
 
     // STMT -> WHILE ( COND ) { STMTS }
     if (tree.children().front().data().type() == Symbol::WHILE) {
-        construct_while_tree(tree, defn);
-        return;
+        return construct_while_tree(tree, defn);
     }
 
     // STMT -> FOR ( SEMISTMT COND SEMISTMT ) { STMTS }
-    construct_for_tree(tree, defn);
+    return construct_for_tree(tree, defn);
 }
 
-void Typer::construct_semistmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_semistmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     switch (tree.children().front().data().type()) {
         case Symbol::VARDEC:
             // VARDEC -> TYPE IDENTIFIER ASSIGN EXPR
-            construct_vardec_tree(tree.children().front(), defn);
-            break;
+            return construct_vardec_tree(tree.children().front(), defn);
         case Symbol::VARASST:
             // VARASST -> IDENTIFIER ASSIGN EXPR
-            construct_varasst_tree(tree.children().front(), defn);
-            break;
+            return construct_varasst_tree(tree.children().front(), defn);
         case Symbol::RET:
-            construct_ret_tree(tree.children().front(), defn);
-            _type_table.emplace(&tree, _type_table.at(&tree.children().front()));  // statements rule 2
-            break;
+            // RET -> hop EXPR
+            return construct_ret_tree(tree.children().front(), defn);  // statements rule 2
         case Symbol::EXPR:
             // EXPR
-            construct_expr_tree(tree.children().front(), defn);
-            break;
+            return construct_expr_tree(tree.children().front(), defn);
         default:
-            throw std::runtime_error("Invalid semistmt");
-    }
-
-    if (!_type_table.contains(&tree)) {
-        _type_table.emplace(&tree, Type::VOID);
+            throw std::runtime_error("Invalid SEMISTMT");
     }
 }
 
-void Typer::construct_if_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_if_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMT);
 
     // STMT -> IF ( COND ) { STMTS } OPTELSE
@@ -223,9 +213,9 @@ void Typer::construct_if_tree(const Parser::Tree& tree, const Parser::Tree& defn
     const Parser::Tree* stmts = &tree.children()[5];
     const Parser::Tree* optelse = &tree.children().back();
 
-    construct_cond_tree(*cond, defn);
+    Type cond_type = construct_cond_tree(*cond, defn);
 
-    if (_type_table.at(cond) != Type::BOOL) {
+    if (cond_type != Type::BOOL) {
         throw std::runtime_error("Non-boolean condition in if statement");
     }
 
@@ -235,10 +225,10 @@ void Typer::construct_if_tree(const Parser::Tree& tree, const Parser::Tree& defn
         construct_stmts_tree(optelse->children()[2], defn);
     }
 
-    _type_table.emplace(&tree, Type::VOID);
+    return Type::VOID;
 }
 
-void Typer::construct_while_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_while_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMT);
 
     // STMT -> WHILE ( COND ) { STMTS }
@@ -246,18 +236,18 @@ void Typer::construct_while_tree(const Parser::Tree& tree, const Parser::Tree& d
     const Parser::Tree* cond = &tree.children()[2];
     const Parser::Tree* stmts = &tree.children()[5];
 
-    construct_cond_tree(*cond, defn);
+    Type cond_type = construct_cond_tree(*cond, defn);
 
-    if (_type_table.at(cond) != Type::BOOL) {
+    if (cond_type != Type::BOOL) {
         throw std::runtime_error("Non-boolean condition in while statement");
     }
 
     construct_stmts_tree(*stmts, defn);
 
-    _type_table.emplace(&tree, Type::VOID);
+    return Type::VOID;
 }
 
-void Typer::construct_for_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_for_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMT);
 
     // STMT -> FOR ( SEMISTMT; COND; SEMISTMT ) { STMTS }
@@ -267,89 +257,75 @@ void Typer::construct_for_tree(const Parser::Tree& tree, const Parser::Tree& def
     const Parser::Tree* stmts = &tree.children()[9];
 
     construct_semistmt_tree(*init, defn);
-    construct_cond_tree(*cond, defn);
+    Type cond_type = construct_cond_tree(*cond, defn);
 
-    if (_type_table.at(cond) != Type::BOOL) {
+    if (cond_type != Type::BOOL) {
         throw std::runtime_error("Non-boolean condition in for statement");
     }
 
     construct_semistmt_tree(*update, defn);
     construct_stmts_tree(*stmts, defn);
 
-    _type_table.emplace(&tree, Type::VOID);
+    return Type::VOID;
 }
 
-void Typer::construct_cond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_cond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::COND);
 
-    construct_andcond_tree(tree.children().front(), defn);
-    _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
+    return construct_andcond_tree(tree.children().front(), defn);
 }
 
-void Typer::construct_andcond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_andcond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::ANDCOND);
 
     if (tree.children().size() == 1) {
         // ANDCOND -> ORCOND
-        construct_orcond_tree(tree.children().front(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
-        return;
+        return construct_orcond_tree(tree.children().front(), defn);
     }
 
     // ANDCOND -> ANDCOND && ORCOND
 
-    construct_andcond_tree(tree.children().front(), defn);
-    construct_orcond_tree(tree.children().back(), defn);
+    Type type1 = construct_andcond_tree(tree.children().front(), defn);
+    Type type2 = construct_orcond_tree(tree.children().back(), defn);
 
-    if (_type_table.at(&tree.children().front()) != Type::BOOL || _type_table.at(&tree.children().back()) != Type::BOOL) {
+    if (type1 != Type::BOOL || type2 != Type::BOOL) {
         throw std::runtime_error("Non-boolean operand in logical AND");
     }
 
-    _type_table.emplace(&tree, Type::BOOL);
+    return Type::BOOL;
 }
 
-void Typer::construct_orcond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_orcond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::ORCOND);
 
     if (tree.children().size() == 1) {
         // ORCOND -> UNCOND
-        construct_uncond_tree(tree.children().front(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
-        return;
+        return construct_uncond_tree(tree.children().front(), defn);
     }
 
     // ORCOND -> ORCOND || UNCOND
 
-    construct_orcond_tree(tree.children().front(), defn);
-    construct_uncond_tree(tree.children().back(), defn);
+    Type type1 = construct_orcond_tree(tree.children().front(), defn);
+    Type type2 = construct_uncond_tree(tree.children().back(), defn);
 
-    if (_type_table.at(&tree.children().front()) != Type::BOOL || _type_table.at(&tree.children().back()) != Type::BOOL) {
+    if (type1 != Type::BOOL || type2 != Type::BOOL) {
         throw std::runtime_error("Non-boolean operand in logical OR");
     }
 
-    _type_table.emplace(&tree, Type::BOOL);
+    return Type::BOOL;
 }
 
-void Typer::construct_uncond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_uncond_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::UNCOND);
 
     if (tree.children().size() == 2) {
         // UNCOND -> NOT UNCOND
-        construct_uncond_tree(tree.children().back(), defn);
-
-        if (_type_table.at(&tree.children().back()) != Type::BOOL) {
-            throw std::runtime_error("Non-boolean operand in logical NOT");
-        }
-
-        _type_table.emplace(&tree, Type::BOOL);
-        return;
+        return construct_uncond_tree(tree.children().back(), defn);
     }
 
     if (tree.children().front().data().type() == Symbol::LPAREN) {
         // UNCOND -> ( COND )
-        construct_cond_tree(tree.children()[1], defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children()[1]));
-        return;
+        return construct_cond_tree(tree.children()[1], defn);
     }
 
     // UNCOND -> EXPR LT EXPR
@@ -359,25 +335,27 @@ void Typer::construct_uncond_tree(const Parser::Tree& tree, const Parser::Tree& 
     // UNCOND -> EXPR EQ EXPR
     // UNCOND -> EXPR NE EXPR
 
-    construct_expr_tree(tree.children().front(), defn);
-    construct_expr_tree(tree.children().back(), defn);
-
-    Type left_type = _type_table.at(&tree.children().front());
-    Type right_type = _type_table.at(&tree.children().back());
+    Type left_type = construct_expr_tree(tree.children().front(), defn);
+    Type right_type = construct_expr_tree(tree.children().back(), defn);
 
     if (left_type != Type::INT || right_type != Type::INT) {
         throw std::runtime_error("Invalid comparison type");
     }
 
-    _type_table.emplace(&tree, Type::BOOL);
+    return Type::BOOL;
 }
 
-void Typer::construct_ret_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
-    construct_expr_tree(tree.children().back(), defn);
-    _type_table.emplace(&tree, _type_table.at(&tree.children().back()));
+Type Typer::construct_ret_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+    Type ret_type = construct_expr_tree(tree.children().back(), defn);
+
+    if (ret_type == Type::VOID) {
+        throw std::runtime_error("Return type mismatch");
+    }
+
+    return ret_type;
 }
 
-void Typer::construct_vardec_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_vardec_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::VARDEC);
 
     // VARDEC -> TYPE IDENTIFIER ASSIGN EXPR
@@ -386,22 +364,23 @@ void Typer::construct_vardec_tree(const Parser::Tree& tree, const Parser::Tree& 
 
     if (tree.children().size() == 2) {
         add_symbol(name->data().value(), symbol_to_type(*type), &defn);  // variables rule 1
-        return;
+        return Type::VOID;
     }
 
     const Parser::Tree* expr = &tree.children().back();
 
     Type type_type = symbol_to_type(*type);
-    construct_expr_tree(*expr, defn);
+    Type expr_type = construct_expr_tree(*expr, defn);
 
-    if (type_type != _type_table.at(expr)) {
+    if (type_type != expr_type) {
         throw std::runtime_error("Type mismatch in declaration of " + name->data().value());
     }
 
     add_symbol(name->data().value(), type_type, &tree);  // variables rule 2
+    return Type::VOID;
 }
 
-void Typer::construct_varasst_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_varasst_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::VARASST);
 
     // VARASST -> IDENTIFIER ASSIGN EXPR
@@ -409,15 +388,17 @@ void Typer::construct_varasst_tree(const Parser::Tree& tree, const Parser::Tree&
     const Parser::Tree* name = &tree.children().front();
     const Parser::Tree* expr = &tree.children().back();
 
-    construct_expr_tree(*expr, defn);
+    Type expr_type = construct_expr_tree(*expr, defn);
     Type name_type = get_type(name->data().value(), defn);
 
-    if (name_type != _type_table.at(expr)) {
+    if (name_type != expr_type) {
         throw std::runtime_error("Type mismatch in assignment to " + name->data().value());
     }
+
+    return Type::VOID;
 }
 
-void Typer::construct_expr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_expr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     std::cout << "Expr: " << tree.to_string() << std::endl;
 
     std::cout << (int)tree.data().type() << std::endl;
@@ -425,119 +406,104 @@ void Typer::construct_expr_tree(const Parser::Tree& tree, const Parser::Tree& de
     assert(tree.data().type() == Symbol::EXPR);
 
     // EXPR -> ADDEXPR
-    construct_addexpr_tree(tree.children().front(), defn);
-    _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
+    return construct_addexpr_tree(tree.children().front(), defn);
 }
 
-void Typer::construct_addexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_addexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::ADDEXPR);
 
     if (tree.children().size() == 1) {
         // ADD_EXPR -> MULTEXPR
-        construct_multexpr_tree(tree.children().front(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
-        return;
+        return construct_multexpr_tree(tree.children().front(), defn);
     }
 
     if (tree.children()[1].data().type() == Symbol::PLUS) {
         // ADD_EXPR -> ADD_EXPR + MULTEXPR
-        construct_addexpr_tree(tree.children().front(), defn);
-        construct_multexpr_tree(tree.children().back(), defn);
-
-        Type left_type = _type_table.at(&tree.children().front());
-        Type right_type = _type_table.at(&tree.children().back());
+        Type left_type = construct_addexpr_tree(tree.children().front(), defn);
+        Type right_type = construct_multexpr_tree(tree.children().back(), defn);
 
         if (left_type == Type::INT && right_type == Type::INT) {
-            _type_table.emplace(&tree, Type::INT);  // arithmetic rule 1
-        } else if (left_type == Type::STRING && right_type == Type::STRING) {
-            _type_table.emplace(&tree, Type::STRING);  // string manipulation rule 1
-        } else if (left_type == Type::STRING && right_type == Type::INT) {
-            _type_table.emplace(&tree, Type::CHAR);  // string manipulation rule 2
-        } else {
-            throw std::runtime_error("Type mismatch in addition");
+            return Type::INT;  // arithmetic rule 1
         }
-        return;
+
+        if (left_type == Type::STRING && right_type == Type::STRING) {
+            return Type::STRING;  // string manipulation rule 1
+        }
+
+        if (left_type == Type::STRING && right_type == Type::INT) {
+            return Type::CHAR;  // string manipulation rule 2
+        }
+
+        throw std::runtime_error("Type mismatch in addition");
     }
 
     // ADD_EXPR -> ADD_EXPR - MULTEXPR
 
-    construct_addexpr_tree(tree.children().front(), defn);
-    construct_multexpr_tree(tree.children().back(), defn);
-
-    Type left_type = _type_table.at(&tree.children().front());
-    Type right_type = _type_table.at(&tree.children().back());
+    Type left_type = construct_addexpr_tree(tree.children().front(), defn);
+    Type right_type = construct_multexpr_tree(tree.children().back(), defn);
 
     if (left_type == Type::INT && right_type == Type::INT) {
-        _type_table.emplace(&tree, Type::INT);  // arithmetic rule 1
+        return Type::INT;  // arithmetic rule 1
     } else {
         throw std::runtime_error("Type mismatch in subtraction");
     }
 }
 
-void Typer::construct_multexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_multexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::MULTEXPR);
 
     if (tree.children().size() == 1) {
         // MULTEXPR -> UNEXPR
-        construct_unexpr_tree(tree.children().front(), defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children().front()));
-        return;
+        return construct_unexpr_tree(tree.children().front(), defn);
     }
 
     // MULTEXPR -> MULTEXPR * UNEXPR
     // MULTEXPR -> MULTEXPR / UNEXPR
     // MULTEXPR -> MULTEXPR % UNEXPR
 
-    construct_multexpr_tree(tree.children().front(), defn);
-    construct_unexpr_tree(tree.children().back(), defn);
-
-    Type left_type = _type_table.at(&tree.children().front());
-    Type right_type = _type_table.at(&tree.children().back());
+    Type left_type = construct_multexpr_tree(tree.children().front(), defn);
+    Type right_type = construct_unexpr_tree(tree.children().back(), defn);
 
     if (left_type == Type::INT && right_type == Type::INT) {
-        _type_table.emplace(&tree, Type::INT);  // arithmetic rule 1
+        return Type::INT;  // arithmetic rule 1
     } else {
         throw std::runtime_error("Type mismatch in multiplication, division, or modulo");
     }
 }
 
-void Typer::construct_unexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+Type Typer::construct_unexpr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::UNEXPR);
 
     if (tree.children().front().data().type() == Symbol::LPAREN) {
         // UNEXPR -> ( EXPR )
-        construct_expr_tree(tree.children()[1], defn);
-        _type_table.emplace(&tree, _type_table.at(&tree.children()[1]));  // arithmetic rule 2
-        return;
-    } else if (tree.children().size() == 1) {
+        return construct_expr_tree(tree.children()[1], defn);  // arithmetic rule 2
+    }
+
+    if (tree.children().size() == 1) {
         switch (tree.children().front().data().type()) {
             case Symbol::IDENTIFIER:
                 // UNEXPR -> IDENTIFIER
-                _type_table.emplace(&tree, get_type(tree.children().front().data().value(), defn));  // variables rule 3
-                return;
+                return get_type(tree.children().front().data().value(), defn);  // variables rule 3
             case Symbol::CONSTANT:
                 // UNEXPR -> CONSTANT
-                _type_table.emplace(&tree, Type::INT);  // constants rule 1
-                return;
+                return Type::INT;  // constants rule 1
             case Symbol::STRINGLIT:
                 // UNEXPR -> STRINGLIT
-                _type_table.emplace(&tree, Type::STRING);  // string literals rule 1
-                return;
+                return Type::STRING;  // string literals rule 1
             case Symbol::CHARLIT:
                 // UNEXPR -> CHARLIT
-                _type_table.emplace(&tree, Type::CHAR);  // character literals rule 1
-                return;
+                return Type::CHAR;  // character literals rule 1
             default:
                 throw std::runtime_error("Invalid UNEXPR");
         }
     } else if (tree.children().size() == 2) {
         // UNEXPR -> INC IDENTIFIER
         // UNEXPR -> DEC IDENTIFIER
-        _type_table.emplace(&tree, get_type(tree.children().back().data().value(), defn));  // variables rule 4
-        if (_type_table.at(&tree) != Type::INT) {
+        Type var_type = get_type(tree.children().back().data().value(), defn);  // variables rule 4
+        if (var_type != Type::INT) {
             throw std::runtime_error("Type mismatch in increment or decrement");
         }
-        return;
+        return Type::INT;
     }
 
     // UNEXPR -> IDENTIFIER ( OPTARGS )
@@ -547,14 +513,15 @@ void Typer::construct_unexpr_tree(const Parser::Tree& tree, const Parser::Tree& 
 
     Type function_type = get_type(name->data().value(), defn);
 
-    assert(function_type.is_function());
+    if (!function_type.is_function()) {
+        throw std::runtime_error("Trying to call non-function " + name->data().value());
+    }
 
     std::vector<Type> arg_types;
 
     if (args->children().empty()) {
         if (function_type.arg_types().empty()) {
-            _type_table.emplace(&tree, function_type.return_type());  // function calls rule 2
-            return;
+            return function_type.return_type();  // function calls rule 2
         }
 
         throw std::runtime_error("Type mismatch in function call");
@@ -563,22 +530,22 @@ void Typer::construct_unexpr_tree(const Parser::Tree& tree, const Parser::Tree& 
     args = &args->children().front();  // ARGS
 
     while (args->children().size() == 3) {
-        construct_expr_tree(args->children().front(), defn);
-        arg_types.push_back(_type_table.at(&args->children().front()));
+        Type arg_type = construct_expr_tree(args->children().front(), defn);
+        arg_types.push_back(arg_type);
         args = &args->children().back();
     }
 
-    construct_expr_tree(args->children().front(), defn);
-    arg_types.push_back(_type_table.at(&args->children().front()));
+    Type arg_type = construct_expr_tree(args->children().front(), defn);
+    arg_types.push_back(arg_type);
 
     if (arg_types != function_type.arg_types()) {
         throw std::runtime_error("Type mismatch in function call");
     }
 
-    _type_table.emplace(&tree, function_type.return_type());  // function calls rule 1
+    return function_type.return_type();  // function calls rule 1
 }
 
-void Typer::construct(const Parser::Tree& tree) {
-    construct_program_tree(tree);
+Type Typer::construct(const Parser::Tree& tree) {
+    return construct_program_tree(tree);
 }
 }  // namespace lang
