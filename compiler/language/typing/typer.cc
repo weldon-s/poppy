@@ -17,6 +17,10 @@ bool Typer::SymbolTableKey::operator<(const SymbolTableKey& other) const {
 
 Typer::Typer(Parser::Tree* tree) : _tree{tree} {
     construct(*_tree);
+
+    for (const auto& [key, type] : _symbol_table) {
+        std::cout << "Symbol " << key.name << " in " << key.tree << " of type " << type.name() << std::endl;
+    }
 }
 
 void Typer::add_symbol(std::string name, Type type, const Parser::Tree* tree) {
@@ -38,6 +42,8 @@ Type Typer::get_type(std::string name, const Parser::Tree& tree) {
             Type t = _symbol_table.at(key);
             return t;
         }
+
+        current_tree = current_tree->parent();
     }
 
     throw std::runtime_error("Use of undeclared variable " + name);

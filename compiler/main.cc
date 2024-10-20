@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 
 #include "language/lexing/lexer.h"
@@ -12,70 +13,17 @@ void print_tree(const Parser::Tree& tree, int depth) {
     std::cout << (int)tree.data().type() << ": ";
     std::cout << tree.data().value() << std::endl;
 
-    for (const Parser::Tree& child : tree.children()) {
-        print_tree(child, depth + 1);
+    for (auto& child : tree.children()) {
+        print_tree(*child, depth + 1);
     }
 }
 
 int main(int argc, char* argv[]) {
-    // lang::Lexer l{
-    //     R"""(
-    // !!hello
-    // char f(int n, int m) {
-    //     if (n <= 1) {
-    //         hop n;
-    //     }
+    std::ifstream file{argv[1]};
 
-    //     1 * 2 + d / 4 % 5050 - 'r';
+    std::string contents{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
 
-    //     if (n == 2 || n == 3) {
-    //         hop 1;
-    //     }
-    //     else {
-    //         string s = "dddd";
-    //         s = 4;
-    //     }
-
-    //     while(!(n > 0 && n <= 0 && n != 0)) {
-    //         hop n;
-
-    //         for(int i = 0; !i >= 10; i = i + 1) {
-    //             print(i);
-    //         }
-
-    //         n = n - 1;
-    //     }
-
-    //     hop f(n - 'f') + f(f(--n) - 2);
-    // }
-
-    // !-long comment...
-    // words words words
-    // ...
-    // -!
-    // int main(){
-    //     print(f(10));
-    //     hop 0;
-    // }
-    //         )"""};
-
-    lang::Lexer l{
-        R"""(
-        int f(int n) {
-            if(n <= 1) {
-                hop n;
-            }
-            else {
-                hop f(n - 1) + f(n - 2);
-            }
-
-            hop n;
-        }
-
-        int main() {
-            hop f(10);
-        }
-            )"""};
+    lang::Lexer l{contents};
 
     std::vector<lang::Token> tokens = l.scan();
 
@@ -85,14 +33,19 @@ int main(int argc, char* argv[]) {
 
     lang::Parser p{&poppy_grammar};
 
-    std::optional<Parser::Tree> tree = p.parse(tokens);
+    std::unique_ptr<Parser::Tree> tree = p.parse(tokens);
 
     if (!tree) {
         std::cout << "Parse error" << std::endl;
         return 1;
     }
 
-    lang::Typer t{*tree};
+    try {
+        lang::Typer t{tree.get()};
+    } catch (const std::exception& e) {
+        std::cerr << "Error during typing: ";
+        std::cerr << e.what() << std::endl;
+    }
 
     // if (tree) {
     //     print_tree(*tree, 0);
