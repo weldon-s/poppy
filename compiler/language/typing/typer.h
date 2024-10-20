@@ -18,7 +18,7 @@ class Typer {
 
     std::map<SymbolTableKey, Type> _symbol_table;
 
-    Parser::Tree _tree;
+    const Parser::Tree* _tree;
 
     Type construct(const Parser::Tree&);
     Type construct_program_tree(const Parser::Tree&);
@@ -46,7 +46,7 @@ class Typer {
     Type get_type(std::string, const Parser::Tree&);
 
    public:
-    Typer(Parser::Tree);
+    Typer(Parser::Tree*);
 };
 }  // namespace lang
 

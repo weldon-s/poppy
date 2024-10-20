@@ -34,6 +34,8 @@ class Parser {
         Tree(Symbol s, std::vector<std::unique_ptr<Tree>>&& children = {});  // for non-terminal nodes
 
        public:
+        Tree(const Tree& other) = delete;
+        Tree& operator=(const Tree& other) = delete;
         const Token& data() const;
         const std::vector<std::unique_ptr<Tree>>& children() const;
         const Tree* parent() const;
