@@ -192,6 +192,8 @@ Type Typer::construct_stmt_tree(const Parser::Tree& tree, const Parser::Tree& de
 }
 
 Type Typer::construct_semistmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+    assert(tree.data().type() == Symbol::SEMISTMT);
+
     switch (tree.children().front()->data().type()) {
         case Symbol::VARDEC:
             // VARDEC -> TYPE IDENTIFIER ASSIGN EXPR
@@ -352,6 +354,7 @@ Type Typer::construct_uncond_tree(const Parser::Tree& tree, const Parser::Tree& 
 }
 
 Type Typer::construct_ret_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+    assert(tree.data().type() == Symbol::RET);
     Type ret_type = construct_expr_tree(*tree.children().back(), defn);
 
     if (ret_type == Type::VOID) {
@@ -382,7 +385,7 @@ Type Typer::construct_vardec_tree(const Parser::Tree& tree, const Parser::Tree& 
         throw std::runtime_error("Type mismatch in declaration of " + name->data().value());
     }
 
-    add_symbol(name->data().value(), type_type, &tree);  // variables rule 2
+    add_symbol(name->data().value(), type_type, &defn);  // variables rule 2
     return Type::VOID;
 }
 
@@ -405,11 +408,10 @@ Type Typer::construct_varasst_tree(const Parser::Tree& tree, const Parser::Tree&
 }
 
 Type Typer::construct_expr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
+    assert(tree.data().type() == Symbol::EXPR);
     std::cout << "Expr: " << tree.to_string() << std::endl;
 
     std::cout << (int)tree.data().type() << std::endl;
-
-    assert(tree.data().type() == Symbol::EXPR);
 
     // EXPR -> ADDEXPR
     return construct_addexpr_tree(*tree.children().front(), defn);
