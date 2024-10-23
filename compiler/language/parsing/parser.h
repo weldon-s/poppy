@@ -12,16 +12,9 @@ class Parser {
     struct TempTree {
         Token data;
         std::vector<TempTree> children;
-
-        TempTree(Token token) : data{token}, children{} {}
-
-        TempTree(Symbol s, std::vector<TempTree>& children)
-            : data{Token{"", s}},
-              children{children} {}
-
-        TempTree(Symbol s, std::vector<TempTree>&& children = {})
-            : data{Token{"", s}},
-              children{std::move(children)} {}
+        TempTree(Token token);
+        TempTree(Symbol s, std::vector<TempTree>& children);
+        TempTree(Symbol s, std::vector<TempTree>&& children = {});
     };
 
    public:

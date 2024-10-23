@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <format>
-#include <iostream>
 
 #include "language/lexing/symbol.h"
 
@@ -17,14 +16,9 @@ bool Typer::SymbolTableKey::operator<(const SymbolTableKey& other) const {
 
 Typer::Typer(Parser::Tree* tree) : _tree{tree} {
     construct(*_tree);
-
-    for (const auto& [key, type] : _symbol_table) {
-        std::cout << "Symbol " << key.name << " in " << key.tree << " of type " << type.name() << std::endl;
-    }
 }
 
 void Typer::add_symbol(std::string name, Type type, const Parser::Tree* tree) {
-    std::cout << "Adding symbol " << name << " of type " << type.name() << std::endl;
     auto ret = _symbol_table.insert({SymbolTableKey{name, tree}, type});
 
     if (!ret.second) {
@@ -33,20 +27,19 @@ void Typer::add_symbol(std::string name, Type type, const Parser::Tree* tree) {
     }
 }
 
-Type Typer::get_type(std::string name, const Parser::Tree& tree) {
+Type Typer::get_type(std::string name, const Parser::Tree& tree) const {
     const Parser::Tree* current_tree = &tree;
 
     while (current_tree) {
         SymbolTableKey key{name, current_tree};
         if (_symbol_table.contains(key)) {
-            Type t = _symbol_table.at(key);
-            return t;
+            return _symbol_table.at(key);
         }
 
         current_tree = current_tree->parent();
     }
 
-    throw std::runtime_error("Use of undeclared variable " + name);
+    throw std::runtime_error(std::format("Cannot find type of {} in the given tree", name));
 }
 
 Type symbol_to_type(const Parser::Tree& tree) {
@@ -146,7 +139,6 @@ Type Typer::construct_program_tree(const Parser::Tree& tree) {
 
 Type Typer::construct_defn_tree(const Parser::Tree& tree) {
     assert(tree.data().type() == Symbol::DEFN);
-    std::cout << "Defn: " << tree.to_string() << std::endl;
     Type stmts = construct_stmts_tree(*tree.children()[6], tree);
 
     if (stmts != symbol_to_type(*tree.children().front())) {
@@ -172,7 +164,6 @@ Type Typer::construct_stmts_tree(const Parser::Tree& tree, const Parser::Tree& d
 
 Type Typer::construct_stmt_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::STMT);
-    std::cout << tree.to_string() << std::endl;
     if (tree.children().size() == 2) {  // SEMISTMT
         return construct_semistmt_tree(*tree.children().front(), defn);
     }
@@ -409,9 +400,6 @@ Type Typer::construct_varasst_tree(const Parser::Tree& tree, const Parser::Tree&
 
 Type Typer::construct_expr_tree(const Parser::Tree& tree, const Parser::Tree& defn) {
     assert(tree.data().type() == Symbol::EXPR);
-    std::cout << "Expr: " << tree.to_string() << std::endl;
-
-    std::cout << (int)tree.data().type() << std::endl;
 
     // EXPR -> ADDEXPR
     return construct_addexpr_tree(*tree.children().front(), defn);

@@ -43,10 +43,11 @@ class Typer {
 
     void add_symbol(std::string, Type, const Parser::Tree*);
     Type parse_params(const Parser::Tree&);
-    Type get_type(std::string, const Parser::Tree&);
 
    public:
     Typer(Parser::Tree*);
+
+    Type get_type(std::string, const Parser::Tree&) const;
 };
 }  // namespace lang
 

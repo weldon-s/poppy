@@ -6,23 +6,9 @@
 #include "language/parsing/poppygrammar.h"
 #include "language/typing/typer.h"
 
-void print_tree(const Parser::Tree& tree, int depth) {
-    for (int i = 0; i < depth; ++i) {
-        std::cout << "  ";
-    }
-    std::cout << (int)tree.data().type() << ": ";
-    std::cout << tree.data().value() << std::endl;
-
-    for (auto& child : tree.children()) {
-        print_tree(*child, depth + 1);
-    }
-}
-
 int main(int argc, char* argv[]) {
     std::ifstream file{argv[1]};
-
     std::string contents{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
-
     lang::Lexer l{contents};
 
     std::vector<lang::Token> tokens = l.scan();
@@ -46,10 +32,4 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error during typing: ";
         std::cerr << e.what() << std::endl;
     }
-
-    // if (tree) {
-    //     print_tree(*tree, 0);
-    // } else {
-    //     std::cout << "Parse error" << std::endl;
-    // }
 }

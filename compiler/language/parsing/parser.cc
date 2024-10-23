@@ -21,6 +21,16 @@ void add_if_not_present(std::vector<std::pair<T, U>>& items, T t, U u) {
     items.emplace_back(t, u);
 }
 
+Parser::TempTree::TempTree(Token token) : data{token}, children{} {}
+
+Parser::TempTree::TempTree(Symbol s, std::vector<TempTree>& children)
+    : data{Token{"", s}},
+      children{children} {}
+
+Parser::TempTree::TempTree(Symbol s, std::vector<TempTree>&& children)
+    : data{Token{"", s}},
+      children{std::move(children)} {}
+
 Parser::Tree::Tree(Token token) : _data{token}, _children{}, _parent{nullptr} {}
 
 Parser::Tree::Tree(Symbol s, std::vector<std::unique_ptr<Tree>>&& children)
