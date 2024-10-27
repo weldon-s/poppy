@@ -108,7 +108,7 @@ Type Typer::parse_params(const Parser::Tree& tree) {
 Type Typer::construct_program_tree(const Parser::Tree& tree) {
     assert(tree.data().type() == Symbol::PROGRAM);
 
-    const Parser::Tree* defns = tree.children()[0].get();
+    const Parser::Tree* defns = tree.children()[1].get();
 
     // the relevant rule here is DEFNS -> DEFN DEFNS | DEFN
 
@@ -124,7 +124,7 @@ Type Typer::construct_program_tree(const Parser::Tree& tree) {
     }
 
     // second pass: type check all function definitions
-    defns = tree.children()[0].get();
+    defns = tree.children()[1].get();
 
     while (defns->children().size() == 2) {
         const Parser::Tree* defn = defns->children().front().get();
