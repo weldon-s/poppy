@@ -1,6 +1,6 @@
 #include "label.h"
 
-#include "core/instruction.h"
+#include "codegen/core/instruction.h"
 
 namespace control {
 Label::Label(const std::string& label) : _label{label} {}

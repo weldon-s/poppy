@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 
-#include "core/code.h"
-#include "core/register.h"
+#include "codegen/core/code.h"
+#include "codegen/core/register.h"
 
 // represents an ARM instruction
 // mostly just a wrapper for strings right now, but could be expanded

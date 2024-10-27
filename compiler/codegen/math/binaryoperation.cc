@@ -1,4 +1,4 @@
-#include "math/binaryoperation.h"
+#include "codegen/math/binaryoperation.h"
 
 class BinaryOperation : public Code {
     Line operand1;

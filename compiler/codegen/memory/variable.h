@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 
 namespace memory {
 // represents a variable

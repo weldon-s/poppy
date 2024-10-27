@@ -1,11 +1,11 @@
-#include "modules/popipo.h"
+#include "codegen/modules/popipo.h"
 
 #include <format>
 #include <map>
 
-#include "core/instruction.h"
-#include "core/program.h"
-#include "core/register.h"
+#include "codegen/core/instruction.h"
+#include "codegen/core/program.h"
+#include "codegen/core/register.h"
 
 const std::map<char, char> escape_map{
     {'\'', '\''}, {'\"', '\"'}, {'\?', '?'}, {'\\', '\\'}, {'\a', 'a'}, {'\b', 'b'}, {'\f', 'f'}, {'\n', 'n'}, {'\r', 'r'}, {'\t', 't'}, {'\v', 'v'}};

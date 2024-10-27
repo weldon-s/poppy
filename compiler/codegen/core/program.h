@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 namespace memory {
 class Chunk;
 class Variable;

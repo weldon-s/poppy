@@ -1,12 +1,12 @@
-#include "core/program.h"
+#include "codegen/core/program.h"
 
 #include <algorithm>
 #include <cassert>
 #include <fstream>
 
-#include "control/label.h"
-#include "core/code.h"
-#include "memory/chunk.h"
+#include "codegen/control/label.h"
+#include "codegen/core/code.h"
+#include "codegen/memory/chunk.h"
 
 const std::string Program::assembly_path = "../assembly";
 

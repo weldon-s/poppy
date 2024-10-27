@@ -1,8 +1,8 @@
-#include "control/while.h"
+#include "codegen/control/while.h"
 
-#include "control/label.h"
-#include "core/instruction.h"
-#include "core/program.h"
+#include "codegen/control/label.h"
+#include "codegen/core/instruction.h"
+#include "codegen/core/program.h"
 
 class While : public Code {
     Line condition;

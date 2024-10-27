@@ -1,9 +1,9 @@
-#include "memory/chunk.h"
+#include "codegen/memory/chunk.h"
 
 #include <format>
 #include <functional>
 
-#include "core/program.h"
+#include "codegen/core/program.h"
 namespace memory {
 
 Chunk::Chunk(Chunk* previous) : _size{16}, _previous{previous} {}

@@ -1,8 +1,8 @@
-#include "control/if.h"
+#include "codegen/control/if.h"
 
-#include "control/label.h"
-#include "core/instruction.h"
-#include "core/program.h"
+#include "codegen/control/label.h"
+#include "codegen/core/instruction.h"
+#include "codegen/core/program.h"
 
 class If : public Code {
     Line condition;

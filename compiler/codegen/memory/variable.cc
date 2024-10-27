@@ -1,6 +1,6 @@
-#include "memory/variable.h"
+#include "codegen/memory/variable.h"
 
-#include "core/program.h"
+#include "codegen/core/program.h"
 
 namespace memory {
 int Variable::counter = 0;

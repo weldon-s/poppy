@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 
 class Register;
 namespace popipo {

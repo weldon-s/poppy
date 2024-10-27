@@ -1,7 +1,7 @@
 #ifndef _IF_H_
 #define _IF_H_
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 
 namespace control {
 Line ifthen(Line condition, Line then_block);

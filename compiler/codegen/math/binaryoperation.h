@@ -1,8 +1,8 @@
 #ifndef _BINARY_OPERATION_
 #define _BINARY_OPERATION_
 
-#include "core/code.h"
-#include "core/instruction.h"
+#include "codegen/core/code.h"
+#include "codegen/core/instruction.h"
 
 // we could implement these as operator overloads, but concatenation is used quite often
 // and wouldn't make sense with any operator other than +

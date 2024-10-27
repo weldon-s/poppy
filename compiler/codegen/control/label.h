@@ -1,7 +1,7 @@
 #ifndef _LABEL_H_
 #define _LABEL_H_
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 namespace control {
 class Label {
     const std::string _label;

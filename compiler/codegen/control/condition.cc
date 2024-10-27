@@ -1,9 +1,9 @@
-#include "control/condition.h"
+#include "codegen/control/condition.h"
 
-#include "core/program.h"
-#include "core/register.h"
-#include "memory/chunk.h"
-#include "memory/variable.h"
+#include "codegen/core/program.h"
+#include "codegen/core/register.h"
+#include "codegen/memory/chunk.h"
+#include "codegen/memory/variable.h"
 
 using namespace control;
 

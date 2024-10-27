@@ -1,9 +1,9 @@
-#include "core/code.h"
+#include "codegen/core/code.h"
 
 #include <algorithm>
 #include <cassert>
 
-#include "core/program.h"
+#include "codegen/core/program.h"
 
 Code::Code(bool is_assembly)
     : _is_assembly{is_assembly} {}

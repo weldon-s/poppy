@@ -1,7 +1,7 @@
 #ifndef _CONDITION_H_
 #define _CONDITION_H_
 
-#include "core/code.h"
+#include "codegen/core/code.h"
 namespace control {
 Line eq(Line l1, Line l2);
 Line ne(Line l1, Line l2);

@@ -4,9 +4,9 @@
 #include <map>
 #include <vector>
 
-#include "core/instruction.h"
-#include "core/register.h"
-#include "memory/variable.h"
+#include "codegen/core/instruction.h"
+#include "codegen/core/register.h"
+#include "codegen/memory/variable.h"
 namespace memory {
 // represents a chunk allocated on the stack
 class Chunk {
