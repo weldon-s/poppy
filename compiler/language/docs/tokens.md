@@ -8,7 +8,7 @@ _token_:
 - _comment_ (to be discarded after scanning)
 
 _keyword_:
-- One of __char__, __else__, __for__, __hop__, __if__, __int__, __while__, __string__
+- One of __char__, __else__, __for__, __hop__, __if__, __int__, __munch__, __while__, __string__
 
 _identifier_:
 - any string matching the following regex that is not part of the above list: [A-Za-z_][A-Za-z0-9_]*

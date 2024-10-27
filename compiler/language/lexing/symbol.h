@@ -33,6 +33,7 @@ enum class Symbol {
     HOP,
     IF,
     INT,
+    MUNCH,
     STRING,
     WHILE,
     IDENTIFIER,

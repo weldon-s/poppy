@@ -282,6 +282,10 @@ Token Lexer::next_token(int* position) {
                     return Token(value, Symbol::INT);
                 }
 
+                if (value == "munch") {
+                    return Token(value, Symbol::MUNCH);
+                }
+
                 if (value == "string") {
                     return Token(value, Symbol::STRING);
                 }
