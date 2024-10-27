@@ -8,7 +8,12 @@ Start symbol: $\text{program}$
 
 Generation rules:
 $$\begin{align*}
-\text{program} &\rightarrow \text{defns END}\\
+\text{program} &\rightarrow \text{optincludes defns END}\\
+\text{optincludes} &\rightarrow \text{includes}\\
+\text{optincludes} &\rightarrow \varnothing\\
+\text{includes}&\rightarrow \text{include includes}\\
+\text{includes}&\rightarrow \text{include }\\
+\text{include}&\rightarrow \text{MUNCH IDENTIFIER }\\
 \text{defns} &\rightarrow \text{defn}\\
 \text{defns} &\rightarrow \text{defn defns}\\
 \text{defn} &\rightarrow \text{type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE}\\

@@ -5,7 +5,12 @@ using namespace lang;
 const Grammar poppy_grammar = Grammar{
     Symbol::PROGRAM,
     {
-        Rule(Symbol::PROGRAM, {Symbol::DEFNS, Symbol::END}),
+        Rule(Symbol::PROGRAM, {Symbol::OPTINCLUDES, Symbol::DEFNS, Symbol::END}),
+        Rule(Symbol::OPTINCLUDES, {Symbol::INCLUDES}),
+        Rule(Symbol::OPTINCLUDES, {}),
+        Rule(Symbol::INCLUDES, {Symbol::INCLUDE, Symbol::INCLUDES}),
+        Rule(Symbol::INCLUDES, {Symbol::INCLUDE}),
+        Rule(Symbol::INCLUDE, {Symbol::MUNCH, Symbol::IDENTIFIER}),
         Rule(Symbol::DEFNS, {Symbol::DEFN}),
         Rule(Symbol::DEFNS, {Symbol::DEFN, Symbol::DEFNS}),
         Rule(Symbol::DEFN, {Symbol::TYPE, Symbol::IDENTIFIER, Symbol::LPAREN, Symbol::OPTPARAMS, Symbol::RPAREN, Symbol::LBRACE, Symbol::STMTS, Symbol::RBRACE}),

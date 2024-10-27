@@ -44,6 +44,9 @@ enum class Symbol {
 
     // non-terminal symbols
     PROGRAM,
+    OPTINCLUDES,
+    INCLUDES,
+    INCLUDE,
     DEFNS,
     DEFN,
     TYPE,
