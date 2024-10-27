@@ -112,6 +112,16 @@ Token Lexer::next_token(int* position) {
             return Token("+", Symbol::PLUS);
 
         case '-':
+            if ((*position + 1 < source.size()) && (source[*position + 1] >= '1') && (source[*position + 1] <= '9')) {
+                std::string value{"-"};
+                ++*position;
+                while (*position < source.size() && std::isdigit(static_cast<unsigned char>(source[*position]))) {
+                    value += source[*position];
+                    ++*position;
+                }
+
+                return Token(value, Symbol::CONSTANT);
+            }
 
             if (*position + 1 < source.size() && source[*position + 1] == '-') {
                 *position += 2;
