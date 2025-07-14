@@ -5,7 +5,6 @@ _token_:
 - _identifier_
 - _constant_
 - _punctuator_
-- _comment_ (to be discarded after scanning)
 
 _keyword_:
 - One of __else__, __for__, __hop__, __if__, __int__, __let__, __munch__, __while__
@@ -18,8 +17,3 @@ _constant_:
 
 _punctuator_:
 - One of __(__, __)__, __{__, __}__, __++__, __--__, __&&__, __||__, __!__, __+__, __-__, __*__, __/__, __%__, __<__, __>__, __<=__, __>=__, __==__, __!=__, __=__, __,__, __;__
-
-_comment_:
-- any string matching either of the following regexes:
- !!.* or !\\-.*\\-!
- 

@@ -1,0 +1,218 @@
+#include "lexer.h"
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TOKEN_LENGTH 128
+
+void free_token_list(struct token_list_node *head){
+        if(head == NULL){
+                return;
+        }
+
+        free_token_list(head->next);
+        free(head->value->value);
+        free(head->value);
+}
+
+bool is_numeric(char c){
+        return (c >= '0') && (c <= '9');
+}
+
+bool is_alphabetic(char c){
+        return ((c >= 'a') && (c <= 'z') || (c >= 'A') && (c <= 'Z')) || (c == '_');
+}
+
+struct lex_data {
+        enum symbol type;
+        char excess;
+        int val_len;
+};
+
+struct lex_data find_prefixed_type(FILE* file, char expected_second, enum symbol not_second, enum symbol if_second, char **val){
+        struct lex_data ret;
+        ret.excess = 0;
+        ret.val_len = 1;
+        ret.type = not_second;
+
+        if (feof(file)){
+                return ret;
+        }
+        
+        char second = fgetc(file);
+        if (second == expected_second){
+                *val[1] = second;
+                ret.val_len = 2;
+                ret.type = if_second;
+        } else {
+                ret.excess = second;        
+        }
+
+        return ret;
+
+}
+
+struct lex_data find_numeric_value (FILE* file, char *val){
+        struct lex_data ret;
+        ret.type = SYMBOL_CONSTANT;
+        ret.excess = 0;
+        ret.val_len = 1;
+        
+        while (!feof(file) && (ret.val_len < MAX_TOKEN_LENGTH) && is_numeric(val[ret.val_len - 1])){
+                val[ret.val_len] = fgetc(file);
+                ++ret.val_len;
+        }
+
+        if (!feof(file)){
+                if (ret.val_len < MAX_TOKEN_LENGTH){
+                        ret.excess = val[ret.val_len];                        
+                } else {
+                        --ret.val_len;
+                }
+        }
+
+        return ret;
+}
+
+struct lex_data find_alphanumeric_value (FILE* file, char *val){
+        struct lex_data ret;
+        ret.excess = 0;
+        ret.val_len = 1;
+        
+        while (!feof(file) && (ret.val_len < MAX_TOKEN_LENGTH) && (is_numeric(val[ret.val_len - 1]) || is_alphabetic(val[ret.val_len - 1]))){
+                val[ret.val_len] = fgetc(file);
+                ++ret.val_len;
+        }
+
+        if (!feof(file)){
+                if (ret.val_len < MAX_TOKEN_LENGTH){
+                        ret.excess = val[ret.val_len];                        
+                } else {
+                        --ret.val_len;
+                }
+        }
+
+        if ((ret.val_len == 4) && (strncmp(*val, "else", 4) == 0)){
+                ret.type = SYMBOL_ELSE;
+        } else if ((ret.val_len == 3) && (strncmp(*val, "for", 3) == 0)){
+                ret.type = SYMBOL_FOR;
+        } else if ((ret.val_len == 3) && (strncmp(*val, "hop", 3) == 0)){
+                ret.type = SYMBOL_HOP;
+        } else if ((ret.val_len == 2) && (strncmp(*val, "if", 2) == 0)){
+                ret.type = SYMBOL_IF;
+        } else if ((ret.val_len == 3) && (strncmp(*val, "int", 3) == 0)){
+                ret.type = SYMBOL_INT;
+        } else if ((ret.val_len == 3) && (strncmp(*val, "let", 3) == 0)){
+                ret.type = SYMBOL_LET;
+        } else if ((ret.val_len == 5) && (strncmp(*val, "munch", 5) == 0)){
+                ret.type = SYMBOL_MUNCH;
+        } else if ((ret.val_len == 5) && (strncmp(*val, "while", 3) == 0)){
+                ret.type = SYMBOL_WHILE;
+        } else {
+                ret.type = SYMBOL_IDENTIFIER;
+        }
+
+        return ret;
+}
+
+struct token_list_node* lex(FILE *file){
+        char val[MAX_TOKEN_LENGTH + 1];
+        struct token_list_node *head = NULL;
+        struct token_list_node *tail = head;
+
+        while (!feof(file)){
+                if (val[0] == 0){
+                        val[0] = fgetc(file);
+                }
+
+                struct lex_data data;
+                data.type = SYMBOL_NULL;
+
+                switch (val[0]){
+                        case '(':
+                                data.type = SYMBOL_LPAREN;
+                                data.val_len = 1;
+                                break;
+                        case ')':
+                                data.type = SYMBOL_RPAREN;
+                                data.val_len = 1;
+                                break;
+                        case '{':
+                                data.type = SYMBOL_LBRACE;
+                                data.val_len = 1;
+                                break;
+                        case '}':
+                                data.type = SYMBOL_RBRACE;
+                                data.val_len = 1;
+                                break;
+                        case '*':
+                                data.type = SYMBOL_TIMES;
+                                data.val_len = 1;
+                                break;
+                        case '/':
+                                data.type = SYMBOL_DIVIDE;
+                                data.val_len = 1;
+                                break;
+                        case '%':
+                                data.type = SYMBOL_MOD;
+                                data.val_len = 1;
+                                break;
+                        case ',':
+                                data.type = SYMBOL_COMMA;
+                                data.val_len = 1;
+                                break;
+                        case ';':
+                                data.type = SYMBOL_SEMICOLON;
+                                data.val_len = 1;
+                                break;
+                        case '+':
+                                data = find_prefixed_type(file, '+', SYMBOL_PLUS, SYMBOL_INC, val);
+                                break;
+                        case '-':
+                                data = find_prefixed_type(file, '-', SYMBOL_MINUS, SYMBOL_DEC, val);
+                                break;
+                        case '&':
+                                data = find_prefixed_type(file, '&', SYMBOL_NULL, SYMBOL_AND, val);
+                                break;                        
+                        case '|':
+                                data = find_prefixed_type(file, '|', SYMBOL_NULL, SYMBOL_OR, val);
+                                break;   
+                        case '!':
+                                data = find_prefixed_type(file, '=', SYMBOL_NOT, SYMBOL_NE, val);
+                                break;      
+                        case '>':
+                                data = find_prefixed_type(file, '=', SYMBOL_GT, SYMBOL_GE, val);
+                                break;      
+                        case '<':
+                                data = find_prefixed_type(file, '=', SYMBOL_LT, SYMBOL_LE, val);
+                                break;
+                        case '=':
+                                data = find_prefixed_type(file, '=', SYMBOL_ASSIGN, SYMBOL_EQ, val);
+                                break; 
+                        default:
+                                if (is_alphabetic(val[0])){
+                                        data = find_numeric_value(file, &val);
+                                } else if (is_numeric(val[0])){
+                                        data = find_alphanumeric_value(file, &val);
+                                }
+                }
+
+                if (data.type == SYMBOL_NULL){
+                        free_token_list(head);
+                        return NULL;
+                }
+
+                struct token_list_node *new_node = (struct token_list_node*) malloc(sizeof(struct token_list_node));
+                new_node->value = (struct token*) malloc(sizeof(struct token));
+                new_node->value->value = (char*) malloc((data.val_len + 1) * sizeof(char));
+                strncpy(new_node->value->value, val, data.val_len);
+                new_node->value->type = data.type;
+
+                tail->next = new_node;
+                tail = new_node;
+
+                val[0] = data.excess;
+        }
+}
