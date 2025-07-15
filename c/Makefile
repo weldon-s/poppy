@@ -3,7 +3,7 @@ EXEC = main
 SOURCE_DIR = src
 BUILD_DIR = build
 INCLUDE_DIR = include
-CFLAGS = -MMD -MP -I $(INCLUDE_DIR)
+CFLAGS = -MMD -MP -g -I $(INCLUDE_DIR)
 
 CFILES = $(shell find $(SOURCE_DIR) -name "*.c" -type f)
 OBJECTS = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(CFILES))

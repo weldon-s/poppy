@@ -1,11 +1,12 @@
 #include "lexer.h"
 
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_TOKEN_LENGTH 128
+#define MAX_TOKEN_LENGTH 10
 
 void free_token_list(struct token_list_node *head){
         if(head == NULL){
@@ -15,6 +16,7 @@ void free_token_list(struct token_list_node *head){
         free_token_list(head->next);
         free(head->value->value);
         free(head->value);
+        free(head);
 }
 
 bool is_numeric(char c){
@@ -31,7 +33,7 @@ struct lex_data {
         int val_len;
 };
 
-struct lex_data find_prefixed_type(FILE* file, char expected_second, enum symbol not_second, enum symbol if_second, char **val){
+struct lex_data find_prefixed_type(FILE* file, char expected_second, enum symbol not_second, enum symbol if_second, char *val){
         struct lex_data ret;
         ret.excess = 0;
         ret.val_len = 1;
@@ -43,7 +45,7 @@ struct lex_data find_prefixed_type(FILE* file, char expected_second, enum symbol
         
         char second = fgetc(file);
         if (second == expected_second){
-                *val[1] = second;
+                val[1] = second;
                 ret.val_len = 2;
                 ret.type = if_second;
         } else {
@@ -60,17 +62,14 @@ struct lex_data find_numeric_value (FILE* file, char *val){
         ret.excess = 0;
         ret.val_len = 1;
         
-        while (!feof(file) && (ret.val_len < MAX_TOKEN_LENGTH) && is_numeric(val[ret.val_len - 1])){
+        while (!feof(file) && (ret.val_len <= MAX_TOKEN_LENGTH) && is_numeric(val[ret.val_len - 1])){
                 val[ret.val_len] = fgetc(file);
                 ++ret.val_len;
         }
 
         if (!feof(file)){
-                if (ret.val_len < MAX_TOKEN_LENGTH){
-                        ret.excess = val[ret.val_len];                        
-                } else {
-                        --ret.val_len;
-                }
+                --ret.val_len;
+                ret.excess = val[ret.val_len];                        
         }
 
         return ret;
@@ -81,34 +80,31 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
         ret.excess = 0;
         ret.val_len = 1;
         
-        while (!feof(file) && (ret.val_len < MAX_TOKEN_LENGTH) && (is_numeric(val[ret.val_len - 1]) || is_alphabetic(val[ret.val_len - 1]))){
+        while (!feof(file) && (ret.val_len <= MAX_TOKEN_LENGTH) && (is_numeric(val[ret.val_len - 1]) || is_alphabetic(val[ret.val_len - 1]))){
                 val[ret.val_len] = fgetc(file);
                 ++ret.val_len;
         }
 
         if (!feof(file)){
-                if (ret.val_len < MAX_TOKEN_LENGTH){
-                        ret.excess = val[ret.val_len];                        
-                } else {
-                        --ret.val_len;
-                }
+                --ret.val_len;
+                ret.excess = val[ret.val_len];                        
         }
 
-        if ((ret.val_len == 4) && (strncmp(*val, "else", 4) == 0)){
+        if ((ret.val_len == 4) && (strncmp(val, "else", 4) == 0)){
                 ret.type = SYMBOL_ELSE;
-        } else if ((ret.val_len == 3) && (strncmp(*val, "for", 3) == 0)){
+        } else if ((ret.val_len == 3) && (strncmp(val, "for", 3) == 0)){
                 ret.type = SYMBOL_FOR;
-        } else if ((ret.val_len == 3) && (strncmp(*val, "hop", 3) == 0)){
+        } else if ((ret.val_len == 3) && (strncmp(val, "hop", 3) == 0)){
                 ret.type = SYMBOL_HOP;
-        } else if ((ret.val_len == 2) && (strncmp(*val, "if", 2) == 0)){
+        } else if ((ret.val_len == 2) && (strncmp(val, "if", 2) == 0)){
                 ret.type = SYMBOL_IF;
-        } else if ((ret.val_len == 3) && (strncmp(*val, "int", 3) == 0)){
+        } else if ((ret.val_len == 3) && (strncmp(val, "int", 3) == 0)){
                 ret.type = SYMBOL_INT;
-        } else if ((ret.val_len == 3) && (strncmp(*val, "let", 3) == 0)){
+        } else if ((ret.val_len == 3) && (strncmp(val, "let", 3) == 0)){
                 ret.type = SYMBOL_LET;
-        } else if ((ret.val_len == 5) && (strncmp(*val, "munch", 5) == 0)){
+        } else if ((ret.val_len == 5) && (strncmp(val, "munch", 5) == 0)){
                 ret.type = SYMBOL_MUNCH;
-        } else if ((ret.val_len == 5) && (strncmp(*val, "while", 3) == 0)){
+        } else if ((ret.val_len == 5) && (strncmp(val, "while", 3) == 0)){
                 ret.type = SYMBOL_WHILE;
         } else {
                 ret.type = SYMBOL_IDENTIFIER;
@@ -119,6 +115,7 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
 
 struct token_list_node* lex(FILE *file){
         char val[MAX_TOKEN_LENGTH + 1];
+        val[0] = 0;
         struct token_list_node *head = NULL;
         struct token_list_node *tail = head;
 
@@ -127,10 +124,19 @@ struct token_list_node* lex(FILE *file){
                         val[0] = fgetc(file);
                 }
 
+                if (isspace(val[0])){
+                        val[0] = 0;
+                        continue;
+                }
+
                 struct lex_data data;
                 data.type = SYMBOL_NULL;
 
                 switch (val[0]){
+                        case -1:
+                                data.type = SYMBOL_END;
+                                data.val_len = 0;
+                                break;
                         case '(':
                                 data.type = SYMBOL_LPAREN;
                                 data.val_len = 1;
@@ -193,9 +199,9 @@ struct token_list_node* lex(FILE *file){
                                 break; 
                         default:
                                 if (is_alphabetic(val[0])){
-                                        data = find_numeric_value(file, &val);
+                                        data = find_alphanumeric_value(file, val);
                                 } else if (is_numeric(val[0])){
-                                        data = find_alphanumeric_value(file, &val);
+                                        data = find_numeric_value(file, val);
                                 }
                 }
 
@@ -207,12 +213,21 @@ struct token_list_node* lex(FILE *file){
                 struct token_list_node *new_node = (struct token_list_node*) malloc(sizeof(struct token_list_node));
                 new_node->value = (struct token*) malloc(sizeof(struct token));
                 new_node->value->value = (char*) malloc((data.val_len + 1) * sizeof(char));
-                strncpy(new_node->value->value, val, data.val_len);
+                val[data.val_len] = 0;
+                strcpy(new_node->value->value, val);
                 new_node->value->type = data.type;
 
-                tail->next = new_node;
+                if (head == NULL){
+                        head = new_node;
+                } else {
+                        tail->next = new_node;
+                }
                 tail = new_node;
+                tail->next = NULL;
 
                 val[0] = data.excess;
+                data.excess = 0;
         }
+
+        return head;
 }

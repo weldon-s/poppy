@@ -1,13 +1,19 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "lexer.h"
 
 int main(int argc, char *argv[]){
-        struct token_list_node* head = lex(stdin);
+        FILE *f = fopen("prog.pop", "r");
+        struct token_list_node* head = lex(f);
         struct token_list_node* cur = head;
 
         while(cur != NULL){
-                printf("%d (%s)", cur->value->type, cur->value->value);
+                printf("%2d %s\n", cur->value->type, cur->value->value);
                 cur = cur->next;
         }
+
+        free_token_list(head);
+        fclose(f);
 }
