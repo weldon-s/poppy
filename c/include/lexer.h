@@ -1,3 +1,5 @@
+#ifndef LEXER_H
+#define LEXER_H
 #include <stdio.h>
 
 #include "symbol.h"
@@ -16,3 +18,4 @@ struct token_list_node {
 struct token_list_node* lex(FILE *file);
 
 void free_token_list(struct token_list_node* head);
+#endif

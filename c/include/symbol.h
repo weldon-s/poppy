@@ -36,7 +36,35 @@ enum symbol {
         SYMBOL_WHILE,
         SYMBOL_IDENTIFIER,
         SYMBOL_CONSTANT,
-        SYMBOL_END         // end of input
+        SYMBOL_END,         // end of input
+        // non-terminal symbols
+        SYMBOL_PROGRAM,
+        SYMBOL_OPTINCLUDES,
+        SYMBOL_INCLUDES,
+        SYMBOL_INCLUDE,
+        SYMBOL_DEFNS,
+        SYMBOL_DEFN,
+        SYMBOL_TYPE,
+        SYMBOL_OPTPARAMS,
+        SYMBOL_STMTS,
+        SYMBOL_PARAMS,
+        SYMBOL_PARAM,
+        SYMBOL_STMT,
+        SYMBOL_SEMISTMT,
+        SYMBOL_EXPR,
+        SYMBOL_COND,
+        SYMBOL_ANDCOND,
+        SYMBOL_ORCOND,
+        SYMBOL_UNCOND,
+        SYMBOL_OPTELSE,
+        SYMBOL_ADDEXPR,
+        SYMBOL_MULTEXPR,
+        SYMBOL_UNEXPR,
+        SYMBOL_OPTARGS,
+        SYMBOL_ARGS,
+        SYMBOL_VARDEC,
+        SYMBOL_VARASST,
+        SYMBOL_RET
 };
 
 #endif
