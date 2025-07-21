@@ -4,33 +4,23 @@
 #include "lexer.h"
 #include "poppy_grammar.h"
 #include "data/list.h"
-
-DEFINE_LIST(double)
+#include "lang/parser.h"
 
 int main(int argc, char *argv[]){
-        // FILE *f = fopen("prog.pop", "r");
-        // struct token_list_node* head = lex(f);
-        // struct token_list_node* cur = head;
-
-        // while(cur != NULL){
-        //         printf("%2d %s\n", cur->value->type, cur->value->value);
-        //         cur = cur->next;
-        // }
-
-        // free_token_list(head);
-        // fclose(f);
-
-        struct LIST(double) *lst = (struct LIST(double)*) malloc(sizeof(struct LIST(double)));
-        init_list(lst)
-        for (int i = 1; i <= 100; ++i){
-                double *b = (double*) malloc(sizeof(double));
-                *b = 1.0 / i;
-                append_list(lst, b, double);
+        FILE *f = fopen("prog.pop", "r");
+        struct LIST(token) *list = lex(f);
+        
+        if(list == NULL){
+                fclose(f);
+                return 0;
         }
 
-        for (struct LIST_NODE(double) *node = lst->head; node != NULL; node = node->next) {
-                printf("%f\n", *node->data);
+        for (struct LIST_NODE(token) *node = list->head; node != NULL; node = node->next){
+                printf("%2d %s\n", node->data->type, node->data->value);
+
         }
 
-        free_list(lst, free, double);
+        free_list(list, free_token, token);
+        fclose(f);
+        return 0;
 }

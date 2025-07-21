@@ -8,17 +8,6 @@
 
 #define MAX_TOKEN_LENGTH 10
 
-void free_token_list(struct token_list_node *head){
-        if(head == NULL){
-                return;
-        }
-
-        free_token_list(head->next);
-        free(head->value->value);
-        free(head->value);
-        free(head);
-}
-
 bool is_numeric(char c){
         return (c >= '0') && (c <= '9');
 }
@@ -113,11 +102,11 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
         return ret;
 }
 
-struct token_list_node* lex(FILE *file){
+struct LIST(token)* lex(FILE *file){
         char val[MAX_TOKEN_LENGTH + 1];
         val[0] = 0;
-        struct token_list_node *head = NULL;
-        struct token_list_node *tail = head;
+        struct LIST(token) *list = (struct LIST(token)*) malloc(sizeof(struct LIST(token)));
+        init_list(list);
 
         while (!feof(file)){
                 if (val[0] == 0){
@@ -206,28 +195,27 @@ struct token_list_node* lex(FILE *file){
                 }
 
                 if (data.type == SYMBOL_NULL){
-                        free_token_list(head);
+                        free_list(list, free_token, token);
                         return NULL;
                 }
 
-                struct token_list_node *new_node = (struct token_list_node*) malloc(sizeof(struct token_list_node));
-                new_node->value = (struct token*) malloc(sizeof(struct token));
-                new_node->value->value = (char*) malloc((data.val_len + 1) * sizeof(char));
-                val[data.val_len] = 0;
-                strcpy(new_node->value->value, val);
-                new_node->value->type = data.type;
+                struct token *new_token = (struct token*) malloc(sizeof(struct token));
 
-                if (head == NULL){
-                        head = new_node;
-                } else {
-                        tail->next = new_node;
-                }
-                tail = new_node;
-                tail->next = NULL;
+                new_token->value = (char*) malloc((data.val_len + 1) * sizeof(char));
+                val[data.val_len] = 0;
+                strcpy(new_token->value, val);
+                new_token->type = data.type;
+                append_list(list, new_token, token);
 
                 val[0] = data.excess;
                 data.excess = 0;
         }
 
-        return head;
+        return list;
+}
+
+
+void free_token(struct token *t){
+        free(t->value);
+        free(t);
 }

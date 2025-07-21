@@ -3,7 +3,8 @@
 
 #define LIST(type) type##_list
 #define LIST_NODE(type) type##_list_node
-#define DEFINE_LIST(type) struct LIST_NODE(type) {type *data; struct LIST_NODE(type) *next;}; struct LIST(type) {struct LIST_NODE(type) *head; struct LIST_NODE(type) *tail; int len;};
+#define DEFINE_LIST(type) struct LIST_NODE(type) {struct type *data; struct LIST_NODE(type) *next;}; \
+        struct LIST(type) {struct LIST_NODE(type) *head; struct LIST_NODE(type) *tail; int len;};    \
 
 #define init_list(list)         \
         do {                    \

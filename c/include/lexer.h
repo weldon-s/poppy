@@ -1,7 +1,9 @@
 #ifndef LEXER_H
 #define LEXER_H
+
 #include <stdio.h>
 
+#include "data/list.h"
 #include "symbol.h"
 
 struct token {
@@ -9,13 +11,9 @@ struct token {
         char *value;
 };
 
-struct token_list_node;
-struct token_list_node {
-        struct token *value;
-        struct token_list_node *next;
-};
+void free_token(struct token *t);
 
-struct token_list_node* lex(FILE *file);
+DEFINE_LIST(token);
+struct LIST(token) * lex(FILE *file);
 
-void free_token_list(struct token_list_node* head);
 #endif
