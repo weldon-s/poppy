@@ -10,6 +10,7 @@
         do {                    \
                 list->head = 0; \
                 list->tail = 0; \
+                list->len = 0;  \
         }                       \
         while (0);              \
 
@@ -38,7 +39,6 @@
                         free(node);                                \
                         node = next;                               \
                 }                                                  \
-                free(list);                                        \
         }                                                          \
         while (0);                                                 \
 

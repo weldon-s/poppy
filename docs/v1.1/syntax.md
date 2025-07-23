@@ -60,6 +60,7 @@ $$\begin{align*}
 \text{multexpr} &\rightarrow \text{multexpr DIVIDE unexpr}  \\
 \text{multexpr} &\rightarrow \text{multexpr MOD unexpr}  \\
 \text{multexpr} &\rightarrow \text{unexpr}  \\
+\text{unexpr} &\rightarrow \text{MINUS UNEXPR} \\
 \text{unexpr} &\rightarrow \text{LPAREN expr RPAREN}  \\
 \text{unexpr} &\rightarrow \text{IDENTIFIER LPAREN optargs RPAREN}  \\
 \text{optargs} &\rightarrow \varnothing  \\

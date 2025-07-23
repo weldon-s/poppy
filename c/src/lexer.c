@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_TOKEN_LENGTH 10
+#define MAX_TOKEN_LENGTH 128
 
 bool is_numeric(char c){
         return (c >= '0') && (c <= '9');

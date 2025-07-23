@@ -8,7 +8,10 @@
 
 int main(int argc, char *argv[]){
         FILE *f = fopen("prog.pop", "r");
+        const struct grammar *poppy_grammar = get_poppy_grammar();
+
         struct LIST(token) *list = lex(f);
+        const struct parse_tree *pt = parse(poppy_grammar, list);
         
         if(list == NULL){
                 fclose(f);
@@ -21,6 +24,8 @@ int main(int argc, char *argv[]){
         }
 
         free_list(list, free_token, token);
+        free(list);
+        free_poppy_grammar(poppy_grammar);
         fclose(f);
         return 0;
 }

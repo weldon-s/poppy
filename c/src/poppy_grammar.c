@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define RULE_COUNT 62
+#define RULE_COUNT 63
 #define COMMA ,
 #define populate(lh_symbol, rh_symbols, ctr, grmr)                               \
         do {                                                                     \
@@ -25,16 +25,13 @@ const struct grammar * const get_poppy_grammar(){
         poppy_grammar->start = SYMBOL_PROGRAM;
         poppy_grammar->rules_len = RULE_COUNT;
 
+        for (size_t i = 0; i < SYMBOL_COUNT; ++i){
+                poppy_grammar->nullable[i] = false;
+        }
+
         poppy_grammar->rules = (struct rule*) malloc(RULE_COUNT * sizeof(struct rule));
 
         int i = 0;
-        // {
-        //         enum symbol lhs = SYMBOL_PROGRAM;
-        //         enum symbol rhs[] = {SYMBOL_OPTINCLUDES, SYMBOL_DEFNS, SYMBOL_END};
-        //         poppy_grammar->rules[i].rhs = (enum symbol*) malloc(sizeof(rhs));
-        //         memcpy(poppy_grammar->rules[i].rhs, rhs, sizeof(rhs));
-        // }
-
         populate(SYMBOL_PROGRAM, {SYMBOL_OPTINCLUDES COMMA SYMBOL_DEFNS COMMA SYMBOL_END}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTINCLUDES, {SYMBOL_INCLUDES},i, poppy_grammar); ++i;
         populate(SYMBOL_OPTINCLUDES, {}, i, poppy_grammar); ++i;
@@ -87,6 +84,7 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_MULTEXPR, {SYMBOL_MULTEXPR COMMA SYMBOL_DIVIDE COMMA SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_MULTEXPR, {SYMBOL_MULTEXPR COMMA SYMBOL_MOD COMMA SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_MULTEXPR, {SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNEXPR, {SYMBOL_MINUS COMMA SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTARGS COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTARGS, {}, i, poppy_grammar); ++i;
@@ -98,6 +96,11 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_UNEXPR, {SYMBOL_IDENTIFIER}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_CONSTANT}, i, poppy_grammar); ++i;
 
+        for (size_t i = 0; i < RULE_COUNT; ++i){
+                if (poppy_grammar->rules[i].rhs_len == 0){
+                        poppy_grammar->nullable[poppy_grammar->rules[i].lhs] = true;
+                }
+        }
 
         return poppy_grammar;
 

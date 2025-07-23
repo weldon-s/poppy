@@ -13,6 +13,7 @@ struct grammar {
         enum symbol start;
         struct rule *rules;
         int rules_len;
+        bool nullable[SYMBOL_COUNT];
 };
 
 #endif
