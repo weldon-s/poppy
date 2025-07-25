@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "symbol.h"
+#include "lang/symbol.h"
 
 struct parse_tree * new_tree(struct token data){
         struct parse_tree *ptr = (struct parse_tree*) malloc(sizeof(struct parse_tree));

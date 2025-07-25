@@ -1,4 +1,4 @@
-#include "poppy_grammar.h"
+#include "lang/poppy_grammar.h"
 
 #include <stdlib.h>
 #include <string.h>

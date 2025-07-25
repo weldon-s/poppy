@@ -2,8 +2,8 @@
 #define PARSER_H
 
 #include "data/list.h"
-#include "grammar.h"
-#include "lexer.h"
+#include "lang/grammar.h"
+#include "lang/lexer.h"
 
 DEFINE_LIST(parse_tree);
 

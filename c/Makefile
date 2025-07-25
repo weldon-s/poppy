@@ -22,5 +22,5 @@ ${EXEC}: ${OBJECTS}
 
 # remember to ensure that build directory exists
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
-	@mkdir -p $(BUILD_DIR) 
+	@mkdir -p $(shell dirname $@) 
 	${CC} ${CFLAGS} -c $< -o $@

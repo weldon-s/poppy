@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "data/list.h"
-#include "symbol.h"
+#include "lang/symbol.h"
 
 struct token {
         enum symbol type;

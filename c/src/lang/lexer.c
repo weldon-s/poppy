@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "lang/lexer.h"
 
 #include <ctype.h>
 #include <stdbool.h>

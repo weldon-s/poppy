@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lexer.h"
-#include "poppy_grammar.h"
 #include "data/list.h"
+#include "lang/lexer.h"
 #include "lang/parser.h"
+#include "lang/poppy_grammar.h"
 
 void print(const struct parse_tree *pt, size_t level){
         for(size_t i = 0; i < level; ++i){
