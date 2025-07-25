@@ -196,6 +196,7 @@ struct LIST(token)* lex(FILE *file){
 
                 if (data.type == SYMBOL_NULL){
                         free_list(list, free_token, token);
+                        free(list);
                         return NULL;
                 }
 
