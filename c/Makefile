@@ -3,13 +3,16 @@ EXEC = main
 SOURCE_DIR = src
 BUILD_DIR = build
 INCLUDE_DIR = include
-CFLAGS = -MMD -MP -g -I $(INCLUDE_DIR)
+CFLAGS = -Wall -MMD -MP -g -I $(INCLUDE_DIR)
 
 CFILES = $(shell find $(SOURCE_DIR) -name "*.c" -type f)
 OBJECTS = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(CFILES))
 DEPENDS = ${OBJECTS:.o=.d}
 
-.PHONY: run clean
+.PHONY: all run clean
+
+all : ${EXEC}
+
 run: ${EXEC}
 	./${EXEC}
 

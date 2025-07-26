@@ -18,7 +18,7 @@ void free_parse_tree(const struct parse_tree *tree){
                 free_list(tree->children, free_parse_tree, parse_tree);
         }
         free(tree->children);
-        free(tree);
+        free((void *) tree);
 }
 
 struct parse_tree * copy_tree(struct parse_tree *tree){

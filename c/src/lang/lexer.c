@@ -13,7 +13,7 @@ bool is_numeric(char c){
 }
 
 bool is_alphabetic(char c){
-        return ((c >= 'a') && (c <= 'z') || (c >= 'A') && (c <= 'Z')) || (c == '_');
+        return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))) || (c == '_');
 }
 
 struct lex_data {
@@ -120,6 +120,7 @@ struct LIST(token)* lex(FILE *file){
 
                 struct lex_data data;
                 data.type = SYMBOL_NULL;
+                data.excess = 0;
 
                 switch (val[0]){
                         case -1:
