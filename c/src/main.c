@@ -2,11 +2,11 @@
 #include <stdlib.h>
 
 
-#include "data/map.h"
 #include "data/list.h"
 #include "lang/lexer.h"
 #include "lang/parser.h"
 #include "lang/poppy_grammar.h"
+#include "lang/type.h"
 
 // void print(const struct parse_tree *pt, size_t level){
 //         for(size_t i = 0; i < level; ++i){
@@ -54,55 +54,16 @@
 //         return 0;
 // }
 
-struct i {
-        int num;
-};
-
-struct d {
-        double num;
-};
-
-DEFINE_MAP(i, d);
-
-bool equals_i(struct i *i1, struct i *i2){
-        return i1->num == i2->num;
-}
-
-void free_entry(struct MAP_ENTRY(i, d) *entry){
-        free(entry->key);
-        free(entry->value);
-        free(entry);
-}
-
-int main (int argc, char *argv[]){
-        struct MAP(i, d) map;
-        init_map((&map), equals_i, free_entry, i, d);
-
-        for (int i = 1; i <= 10; ++i){
-                struct i *key = (struct i*) malloc(sizeof(struct i));
-                key->num = i;
-                struct d *value = (struct d*) malloc(sizeof(struct d));
-                value->num = 1.0 / i;
-                update_map((&map), key, value, i, d);
-        }
-
-        struct i *key = (struct i*) malloc(sizeof(struct i));
-        struct d *value = (struct d*) malloc(sizeof(struct d));
-        key->num = 5;
-        value->num = 0.5;
-        update_map((&map), key, value, i, d);
-        key = (struct i*) malloc(sizeof(struct i));
-        value = (struct d*) malloc(sizeof(struct d));
-        key->num = 12;
-        value->num = 1;
-        update_map((&map), key, value, i, d);
-
-        for (int i = 1; i <= 12; ++i){
-                struct i c = {i};
-                struct d *r;
-                query_map((&map), (&c), r, i, d);
-                r ? printf("%f\n", r->num) : printf("null\n");
-        }
-
-        free_map((&map), i, d);
+int main(){
+        printf("%s!\n", int_type()->repr);
+        printf("%s!\n", void_type()->repr);
+        printf("%s!\n", function_type(int_type(), NULL, 0));
+        const struct type * params[MAX_PARAM_COUNT];
+        params[0] = int_type();
+        params[1] = int_type();
+        printf("%s!\n", function_type(int_type(), params, 2));
+        printf("%p\n", function_type(void_type(), params, 2));
+        params[1] = void_type();
+        printf("%p\n", function_type(int_type(), params, 2));
+        free_types();
 }

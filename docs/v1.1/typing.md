@@ -3,11 +3,11 @@
 Poppy's types are defined according to the context-free grammar below. The starting symbol is $\text{type}$.
 $$
 \begin{align*}
-\text{type}&\rightarrow \text{simpletype}\\
-\text{simpletype}&\rightarrow \text{int}\\
+\text{type}&\rightarrow \text{assignabletype}\\
+\text{assignabletype}&\rightarrow \text{int}\\
 \text{type}&\rightarrow \text{void}\\
 \text{type}&\rightarrow \text{bool}\\
-\text{type}&\rightarrow \text{(optparams) $\Rightarrow$ simpletype}\\
+\text{type}&\rightarrow \text{(optparams) $\Rightarrow$ assignabletype}\\
 \text{optparams}&\rightarrow \varnothing\\
 \text{optparams}&\rightarrow \text{params}\\
 \text{params}&\rightarrow \text{param, params}\\
