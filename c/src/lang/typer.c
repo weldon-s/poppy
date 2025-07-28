@@ -1,0 +1,549 @@
+#include "lang/typer.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "data/map.h"
+#include "lang/type.h"
+
+#define OUTER_MAP parse_tree_string_type_map_map
+#define OUTER_MAP_ENTRY parse_tree_string_type_map_map_entry
+
+#define load_child_at(var, tree, n)                                        \
+        do {                                                               \
+                struct LIST_NODE(parse_tree) *node = tree->children->head; \
+                for (int i = 0; i < n; ++i){                               \
+                        node = node->next;                                 \
+                }                                                          \
+                var = node->data;                                          \
+        } while (0);                                                       \
+
+const struct type * params_array[MAX_PARAM_COUNT];
+
+struct string {
+        char *data;
+};
+
+DEFINE_MAP(string, type);
+
+DEFINE_MAP(parse_tree, MAP(string, type));
+
+bool equals_string(struct string *s1, struct string *s2) {
+        return strcmp(s1->data, s2->data) == 0;
+}
+
+void free_string(struct MAP_ENTRY(string, type) *entry){
+        free(entry->key);
+}
+
+bool equals_parse_tree(struct parse_tree *pt1, struct parse_tree *pt2){
+        return pt1 == pt2;
+}
+
+void free_entry(struct OUTER_MAP_ENTRY *entry){
+        free_map(entry->value, string, type);
+        free(entry->value);
+}
+
+struct MAP(string, type) * new_inner_map() {
+        struct MAP(string, type) *ptr = (struct MAP(string, type)*) malloc(sizeof(struct MAP(string, type)));
+        init_map(ptr, equals_string, free_string, string, type);
+        return ptr;
+}
+
+const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_MAP *outer_map, struct MAP(string, type) *scope_map);
+const struct type * find_cond_type(struct parse_tree *tree, struct OUTER_MAP *outer_map);
+const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_MAP *outer_map);
+
+const struct type * find_type_type(struct parse_tree *tree){
+        // type -> INT
+        struct parse_tree *child = tree->children->head->data;
+
+        if (strcmp(child->data.value, "int") == 0){
+                return int_type();
+        }
+
+        return NULL;
+}
+
+const struct type * find_symbol_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        struct string string;
+        string.data = tree->data.value;
+        struct parse_tree *cur = tree;
+        while (cur != NULL){
+                struct MAP(string, type) *inner_map; query_map(outer_map, cur, inner_map, parse_tree, MAP(string, type));
+                if (inner_map != NULL){
+                        const struct type *type; query_map(inner_map, &string, type, string, type);
+
+                        if (type != NULL){
+                                return type;
+                        }
+                }
+                cur = cur->parent;
+        }
+        return NULL;
+}
+
+char * find_defn_name(struct parse_tree *tree){
+        struct parse_tree *identifier; load_child_at(identifier, tree, 1);
+        return identifier->data.value;
+}
+
+const struct type * find_defn_type(struct parse_tree *tree){
+        // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
+        struct type * ret = find_type_type(tree->children->head->data);
+
+        struct parse_tree *optparams; load_child_at(optparams, tree, 3);
+        if ((optparams->children == NULL) || (optparams->children->len == 0)){
+                // optparams ->
+                return function_type(ret, params_array, 0);
+        }
+
+        // optparams -> params
+        struct parse_tree *params = optparams->children->head->data;
+        size_t param_count = 0;
+
+        while (1) {
+                // params -> param COMMA params
+                // params -> param
+                struct parse_tree *param = params->children->head->data;
+
+                // param -> type IDENTIFIER
+                params_array[param_count] = find_type_type(param->children->head->data);
+                ++param_count;
+
+                if (params->children->len == 3){
+                        load_child_at(params, params, 2);
+                } else {
+                        break;
+                }
+        };
+
+        return function_type(ret, params_array, param_count);
+}
+
+const struct type * find_vardec_type(struct parse_tree *tree, struct OUTER_MAP *outer_map, struct MAP(string, type) *scope_map){
+        // vardec -> type IDENTIFIER ASSIGN expr
+        // vardec -> type IDENTIFIER
+        struct parse_tree *type; load_child_at(type, tree, 0);
+        const struct type *type_type = find_type_type(type);
+        if (type_type == NULL){
+                return NULL;
+        }
+
+        if (tree->children->len == 4){
+                struct parse_tree *expr; load_child_at(expr, tree, 3);
+                const struct type *expr_type = find_expr_type(expr, outer_map);
+                if ((expr_type == NULL) || (!equals_type(type_type, expr_type))){
+                        return NULL;
+                }
+        }
+
+        struct parse_tree *id; load_child_at(id, tree, 1);
+        struct string *str = (struct string*) malloc(sizeof(struct string));
+        str->data = id->data.value;
+        update_map(scope_map, str, type_type, string, type);
+}
+
+const struct type * find_varasst_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // varasst -> IDENTIFIER ASSIGN expr
+        struct parse_tree *id = tree->children->head->data;
+        const struct type *var_type = find_symbol_type(id, outer_map);
+        if (var_type == NULL){
+                return NULL;
+        }
+
+        struct parse_tree *expr; load_child_at(expr, tree, 2);
+        const struct type *expr_type = find_expr_type(expr, outer_map);
+        if ((expr_type == NULL) || !equals_type(var_type, expr_type)){
+                return NULL;
+        }
+
+        return void_type();
+}
+
+const struct type * find_ret_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // ret -> HOP expr
+        struct parse_tree *expr; load_child_at(expr, tree, 1);
+        return find_expr_type(expr, outer_map);
+}
+
+const struct type * find_call_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // unexpr -> IDENTIFIER LPAREN optargs RPAREN
+        struct parse_tree *optargs; load_child_at(optargs, tree, 3);
+
+        // optargs ->
+        size_t param_count = 0;
+        if ((optargs->children != NULL) && (optargs->children->len > 0)){
+                // optargs -> args
+                struct parse_tree *args = optargs->children->head->data;
+                while (1) {
+                        // args -> expr COMMA args
+                        // args -> expr
+                        struct parse_tree *expr = args->children->head->data;
+
+                        params_array[param_count] = find_expr_type(expr, outer_map);
+                        ++param_count;
+
+                        if (args->children->len == 3){
+                                load_child_at(args, args, 2);
+                        } else {
+                                break;
+                        }
+                };
+        }
+
+        const struct type *ftype = find_symbol_type(tree->children->head->data, outer_map);
+        if (equals_arg_types(&params_array, param_count, ftype)){
+                return return_type(ftype);
+        }
+        return NULL;
+}
+
+const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        struct parse_tree *head = tree->children->head->data;
+
+        switch (head->data.type){
+                case SYMBOL_MINUS:
+                        // unexpr -> MINUS UNEXPR
+                        struct parse_tree *unexpr; load_child_at(unexpr, tree, 1);
+                        const struct type *type = find_unexpr_type(unexpr, outer_map);
+                        return type && equals_type(type, int_type()) ? int_type() : NULL;
+                case SYMBOL_LPAREN:
+                        // unexpr -> LPAREN expr RPAREN
+                        struct parse_tree *expr; load_child_at(expr, tree, 1);
+                        return find_expr_type(tree, outer_map);
+                case SYMBOL_INC:
+                case SYMBOL_DEC:
+                        // unexpr -> INC IDENTIFIER
+                        // unexpr -> DEC IDENTIFIER
+                        struct parse_tree *id; load_child_at(id, tree, 1);
+                        const struct type *id_type = find_symbol_type(id, outer_map);
+                        return type && equals_type(id_type, int_type()) ? int_type() : NULL;
+                case SYMBOL_IDENTIFIER:
+                        if (tree->children->len == 1){
+                                // unexpr -> IDENTIFIER
+                                return find_symbol_type(head, outer_map);
+                        }
+                        // unexpr -> IDENTIFIER LPAREN optargs RPAREN
+                        return find_call_type(unexpr, outer_map);
+
+                case SYMBOL_CONSTANT:
+                        // unexpr -> CONSTANT
+                        return int_type();
+
+
+        }
+}
+
+const struct type * find_multexpr_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // multexpr -> unexpr
+        if (tree->children->len == 1){
+                return find_unexpr_type(tree, outer_map);
+        }
+
+        // multexpr -> multexpr TIMES unexpr
+        // multexpr -> multexpr DIVIDE unexpr
+        // multexpr -> multexpr MOD unexpr
+        struct parse_tree *op1; load_child_at(op1, tree, 0);
+        const struct type *op1_type = find_multexpr_type(op1, outer_map);
+        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+                return NULL;
+        }
+
+        struct parse_tree *op2; load_child_at(op2, tree, 2);
+        const struct type *op2_type = find_unexpr_type(op2, outer_map);
+        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+                return NULL;
+        }
+
+        return int_type();
+}
+
+const struct type * find_addexpr_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // addexpr -> multexpr
+        if (tree->children->len == 1){
+                return find_multexpr_type(tree, outer_map);
+        }
+
+        // addexpr -> addexpr PLUS multexpr
+        // addexpr -> addexpr MINUS multexpr
+        struct parse_tree *op1; load_child_at(op1, tree, 0);
+        const struct type *op1_type = find_addexpr_type(op1, outer_map);
+        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+                return NULL;
+        }
+
+        struct parse_tree *op2; load_child_at(op2, tree, 2);
+        const struct type *op2_type = find_multexpr_type(op2, outer_map);
+        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+                return NULL;
+        }
+
+        return int_type();
+}
+
+const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // expr -> addexpr
+        return find_addexpr_type(tree->children->head->data, outer_map);
+}
+
+const struct type * find_semistmt_type(struct parse_tree *tree, struct OUTER_MAP *outer_map, struct MAP(string, type) *scope_map){
+        struct parse_tree *child = tree->children->head->data;
+        switch (child->data.type){
+                case SYMBOL_VARDEC:
+                        // semistmt -> vardec
+                        return find_vardec_type(tree, outer_map, scope_map);
+                case SYMBOL_VARASST:
+                        // semistmt -> varasst
+                        return find_varasst_type(tree, outer_map);
+                case SYMBOL_RET:
+                        // semistmt -> ret
+                        return find_ret_type(tree, outer_map);
+                case SYMBOL_EXPR:
+                        // semistmt -> expr
+                        return find_expr_type(tree, outer_map);
+        }
+}
+
+const struct type * find_uncond_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        struct parse_tree *head = tree->children->head->data;
+
+        if ((head->data.type == SYMBOL_NOT) || (head->data.type == SYMBOL_LPAREN)){
+                        // uncond -> NOT cond
+                        // uncond -> LPAREN cond RPAREN
+                        struct parse_tree *cond; load_child_at(cond, tree, 1);
+                        return find_cond_type(cond, outer_map);
+        }
+
+        // uncond -> expr LT expr
+        // uncond -> expr GT expr
+        // uncond -> expr LE expr
+        // uncond -> expr GE expr
+        // uncond -> expr EQ expr
+        // uncond -> expr NE expr
+        struct parse_tree *op1; load_child_at(op1, tree, 0);
+        const struct type *op1_type = find_expr_type(op1, outer_map);
+        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+                return NULL;
+        }
+
+        struct parse_tree *op2; load_child_at(op2, tree, 0);
+        const struct type *op2_type = find_expr_type(op2, outer_map);
+        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+                return NULL;
+        }
+
+        return bool_type();                 
+}
+
+const struct type * find_orcond_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        if (tree->children->len == 1){
+                // orcond -> uncond
+                return find_uncond_type(tree, outer_map);
+        }
+
+        // orcond -> orcond OR uncond
+        struct parse_tree *op1; load_child_at(op1, tree, 0);
+        const struct type *op1_type = find_orcond_type(op1, outer_map);
+        if ((op1_type == NULL) || !equals_type(op1_type, bool_type())){
+                return NULL;
+        }
+
+        struct parse_tree *op2; load_child_at(op2, tree, 2);
+        const struct type *op2_type = find_uncond_type(op2, outer_map);
+        if ((op2_type == NULL) || !equals_type(op2_type, bool_type())){
+                return NULL;
+        }
+
+        return bool_type();
+}
+
+const struct type * find_andcond_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        if (tree->children->len == 1){
+                // andcond -> orcond
+                return find_orcond_type(tree, outer_map);
+        }
+
+        // andcond -> andcond AND orcond
+        struct parse_tree *op1; load_child_at(op1, tree, 0);
+        const struct type *op1_type = find_andcond_type(op1, outer_map);
+        if ((op1_type == NULL) || !equals_type(op1_type, bool_type())){
+                return NULL;
+        }
+
+        struct parse_tree *op2; load_child_at(op2, tree, 2);
+        const struct type *op2_type = find_orcond_type(op2, outer_map);
+        if ((op2_type == NULL) || !equals_type(op2_type, bool_type())){
+                return NULL;
+        }
+
+        return bool_type();
+}
+
+const struct type * find_cond_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // cond -> andcond
+        return find_andcond_type(tree->children->head->data, outer_map);
+}
+
+const struct type * find_if_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        // stmt -> IF LPAREN cond RPAREN LBRACE stmts RBRACE optelse
+        struct parse_tree *if_stmts; load_child_at(if_stmts, tree, 5);
+        struct MAP(string, type) *if_map = new_inner_map();
+        update_map(outer_map, if_stmts, if_map, parse_tree, MAP(string, type));
+
+        const struct type *if_type = find_stmts_type(if_stmts, outer_map, if_map);
+        if (if_type == NULL){
+                return NULL;
+        }
+
+        struct parse_tree *optelse; load_child_at(optelse, tree, 7);
+        // optelse ->
+        if ((optelse->children == NULL) || (optelse->children->len == 0)) {
+                return void_type();
+        }
+
+        // optelse -> ELSE LBRACE stmts RBRACE
+        struct parse_tree *else_stmts; load_child_at(else_stmts, optelse, 2);
+        struct MAP(string, type) *else_map = new_inner_map();
+        update_map(outer_map, else_stmts, else_map, parse_tree, MAP(string, type));
+        const struct type *else_type = find_stmts_type(else_stmts, outer_map, else_stmts);
+
+        if ((else_type == NULL) || (!equals_type(if_type, else_type))){
+                return NULL;
+        }
+        return if_type;
+}
+
+const struct type * find_while_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        struct parse_tree *cond; load_child_at(cond, tree, 2);
+        const struct type *cond_type = find_cond_type(tree, outer_map);
+        if ((cond_type == NULL) || (!equals_type(cond_type, bool_type()))){
+                return NULL;
+        }
+
+        struct parse_tree *body; load_child_at(body, tree, 5);
+        struct MAP(string, type) *body_map = new_inner_map();
+        update_map(outer_map, body, body_map, parse_tree, MAP(string, type));
+        return find_stmts_type(body, outer_map, body_map);
+}
+
+const struct type * find_for_type(struct parse_tree *tree, struct OUTER_MAP *outer_map){
+        struct MAP(string, type) *scope_map = new_inner_map();
+        update_map(outer_map, tree, scope_map, parse_tree, MAP(string, type));
+
+        struct parse_tree *init; load_child_at(init, tree, 2);
+        const struct type *init_type = find_semistmt_type(init, outer_map, scope_map);
+        if (init_type == NULL){
+                return NULL;
+        }
+
+        struct parse_tree *cond; load_child_at(cond, tree, 4);
+        const struct type *cond_type = find_cond_type(cond, outer_map);
+        if ((cond_type == NULL) || (!equals_type(cond_type, bool_type()))){
+                return NULL;
+        }
+
+        struct parse_tree *post; load_child_at(post, tree, 6);
+        const struct type *post_type = find_semistmt_type(post, outer_map, scope_map);
+        if ((post_type == NULL)){
+                return NULL;
+        }
+
+        struct parse_tree *body; load_child_at(body, tree, 9);
+        struct MAP(string, type) *body_map = new_inner_map();
+        update_map(outer_map, tree, body_map, parse_tree, MAP(string, type));
+        const struct type *body_type = find_stmts_type(body, outer_map, body_map);
+        return body_type;
+}
+
+const struct type * find_stmt_type(struct parse_tree *tree, struct OUTER_MAP *outer_map, struct MAP(string, type) *scope_map){
+        switch(tree->children->head->data->data.type){
+                case SYMBOL_SEMISTMT:
+                        // stmt -> semistmt SEMICOLON
+                        return find_semistmt_type(tree->children->head->data, outer_map, scope_map);
+                case SYMBOL_IF:
+                        return find_if_type(tree, outer_map);
+                case SYMBOL_WHILE:
+                        return find_while_type(tree, outer_map);
+                case SYMBOL_FOR:
+                        return find_for_type(tree, outer_map);
+                default:
+                        return NULL;
+        }
+}
+
+const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_MAP *outer_map, struct MAP(string, type) *scope_map){
+        struct parse_tree *stmts = tree;
+
+        while (1) {
+                // stmts -> stmt stmts
+                // stmts -> stmt
+                struct parse_tree *stmt = stmts->children->head->data;
+                struct type *stmt_type = find_stmt_type(stmt, outer_map, scope_map);
+
+                if (stmt_type == NULL){
+                        return NULL;
+                }
+
+                if (stmts->children->len == 2){
+                        load_child_at(stmts, stmts, 1);
+                } else {
+                        return stmt_type;
+                }
+        }
+  
+}
+
+bool find_types(const struct parse_tree *tree){
+        struct OUTER_MAP outer_map;
+        struct MAP(string, type) *inner_map = new_inner_map();
+        init_map((&outer_map), equals_parse_tree, free_entry, parse_tree, MAP(string, type));
+        update_map((&outer_map), tree, inner_map, parse_tree, MAP(string, type));
+
+        // program -> optincludes defns END
+        struct parse_tree *defns; load_child_at(defns, tree, 1);
+
+        while (1) {
+                // defns -> defn defns
+                // defns -> defn
+                struct parse_tree *defn = defns->children->head->data;
+
+                struct type *defn_type = find_defn_type(defn);
+                struct string *id = {find_defn_name(defn)};
+                update_map(inner_map, id, defn_type, string, type);
+
+                if (defns->children->len == 2){
+                        load_child_at(defns, defns, 1);
+                } else {
+                        break;
+                }
+        }
+
+        while (1) {
+                // defns -> defn defns
+                // defns -> defn
+                struct parse_tree *defn = defns->children->head->data;
+
+                struct string *id = {find_defn_name(defn)};
+
+                // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
+                struct parse_tree *stmts; load_child_at(stmts, defn, 6);
+                struct MAP(string, type) *stmts_map = new_inner_map();
+                update_map((&outer_map), stmts, stmts_map, parse_tree, MAP(string, type));
+
+                struct type *stmts_type = find_stmts_type(stmts, &outer_map, stmts_map);
+
+                if (stmts_type == NULL){
+                        return false;
+                }
+
+                if (defns->children->len == 2){
+                        load_child_at(defns, defns, 1);
+                } else {
+                        break;
+                }
+        } 
+
+        return true;
+}

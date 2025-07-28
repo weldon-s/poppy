@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 #include "data/list.h"
+#include <stdbool.h>
 
 #define MAP_ENTRY(ktype, vtype) ktype##_##vtype##_map_entry
 #define MAP(ktype, vtype) ktype##_##vtype##_map

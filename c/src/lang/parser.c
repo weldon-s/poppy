@@ -46,6 +46,7 @@ void add_child(struct parse_tree *parent, struct parse_tree *child){
         }
 
         append_list(parent->children, child, parse_tree);
+        child->parent = parent;
 }
 
 // Earley item

@@ -73,6 +73,43 @@ const struct type* const function_type(const struct type *ret, const struct type
         return new;
 }
 
+const struct type* const return_type(const struct type *type){
+        switch (type->repr[0]){
+                case 'i':
+                        return int_type();
+                default:
+                        return NULL;
+        }
+}
+
+bool equals_type(const struct type *t1, const struct type *t2){
+        return strcmp(t1->repr, t2->repr) == 0;
+}
+
+bool equals_arg_types(const struct type *args[MAX_PARAM_COUNT], size_t args_len, const struct type *type){
+        size_t params_len = strlen(type->repr) - 2;
+        if (params_len != args_len){
+                return false;
+        }
+
+        for (size_t i = 0; i < args_len; ++i){
+                const struct type *param_type;
+                switch (type->repr[i + 2]){
+                        case 'i':
+                                param_type = int_type();
+                                break;
+                        default:
+                                return false;
+                }
+
+                if (!equals_type(param_type, args[i])){
+                        return false;
+                }
+        }
+
+        return true;
+}
+
 void free_types(){
         free_list((&types), free, type);
         int_ptr = NULL;
