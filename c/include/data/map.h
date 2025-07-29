@@ -8,17 +8,17 @@
 #define LISTMAP_ENTRY(ktype, vtype) ktype##_##vtype##_map_entry_list
 #define LIST_NODEMAP_ENTRY(ktype, vtype) ktype##_##vtype##_map_entry_list_node
 
-#define DEFINE_MAP(ktype, vtype)                                    \
-        struct MAP_ENTRY(ktype, vtype) {                            \
-                struct ktype *key;                                  \
-                struct vtype *value;                                \
-        };                                                          \
-        DEFINE_LIST(MAP_ENTRY(ktype, vtype))                        \
-        struct MAP(ktype, vtype) {                                  \
-                struct LISTMAP_ENTRY(ktype, vtype) *list;           \
-                bool (*equals)(struct ktype*, struct ktype*);       \
-                void (*free_func)(struct MAP_ENTRY(ktype, vtype)*); \
-        };                                                          \
+#define DEFINE_MAP(ktype, vtype)                                                \
+        struct MAP_ENTRY(ktype, vtype) {                                        \
+                const struct ktype *key;                                        \
+                const struct vtype *value;                                      \
+        };                                                                      \
+        DEFINE_LIST(MAP_ENTRY(ktype, vtype))                                    \
+        struct MAP(ktype, vtype) {                                              \
+                struct LISTMAP_ENTRY(ktype, vtype) *list;                       \
+                bool (*equals)(const struct ktype*, const struct ktype*);       \
+                void (*free_func)(const struct MAP_ENTRY(ktype, vtype)*);       \
+        };                                                                      \
 
 #define init_map(map, eq, ff, ktype, vtype)                                                                               \
         do {                                                                                                              \
