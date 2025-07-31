@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "lang/symbol.h"
 
@@ -33,6 +32,7 @@ struct parse_tree * copy_tree(struct parse_tree *tree){
                 for (struct LIST_NODE(parse_tree) *node = tree->children->head; node != NULL; node = node->next){
                         struct parse_tree *child = copy_tree(node->data);
                         append_list(ptr->children, child, parse_tree);
+                        child->parent = ptr;
                 }
         }
 

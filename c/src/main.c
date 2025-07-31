@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
 
         print(pt, 0);
 
-        find_types(pt);
+        printf("%d\n", find_types(pt));
 
         free_list(list, free_token, token);
         free(list);
