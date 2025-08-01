@@ -8,6 +8,7 @@
 #include "lang/poppy_grammar.h"
 #include "lang/type.h"
 #include "lang/typer.h"
+#include "codegen/register.h"
 
 
 void print(const struct parse_tree *pt, size_t level){
@@ -31,41 +32,47 @@ void print(const struct parse_tree *pt, size_t level){
         }
 }
 
-int main(int argc, char *argv[]){
-        FILE *f = fopen("prog.pop", "r");
-        struct LIST(token) *list = lex(f);
-        fclose(f);
+// int main(int argc, char *argv[]){
+//         FILE *f = fopen("prog.pop", "r");
+//         struct LIST(token) *list = lex(f);
+//         fclose(f);
 
-        if (list == NULL){
-                return 0;
+//         if (list == NULL){
+//                 return 0;
+//         }
+
+//         const struct grammar *poppy_grammar = get_poppy_grammar();
+//         const struct parse_tree *pt = parse(poppy_grammar, list);
+//         free_poppy_grammar();
+
+//         if (pt == NULL) {
+//                 free_list(list, free_token, token);
+//                 free(list);
+//                 return 0;
+//         }
+
+//         print(pt, 0);
+
+//         const struct OUTER_MAP *types = find_types(pt);
+
+//         printf("%p\n", types);
+
+//         free_list(list, free_token, token);
+//         free(list);
+//         free_parse_tree(pt);
+
+//         if (types != NULL){
+//                 free_map(types, parse_tree, MAP(string, type));
+//                 free((void*) types);
+//         }
+
+//         free_types();
+
+//         return 0;
+// }
+
+int main(){
+        for (int i = 0; i < 32; ++i){
+                printf("%s\n", reg_to_string(i));
         }
-
-        const struct grammar *poppy_grammar = get_poppy_grammar();
-        const struct parse_tree *pt = parse(poppy_grammar, list);
-        free_poppy_grammar();
-
-        if (pt == NULL) {
-                free_list(list, free_token, token);
-                free(list);
-                return 0;
-        }
-
-        print(pt, 0);
-
-        const struct OUTER_MAP *types = find_types(pt);
-
-        printf("%p\n", types);
-
-        free_list(list, free_token, token);
-        free(list);
-        free_parse_tree(pt);
-
-        if (types != NULL){
-                free_map(types, parse_tree, MAP(string, type));
-                free((void*) types);
-        }
-
-        free_types();
-
-        return 0;
 }
