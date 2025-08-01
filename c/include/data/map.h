@@ -34,7 +34,7 @@
                 entry->key = k;                                                                                                                   \
                 entry->value = v;                                                                                                                 \
                 bool found = false;                                                                                                               \
-                for (struct LIST_NODEMAP_ENTRY(ktype, vtype) *node = map->list->head; node != NULL; node = node->next) {                        \
+                for (struct LIST_NODEMAP_ENTRY(ktype, vtype) *node = map->list->head; node != NULL; node = node->next) {                          \
                         if (map->equals(k, node->data->key)) {                                                                                    \
                                 map->free_func(node->data);                                                                                       \
                                 node->data = entry;                                                                                               \

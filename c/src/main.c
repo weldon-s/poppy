@@ -6,7 +6,9 @@
 #include "lang/lexer.h"
 #include "lang/parser.h"
 #include "lang/poppy_grammar.h"
+#include "lang/type.h"
 #include "lang/typer.h"
+
 
 void print(const struct parse_tree *pt, size_t level){
         for(size_t i = 0; i < level; ++i){
@@ -50,24 +52,20 @@ int main(int argc, char *argv[]){
 
         print(pt, 0);
 
-        printf("%d\n", find_types(pt));
+        const struct OUTER_MAP *types = find_types(pt);
+
+        printf("%p\n", types);
 
         free_list(list, free_token, token);
         free(list);
         free_parse_tree(pt);
+
+        if (types != NULL){
+                free_map(types, parse_tree, MAP(string, type));
+                free((void*) types);
+        }
+
+        free_types();
+
         return 0;
 }
-
-// int main(){
-//         printf("%s!\n", int_type()->repr);
-//         printf("%s!\n", void_type()->repr);
-//         printf("%s!\n", function_type(int_type(), NULL, 0)->repr);
-//         const struct type * params[MAX_PARAM_COUNT];
-//         params[0] = int_type();
-//         params[1] = int_type();
-//         printf("%s!\n", function_type(int_type(), params, 2)->repr);
-//         printf("%p\n", function_type(void_type(), params, 2));
-//         params[1] = void_type();
-//         printf("%p\n", function_type(int_type(), params, 2));
-//         free_types();
-// }

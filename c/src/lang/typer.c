@@ -7,7 +7,6 @@
 #include "data/map.h"
 #include "lang/type.h"
 
-#define OUTER_MAP parse_tree_string_type_map_map
 #define OUTER_MAP_ENTRY parse_tree_string_type_map_map_entry
 
 #define load_child_at(var, tree, n)                                        \
@@ -23,20 +22,13 @@
 
 const struct type * params_array[MAX_PARAM_COUNT];
 
-struct string {
-        char *data;
-};
-
-DEFINE_MAP(string, type);
-
-DEFINE_MAP(parse_tree, MAP(string, type));
-
 bool equals_string(const struct string *s1, const struct string *s2) {
         return strcmp(s1->data, s2->data) == 0;
 }
 
 void free_string(const struct MAP_ENTRY(string, type) *entry){
         free((void *) entry->key);
+        free((void *) entry);
 }
 
 bool equals_parse_tree(const struct parse_tree *pt1, const struct parse_tree *pt2){
@@ -46,6 +38,7 @@ bool equals_parse_tree(const struct parse_tree *pt1, const struct parse_tree *pt
 void free_entry(const struct OUTER_MAP_ENTRY *entry){
         free_map(entry->value, string, type);
         free((void *) entry->value);
+        free((void *) entry);
 }
 
 struct MAP(string, type) * new_inner_map() {
@@ -197,6 +190,10 @@ const struct type * find_call_type(struct parse_tree *tree, struct OUTER_MAP *ou
                         struct parse_tree *expr = args->children->head->data;
 
                         params_array[param_count] = find_expr_type(expr, outer_map);
+                        if (params_array[param_count] == NULL){
+                                return NULL;
+                        }
+
                         ++param_count;
 
                         if (args->children->len == 3){
@@ -524,11 +521,11 @@ const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_MAP *o
   
 }
 
-bool find_types(const struct parse_tree *tree){
-        struct OUTER_MAP outer_map;
+struct OUTER_MAP * find_types(const struct parse_tree *tree){
+        struct OUTER_MAP *outer_map = (struct OUTER_MAP*) malloc(sizeof (struct OUTER_MAP));
         struct MAP(string, type) *inner_map = new_inner_map();
-        init_map((&outer_map), equals_parse_tree, free_entry, parse_tree, MAP(string, type));
-        update_map((&outer_map), tree, inner_map, parse_tree, MAP(string, type));
+        init_map(outer_map, equals_parse_tree, free_entry, parse_tree, MAP(string, type));
+        update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
 
         // program -> optincludes defns END
         struct parse_tree *defns; load_child_at(defns, tree, 1);
@@ -539,7 +536,7 @@ bool find_types(const struct parse_tree *tree){
                 struct parse_tree *defn = defns->children->head->data;
 
                 struct MAP(string, type) *defn_map = new_inner_map();
-                update_map((&outer_map), defn, defn_map, parse_tree, MAP(string, type));
+                update_map(outer_map, defn, defn_map, parse_tree, MAP(string, type));
 
                 const struct type *defn_type = find_defn_type(defn, defn_map);
                 struct string *id = (struct string*) malloc(sizeof(struct string));
@@ -559,20 +556,20 @@ bool find_types(const struct parse_tree *tree){
                 // defns -> defn defns
                 // defns -> defn
                 struct parse_tree *defn = defns->children->head->data;
-                struct string *id = (struct string*) malloc(sizeof(struct string));
-                id->data = find_defn_name(defn);
 
                 // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
                 struct parse_tree *stmts; load_child_at(stmts, defn, 6);
 
                 const struct MAP(string, type) *defn_map; 
-                query_map((&outer_map), defn, defn_map, parse_tree, MAP(string, type));
+                query_map(outer_map, defn, defn_map, parse_tree, MAP(string, type));
                 // cast to non-const here because map assumes we can't modify values
-                const struct type *stmts_type = find_stmts_type(stmts, &outer_map, (struct MAP(string, type)*) defn_map);
-                const struct type *ftype = find_symbol_type(defn->children->head->next->data, &outer_map);
+                const struct type *stmts_type = find_stmts_type(stmts, outer_map, (struct MAP(string, type)*) defn_map);
+                const struct type *ftype = find_symbol_type(defn->children->head->next->data, outer_map);
 
                 if ((stmts_type == NULL) || !equals_type(stmts_type, return_type(ftype))){
-                        return false;
+                        free_map(outer_map, parse_tree, MAP(string, type));
+                        free(outer_map);
+                        return NULL;
                 }
 
                 if (defns->children->len == 2){
@@ -582,5 +579,5 @@ bool find_types(const struct parse_tree *tree){
                 }
         } 
 
-        return true;
+        return outer_map;
 }
