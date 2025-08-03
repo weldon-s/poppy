@@ -8,6 +8,7 @@
 #include "lang/poppy_grammar.h"
 #include "lang/type.h"
 #include "lang/typer.h"
+#include "codegen/assem.h"
 #include "codegen/register.h"
 
 
@@ -72,7 +73,17 @@ void print(const struct parse_tree *pt, size_t level){
 // }
 
 int main(){
-        for (int i = 0; i < 32; ++i){
-                printf("%s\n", reg_to_string(i));
-        }
+        char *c = concat(3, concat(7,
+                mov(29, 3),
+                movi(10, 300),
+                push(1),
+                push_pair(2, 3),
+                pop(5),
+                pop_pair(30, 31),
+                add(1, 2, 3)),
+                add(1, 2, 3),
+                add(3, 2, 1)
+        );
+        printf("%s", c);
+        free(c);
 }
