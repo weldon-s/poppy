@@ -11,5 +11,9 @@ char *push_pair(enum reg reg1, enum reg reg2);
 char *pop(enum reg reg);
 char *pop_pair(enum reg reg1, enum reg reg2);
 char *add(enum reg dest, enum reg src1, enum reg src2);
+char *sub(enum reg dest, enum reg src1, enum reg src2);
+char *mul(enum reg dest, enum reg src1, enum reg src2);
+char *sdiv(enum reg dest, enum reg src1, enum reg src2);
+char *msub(enum reg dest, enum reg mplcand, enum reg mplier, enum reg mend);
 char *concat(size_t count, ...);
 #endif

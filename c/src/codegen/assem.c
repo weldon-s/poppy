@@ -75,6 +75,52 @@ char *add(enum reg dest, enum reg src1, enum reg src2){
         return instr;
 }
 
+char *sub(enum reg dest, enum reg src1, enum reg src2){
+        char *instr = (char*) malloc(18 * sizeof(char));
+        strcpy(instr, "sub ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src2));
+        return instr;
+}
+
+char *mul(enum reg dest, enum reg src1, enum reg src2){
+        char *instr = (char*) malloc(18 * sizeof(char));
+        strcpy(instr, "mul ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src2));
+        return instr;
+}
+
+char *sdiv(enum reg dest, enum reg src1, enum reg src2){
+        char *instr = (char*) malloc(19 * sizeof(char));
+        strcpy(instr, "sdiv ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src2));
+        return instr;
+}
+
+char *msub(enum reg dest, enum reg mplcand, enum reg mplier, enum reg mnend){
+        char *instr = (char*) malloc(24 * sizeof(char));
+        strcpy(instr, "msub ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(mplcand));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(mplier));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(mnend));
+        return instr;
+}
+
 char *concat(size_t count, ...){
         va_list args;
         va_start(args, count);
@@ -109,13 +155,3 @@ char *concat(size_t count, ...){
 
         return res;
 }
-
-// char *concat(char *line1, char *line2){
-//         char *res = (char*) malloc((strlen(line1) + strlen(line2) + 2) * sizeof(char));
-//         strcpy(res, line1);
-//         strcat(res, "\n");
-//         strcat(res, line2);
-//         free(line1);
-//         free(line2);
-//         return res;
-// }
