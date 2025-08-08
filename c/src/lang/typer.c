@@ -35,7 +35,7 @@ bool equals_parse_tree(const struct parse_tree *pt1, const struct parse_tree *pt
         return pt1 == pt2;
 }
 
-void free_entry(const struct OUTER_MAP_ENTRY *entry){
+void free_typer_entry(const struct OUTER_MAP_ENTRY *entry){
         free_map(entry->value, string, type);
         free((void *) entry->value);
         free((void *) entry);
@@ -524,7 +524,7 @@ const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_MAP *o
 struct OUTER_MAP * find_types(const struct parse_tree *tree){
         struct OUTER_MAP *outer_map = (struct OUTER_MAP*) malloc(sizeof (struct OUTER_MAP));
         struct MAP(string, type) *inner_map = new_inner_map();
-        init_map(outer_map, equals_parse_tree, free_entry, parse_tree, MAP(string, type));
+        init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, MAP(string, type));
         update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
 
         // program -> optincludes defns END
