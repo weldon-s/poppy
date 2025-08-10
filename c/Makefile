@@ -20,7 +20,7 @@ clean:
 	rm -f ${EXEC} ${OBJECTS} ${DEPENDS}
 
 ${EXEC}: ${OBJECTS}
-	${CC} ${OBJECTS} -o ${EXEC}
+	${CC} ${OBJECTS} -o ${EXEC} -lm
 -include ${DEPENDS}
 
 # remember to ensure that build directory exists

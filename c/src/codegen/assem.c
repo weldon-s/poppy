@@ -171,6 +171,18 @@ char *not(enum reg dest, enum reg src){
         return instr;
 }
 
+char *cmpi(enum reg reg, long long imm){
+        assert((-65537 <= imm) && (imm <= 65535));
+        char *instr = (char*) malloc(16 * sizeof(char));
+        strcpy(instr, "cmp ");
+        strcat(instr, reg_to_string(reg));
+        strcat(instr, ", #");
+        char imm_str[7];
+        sprintf(imm_str, "%d", imm);
+        strcat(instr, imm_str);
+        return instr;
+}
+
 char *concat(size_t count, ...){
         va_list args;
         va_start(args, count);
