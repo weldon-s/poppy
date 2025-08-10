@@ -560,10 +560,10 @@ struct OUTER_MAP * find_types(const struct parse_tree *tree){
                 // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
                 struct parse_tree *stmts; load_child_at(stmts, defn, 6);
 
-                const struct MAP(string, type) *defn_map; 
-                query_map(outer_map, defn, defn_map, parse_tree, MAP(string, type));
+                struct MAP(string, type) *stmts_map = new_inner_map(); 
+                update_map(outer_map, stmts, stmts_map, parse_tree, MAP(string, type));
                 // cast to non-const here because map assumes we can't modify values
-                const struct type *stmts_type = find_stmts_type(stmts, outer_map, (struct MAP(string, type)*) defn_map);
+                const struct type *stmts_type = find_stmts_type(stmts, outer_map, stmts_map);
                 const struct type *ftype = find_symbol_type(defn->children->head->next->data, outer_map);
 
                 if ((stmts_type == NULL) || !equals_type(stmts_type, return_type(ftype))){
@@ -578,6 +578,11 @@ struct OUTER_MAP * find_types(const struct parse_tree *tree){
                         break;
                 }
         } 
+
+        for (struct parse_tree_string_type_map_map_entry_list_node *node = outer_map->list->head; node != NULL; node = node->next) {
+                struct OUTER_MAP_ENTRY *entry = node->data;
+                printf("%s: %d\n", symbol_name(entry->key->data.type), entry->value->list->len);
+        }
 
         return outer_map;
 }

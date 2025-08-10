@@ -35,7 +35,7 @@ struct function *new_function(char **params, size_t params_len){
         struct function *ptr = (struct function*) malloc(sizeof(struct function));
         ptr->body = NULL;
         ptr->params = params;
-        ptr->params_len = params;
+        ptr->params_len = params_len;
         ptr->start_label = new_label();
         ptr->frame = frame;
         ptr->param_chunk = param_chunk;
