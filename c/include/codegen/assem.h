@@ -15,5 +15,10 @@ char *sub(enum reg dest, enum reg src1, enum reg src2);
 char *mul(enum reg dest, enum reg src1, enum reg src2);
 char *sdiv(enum reg dest, enum reg src1, enum reg src2);
 char *msub(enum reg dest, enum reg mplcand, enum reg mplier, enum reg mend);
+char *cmp(enum reg reg1, enum reg reg2);
+char *cset(enum reg reg, char cond[3]);
+char *and(enum reg dest, enum reg src1, enum reg src2);
+char *orr(enum reg dest, enum reg src1, enum reg src2);
+char *not(enum reg dest, enum reg src);
 char *concat(size_t count, ...);
 #endif

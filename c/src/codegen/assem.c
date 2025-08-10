@@ -121,6 +121,56 @@ char *msub(enum reg dest, enum reg mplcand, enum reg mplier, enum reg mnend){
         return instr;
 }
 
+char *cmp(enum reg reg1, enum reg reg2){
+        char *instr = (char*) malloc(13 * sizeof(char));
+        strcpy(instr, "cmp ");
+        strcat(instr, reg_to_string(reg1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(reg2));
+        return instr;
+}
+
+char *cset(enum reg reg, char cond[3]){
+        char *instr = (char*) malloc(13 * sizeof(char));
+        strcpy(instr, "cset ");
+        strcat(instr, reg_to_string(reg));
+        strcat(instr, ", ");
+        strcat(instr, cond);
+        return instr;
+}
+
+char *and(enum reg dest, enum reg src1, enum reg src2){
+        char *instr = (char*) malloc(18 * sizeof(char));
+        strcpy(instr, "and ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src2));
+        return instr;
+}
+
+char *orr(enum reg dest, enum reg src1, enum reg src2){
+        char *instr = (char*) malloc(18 * sizeof(char));
+        strcpy(instr, "orr ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src1));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src2));
+        return instr;
+}
+
+char *not(enum reg dest, enum reg src){
+        char *instr = (char*) malloc(17 * sizeof(char));
+        strcpy(instr, "eor ");
+        strcat(instr, reg_to_string(dest));
+        strcat(instr, ", ");
+        strcat(instr, reg_to_string(src));
+        strcat(instr, ", #1");
+        return instr;
+}
+
 char *concat(size_t count, ...){
         va_list args;
         va_start(args, count);
