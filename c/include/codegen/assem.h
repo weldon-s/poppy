@@ -21,5 +21,6 @@ char *and(enum reg dest, enum reg src1, enum reg src2);
 char *orr(enum reg dest, enum reg src1, enum reg src2);
 char *not(enum reg dest, enum reg src);
 char *cmpi(enum reg reg, long long imm);
+char *ret();
 char *concat(size_t count, ...);
 #endif

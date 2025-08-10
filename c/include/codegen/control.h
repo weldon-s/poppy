@@ -3,14 +3,14 @@
 
 struct label;
 
-struct label new_label();
-void free_label(struct label l);
+struct label *new_label();
+void free_label(struct label *l);
 
-char *declare(struct label l);
-char *b(struct label l);
-char *bl(struct label l);
-char *beq(struct label l);
-char *bne(struct label l);
+char *declare_label(struct label *l);
+char *b(struct label *l);
+char *bl(struct label *l);
+char *beq(struct label *l);
+char *bne(struct label *l);
 
 char *if_stmt(char* cond, char *then_block, char *else_block);
 char *while_loop(char *cond, char *body);

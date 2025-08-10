@@ -83,7 +83,7 @@ char *push_chunk(struct chunk *chunk){
         );
 }
 
-char *pop_chunk(struct chunk *chunk){
+char *pop_chunk(){
         char *instr = (char*) malloc(13 * sizeof(char));
         strcpy(instr, "ldr x9, [sp]");
 

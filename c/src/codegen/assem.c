@@ -183,6 +183,12 @@ char *cmpi(enum reg reg, long long imm){
         return instr;
 }
 
+char *ret(){
+        char *instr = (char*) malloc(4 * sizeof(char));
+        strcpy(instr, "ret");
+        return instr;
+}
+
 char *concat(size_t count, ...){
         va_list args;
         va_start(args, count);
