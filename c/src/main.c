@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 
         print(pt, 0);
 
-        const struct OUTER_MAP *types = find_types(pt);
+        const struct OUTER_TYPE_MAP *types = find_types(pt);
 
         printf("%p\n", types);
 

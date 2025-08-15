@@ -20,12 +20,16 @@ struct function {
         struct chunk *param_chunk;
 };
 
-struct function *new_function(char **params, size_t params_len){
+struct function *new_function(char **params, size_t params_len, char **vars, size_t vars_len){
         struct chunk *frame = new_chunk();
         struct chunk *param_chunk = new_chunk();
 
         for (size_t i = 0; i < params_len; ++i){
                 add_variable(param_chunk, params[i]);
+        }
+
+        for(size_t i = 0; i < vars_len; ++i){
+                add_variable(frame, vars[i]);
         }
 
         add_variable(frame, CALLER_FRAME_PTR);

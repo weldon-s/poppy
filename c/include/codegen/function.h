@@ -7,7 +7,7 @@
 
 struct function;
 
-struct function *new_function(char **params, size_t params_len);
+struct function *new_function(char **params, size_t params_len, char **vars, size_t vars_len);
 void free_function(struct function* function);
 
 char *read_function_variable(struct function *function, enum reg reg, char *varname);
