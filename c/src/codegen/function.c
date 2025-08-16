@@ -54,6 +54,10 @@ void free_function(struct function *function){
         free(function);
 }
 
+size_t num_params(const struct function *function){
+        return function->params_len;
+}
+
 char *read_function_variable(struct function *function, enum reg reg, char *varname){
         if (has_variable(function->frame, varname)){
                 // frame is on top of the stack (otherwise we wouldn't be in this function)
@@ -115,6 +119,14 @@ char *call_function(struct function *function, char **args){
                 } else {
                         arg_evals = concat(2, arg_evals, cur_eval);
                 }
+        }
+
+        if (arg_evals == NULL){
+                return concat(3, 
+                        push_chunk(function->param_chunk),
+                        bl(function->start_label),
+                        pop_chunk()           
+                );
         }
 
         return concat(4,

@@ -10,6 +10,7 @@ struct function;
 struct function *new_function(char **params, size_t params_len, char **vars, size_t vars_len);
 void free_function(struct function* function);
 
+size_t num_params(const struct function *function);
 char *read_function_variable(struct function *function, enum reg reg, char *varname);
 char *write_function_variable(struct function *function, char *varname, enum reg reg);
 void set_body(struct function *function, char *body);

@@ -9,6 +9,7 @@
 #include "lang/type.h"
 #include "lang/typer.h"
 #include "codegen/assem.h"
+#include "codegen/program.h"
 #include "codegen/register.h"
 
 
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]){
 
         const struct OUTER_TYPE_MAP *types = find_types(pt);
 
-        printf("%p\n", types);
+        print("%s", generate_code(types, pt));
 
         free_list(list, free_token, token);
         free(list);
