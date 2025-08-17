@@ -92,6 +92,8 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
                 ret.type = SYMBOL_LET;
         } else if ((ret.val_len == 5) && (strncmp(val, "munch", 5) == 0)){
                 ret.type = SYMBOL_MUNCH;
+        } else if ((ret.val_len == 4) && (strncmp(val, "void", 4) == 0)){
+                ret.type = SYMBOL_VOID;
         } else if ((ret.val_len == 5) && (strncmp(val, "while", 3) == 0)){
                 ret.type = SYMBOL_WHILE;
         } else {

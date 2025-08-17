@@ -36,6 +36,7 @@ enum symbol {
         SYMBOL_INT,
         SYMBOL_LET,
         SYMBOL_MUNCH,
+        SYMBOL_VOID,
         SYMBOL_WHILE,
         SYMBOL_IDENTIFIER,
         SYMBOL_CONSTANT,

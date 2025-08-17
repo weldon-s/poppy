@@ -111,6 +111,7 @@ char *while_loop(char *cond, char *body){
 
         char *ret = concat(7,
                 declare_label(start),
+                cond,
                 cmpi(REG_ARITH_RESULT, 1),
                 bne(end),
                 body,

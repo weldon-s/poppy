@@ -37,6 +37,7 @@ char * symbol_name(enum symbol s){
                 case SYMBOL_INT: return "int";
                 case SYMBOL_LET: return "let";
                 case SYMBOL_MUNCH: return "munch";
+                case SYMBOL_VOID: return "void";
                 case SYMBOL_WHILE: return "while";
                 case SYMBOL_IDENTIFIER: return "ID";
                 case SYMBOL_CONSTANT: return "CONST";

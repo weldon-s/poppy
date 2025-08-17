@@ -280,12 +280,15 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                         locals[i++] = node->data->data;
                 }
 
-                struct function *fn = new_function(params, params_list.len, locals, locals_list.len);
+                struct string *s = (struct string*) malloc(sizeof(struct string));
+                s->data = defn->children->head->next->data->data.value;
+                bool is_main = strcmp("main", s->data) == 0;
+
+                struct function *fn = new_function(params, params_list.len, locals, locals_list.len, is_main);
                 free_list((&params_list), free_string, string);
                 free_list((&locals_list), free_string, string);
                 free(locals);
-                struct string *s = (struct string*) malloc(sizeof(struct string));
-                s->data = defn->children->head->next->data->data.value;
+
                 update_map((&functions), s, fn, string, function);
 
                 if (defns->children->len == 2){

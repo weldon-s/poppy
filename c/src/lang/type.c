@@ -22,37 +22,38 @@ void add_type(struct type *new) {
         append_list((&types), new, type);
 }
 
-struct type* simple_type(char *repr, bool assignable){
+struct type* simple_type(char *repr, bool assignable, bool returnable){
         struct type* new = (struct type*) malloc(sizeof(struct type));
         strcpy(new->repr, repr);
         new->assignable = assignable;
+        new->returnable = returnable;
         add_type(new);
         return new;
 }
 
 const struct type* const int_type(){
         if (int_ptr == NULL){
-                int_ptr = simple_type("i", true);
+                int_ptr = simple_type("i", true, true);
         }
         return int_ptr;
 }
 
 const struct type* const bool_type(){
         if (bool_ptr == NULL){
-                bool_ptr = simple_type("b", false);
+                bool_ptr = simple_type("b", false, false);
         }
         return bool_ptr;
 }
 
 const struct type* const void_type(){
         if (void_ptr == NULL){
-                void_ptr = simple_type("v", false);
+                void_ptr = simple_type("v", false, true);
         }
         return void_ptr;
 }
 
 const struct type* const function_type(const struct type *ret, const struct type *params[MAX_PARAM_COUNT], size_t params_len){
-        if (!ret->assignable){
+        if (!ret->returnable){
                 return NULL;
         }
 
@@ -77,6 +78,8 @@ const struct type* const return_type(const struct type *type){
         switch (type->repr[0]){
                 case 'i':
                         return int_type();
+                case 'v':
+                        return void_type();
                 default:
                         return NULL;
         }

@@ -18,9 +18,10 @@ struct function {
         struct label *start_label;
         struct chunk *frame;
         struct chunk *param_chunk;
+        bool is_main;
 };
 
-struct function *new_function(char **params, size_t params_len, char **vars, size_t vars_len){
+struct function *new_function(char **params, size_t params_len, char **vars, size_t vars_len, bool is_main){
         struct chunk *frame = new_chunk();
         struct chunk *param_chunk = new_chunk();
 
@@ -43,6 +44,7 @@ struct function *new_function(char **params, size_t params_len, char **vars, siz
         ptr->start_label = new_label();
         ptr->frame = frame;
         ptr->param_chunk = param_chunk;
+        ptr->is_main = is_main;
 
         return ptr;
 }
@@ -90,7 +92,7 @@ void set_body(struct function *function, char *body){
 }
 
 char *declare_function(const struct function *function){
-        return concat(12,
+        char *fn = concat(11,
                 declare_label(function->start_label),
                 mov(REG_ARG_CHUNK_PTR, REG_SP),
                 push_chunk(function->frame),
@@ -101,9 +103,14 @@ char *declare_function(const struct function *function){
                 function->body,
                 read_variable(function->frame, REG_LR, SAVED_LINK, REG_SP),
                 read_variable(function->frame, REG_FP, CALLER_FRAME_PTR, REG_SP),
-                pop_chunk(),
-                ret()
+                pop_chunk()
         );
+
+        if (function->is_main){
+                return fn;
+        }
+
+        return concat(2, fn, ret());
 }
 
 char *call_function(const struct function *function, char **args){

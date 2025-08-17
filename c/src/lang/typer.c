@@ -54,13 +54,17 @@ const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_TYPE_MA
 const struct type * find_type_type(struct parse_tree *tree){
         verify_type(tree, SYMBOL_TYPE);
         // type -> INT
+        // type -> VOID
         struct parse_tree *child = tree->children->head->data;
 
-        if (strcmp(child->data.value, "int") == 0){
-                return int_type();
+        switch (child->data.type){
+                case SYMBOL_INT:
+                        return int_type();
+                case SYMBOL_VOID:
+                        return void_type();
+                default:
+                        return NULL;
         }
-
-        return NULL;
 }
 
 const struct type * find_symbol_type(const struct parse_tree *tree, const struct OUTER_TYPE_MAP *outer_map){

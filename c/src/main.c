@@ -35,9 +35,9 @@ void print(const struct parse_tree *pt, size_t level){
 }
 
 int main(int argc, char *argv[]){
-        FILE *f = fopen("prog.pop", "r");
-        struct LIST(token) *list = lex(f);
-        fclose(f);
+        FILE *in = fopen("prog.pop", "r");
+        struct LIST(token) *list = lex(in);
+        fclose(in);
 
         if (list == NULL){
                 return 0;
@@ -53,14 +53,20 @@ int main(int argc, char *argv[]){
                 return 0;
         }
 
-        // print(pt, 0);
-
         const struct OUTER_TYPE_MAP *types = find_types(pt);
-        char *code = generate_code(types, pt);
+        if (types != NULL){
+                char *code = generate_code(types, pt);
+                FILE *out = fopen("../assembly/out.s", "w");
+                fprintf(out, "%s", code);
+                free(code);
+                fclose(out);
+        } else {
+                printf("types bad\n");
+        }
 
-        printf("%s", code);
 
-        free(code);
+
+
         free_list(list, free_token, token);
         free(list);
         free_parse_tree(pt);
