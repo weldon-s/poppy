@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "data/map.h"
+#include "lang/builtin.h"
 #include "lang/type.h"
 
 #define OUTER_TYPE_MAP_ENTRY parse_tree_string_type_map_map_entry
@@ -527,9 +528,16 @@ const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_TYPE_M
 
 struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
         struct OUTER_TYPE_MAP *outer_map = (struct OUTER_TYPE_MAP*) malloc(sizeof (struct OUTER_TYPE_MAP));
+        
         struct MAP(string, type) *inner_map = new_inner_map();
         init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, MAP(string, type));
         update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
+
+        for(struct LIST_NODE(builtin) *node = get_builtins()->head; node != NULL; node = node->next){
+                struct string *id = (struct string*) malloc(sizeof(struct string));
+                id->data = node->data->name;
+                update_map(inner_map, id, node->data->type, string, type);
+        }
 
         // program -> optincludes defns END
         struct parse_tree *defns; load_child_at(defns, tree, 1);

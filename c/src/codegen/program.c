@@ -8,6 +8,7 @@
 #include "codegen/control.h"
 #include "codegen/function.h"
 #include "codegen/ops.h"
+#include "lang/builtin.h"
 #include "lang/symbol.h"
 
 #define load_child_at(var, tree, n)                                        \
@@ -22,7 +23,8 @@
 DEFINE_MAP(string, function);
 
 const char *head = ".text\n"
-                     ".global _start";
+                   ".include \"print_num.s\"\n"
+                   ".global _start";
 
 const char *tail = "mov x0, #0\n"
                   "mov w8, #93\n"
@@ -227,6 +229,20 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         struct string s;
                         s.data = id;
                         const struct function *f; query_map(functions, (&s), f, string, function);
+
+                        if (f == NULL){
+                                for (struct LIST_NODE(builtin) *node = get_builtins()->head; node != NULL; node = node->next){
+                                        if (strcmp(node->data->name, id) == 0){
+                                                struct parse_tree *args = tree->children->head->next->next->data->children->head->data;
+                                                struct parse_tree *expr = args->children->head->data;
+                                                char *arg = generate_from_tree(expr, functions, within);
+                                                char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
+                                                strcpy(body, node->data->body);
+                                                return concat(2, arg, body);
+                                        }
+                                }
+                        }
+
                         if (num_params(f) == 0){
                                 return call_function(f, NULL);
                         }
@@ -247,6 +263,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                         break;
                                 }
                         };
+
                         char *ret = call_function(f, args_code);
                         free(args_code);
                         return ret;
@@ -316,7 +333,7 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 }
         }
 
-        char *prog = (char*) malloc(21 * sizeof(char));
+        char *prog = (char*) malloc(44 * sizeof(char));
         strcpy(prog, head);
         
         for (struct string_function_map_entry_list_node *node = functions.list->head; node != NULL; node = node->next){

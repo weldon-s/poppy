@@ -189,6 +189,13 @@ char *ret(){
         return instr;
 }
 
+char *comment(char *text){
+        char *val = (char*) malloc(sizeof(text) + 3);
+        strcpy(val, "// ");
+        strcat(val, text);
+        return val;
+}
+
 char *concat(size_t count, ...){
         va_list args;
         va_start(args, count);
