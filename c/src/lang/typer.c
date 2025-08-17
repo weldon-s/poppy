@@ -26,7 +26,7 @@ bool equals_string(const struct string *s1, const struct string *s2) {
         return strcmp(s1->data, s2->data) == 0;
 }
 
-void free_string(const struct MAP_ENTRY(string, type) *entry){
+void free_string_entry(const struct MAP_ENTRY(string, type) *entry){
         free((void *) entry->key);
         free((void *) entry);
 }
@@ -43,7 +43,7 @@ void free_typer_entry(const struct OUTER_TYPE_MAP_ENTRY *entry){
 
 struct MAP(string, type) * new_inner_map() {
         struct MAP(string, type) *ptr = (struct MAP(string, type)*) malloc(sizeof(struct MAP(string, type)));
-        init_map(ptr, equals_string, free_string, string, type);
+        init_map(ptr, equals_string, free_string_entry, string, type);
         return ptr;
 }
 
@@ -63,10 +63,10 @@ const struct type * find_type_type(struct parse_tree *tree){
         return NULL;
 }
 
-const struct type * find_symbol_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
+const struct type * find_symbol_type(const struct parse_tree *tree, const struct OUTER_TYPE_MAP *outer_map){
         struct string string;
         string.data = tree->data.value;
-        struct parse_tree *cur = tree;
+        const struct parse_tree *cur = tree;
         while (cur != NULL){
                 const struct MAP(string, type) *inner_map; query_map(outer_map, cur, inner_map, parse_tree, MAP(string, type));
                 if (inner_map != NULL){
@@ -581,25 +581,29 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
 
         for (struct parse_tree_string_type_map_map_entry_list_node *node = outer_map->list->head; node != NULL; node = node->next) {
                 struct OUTER_TYPE_MAP_ENTRY *entry = node->data;
-                printf("%s: %d\n", symbol_name(entry->key->data.type), entry->value->list->len);
+                // printf("%s: %d\n", symbol_name(entry->key->data.type), entry->value->list->len);
         }
 
         return outer_map;
 }
 
-void get_variables_recursive(const struct parse_tree *tree, struct LIST(string) *list, struct OUTER_TYPE_MAP *symbols){
-        struct MAP(string, type) *inner_map; query_map(symbols, tree, inner_map, parse_tree, MAP(string, type))
+void get_variables_recursive(const struct parse_tree *tree, struct LIST(string) *list, const struct OUTER_TYPE_MAP *symbols){
+        const struct MAP(string, type) *inner_map; query_map(symbols, tree, inner_map, parse_tree, MAP(string, type))
 
-        for (struct string_type_map_entry_list_node *node = inner_map->list->head; node != NULL; node = node->next){
-                append_list(list, node->data, string);
+        if (inner_map != NULL){
+                for (struct string_type_map_entry_list_node *map_node = inner_map->list->head; map_node != NULL; map_node = map_node->next){
+                        append_list(list, (struct string*) map_node->data->key, string);
+                }
         }
 
-        for (struct LIST_NODE(parse_tree) *node = tree->children->head; node != NULL; node = node->next){
-                get_variables_recursive(node->data, list, symbols);
+        if (tree->children != NULL){
+                for (struct LIST_NODE(parse_tree) *node = tree->children->head; node != NULL; node = node->next){
+                        get_variables_recursive(node->data, list, symbols);
+                }
         }
 }
 
-struct LIST(string) get_local_variables(const struct parse_tree *tree, struct OUTER_TYPE_MAP *symbols){
+struct LIST(string) get_local_variables(const struct parse_tree *tree, const struct OUTER_TYPE_MAP *symbols){
         // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
         const struct parse_tree *stmts; load_child_at(stmts, tree, 6);
         struct LIST(string) list;
@@ -608,13 +612,13 @@ struct LIST(string) get_local_variables(const struct parse_tree *tree, struct OU
         return list;
 }
 
-struct LIST(string) get_parameters(const struct parse_tree *tree, struct OUTER_TYPE_MAP *symbols){
+struct LIST(string) get_parameters(const struct parse_tree *tree, const struct OUTER_TYPE_MAP *symbols){
         // defn -> type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE
-        struct MAP(string, type) *inner_map; query_map(symbols, tree, inner_map, parse_tree, MAP(string, type))
+        const struct MAP(string, type) *inner_map; query_map(symbols, tree, inner_map, parse_tree, MAP(string, type))
         struct LIST(string) list;
         init_list((&list))
-        for (struct string_type_map_entry_list_node *node = inner_map->list->head; node != NULL; node = node->next){
-                append_list((&list), node->data, string);
+        for (struct string_type_map_entry_list_node *map_node = inner_map->list->head; map_node != NULL; map_node = map_node->next){
+                append_list((&list), (struct string*) map_node->data->key, string);
         }
         return list;
 }

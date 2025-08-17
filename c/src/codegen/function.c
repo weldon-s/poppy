@@ -47,18 +47,19 @@ struct function *new_function(char **params, size_t params_len, char **vars, siz
         return ptr;
 }
 
-void free_function(struct function *function){
+void free_function(const struct function *function){
         free_chunk(function->frame);
         free_chunk(function->param_chunk);
         free_label(function->start_label);
-        free(function);
+        free((void*) function->params);
+        free((void*) function);
 }
 
 size_t num_params(const struct function *function){
         return function->params_len;
 }
 
-char *read_function_variable(struct function *function, enum reg reg, char *varname){
+char *read_function_variable(const struct function *function, enum reg reg, char *varname){
         if (has_variable(function->frame, varname)){
                 // frame is on top of the stack (otherwise we wouldn't be in this function)
                 return read_variable(function->frame, reg, varname, REG_FP);
@@ -71,7 +72,7 @@ char *read_function_variable(struct function *function, enum reg reg, char *varn
         );
 }
 
-char *write_function_variable(struct function *function, char *varname, enum reg reg){
+char *write_function_variable(const struct function *function, char *varname, enum reg reg){
         if (has_variable(function->frame, varname)){
                 // frame is on top of the stack (otherwise we wouldn't be in this function)
                 return write_variable(function->frame, varname, reg, REG_FP);
@@ -88,7 +89,7 @@ void set_body(struct function *function, char *body){
         function->body = body;
 }
 
-char *declare_function(struct function *function){
+char *declare_function(const struct function *function){
         return concat(12,
                 declare_label(function->start_label),
                 mov(REG_ARG_CHUNK_PTR, REG_SP),
@@ -105,7 +106,7 @@ char *declare_function(struct function *function){
         );
 }
 
-char *call_function(struct function *function, char **args){
+char *call_function(const struct function *function, char **args){
         char *arg_evals = NULL;
 
         for (size_t i = 0; i < function->params_len; ++i){

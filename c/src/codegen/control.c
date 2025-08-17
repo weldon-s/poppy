@@ -28,6 +28,7 @@ struct label *new_label(){
         }
 
         struct label *l = (struct label*) malloc(sizeof(struct label));
+        l->name = name;
         return l;
 }
 

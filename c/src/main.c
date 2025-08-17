@@ -53,12 +53,14 @@ int main(int argc, char *argv[]){
                 return 0;
         }
 
-        print(pt, 0);
+        // print(pt, 0);
 
         const struct OUTER_TYPE_MAP *types = find_types(pt);
+        char *code = generate_code(types, pt);
 
-        print("%s", generate_code(types, pt));
+        printf("%s", code);
 
+        free(code);
         free_list(list, free_token, token);
         free(list);
         free_parse_tree(pt);

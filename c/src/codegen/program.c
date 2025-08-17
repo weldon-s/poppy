@@ -1,5 +1,6 @@
 #include "codegen/program.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,12 +31,16 @@ const char *tail = "mov x0, #0\n"
 const char *start_label = "_start:";
 
 void free_string_function_entry(const struct MAP_ENTRY(string, function) *entry) {
-        free_function(entry->key);
+        free((void*) entry->key);
         free_function(entry->value);
         free((void*) entry);
 }
 
-char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *functions, struct function *within){
+void free_string(const struct string *str){
+        // free((void*) str);
+}
+
+char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *functions, const struct function *within){
         enum symbol symbol = tree->data.type;
 
         if (symbol == SYMBOL_STMTS){
@@ -76,9 +81,9 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         char *cond_code = generate_from_tree(cond, functions, within);
                         struct parse_tree *post; load_child_at(post, tree, 6);
                         char *post_code = generate_from_tree(post, functions, within);
-                        struct parse_tree *body; load_child_at(post, tree, 9);
+                        struct parse_tree *body; load_child_at(body, tree, 9);
                         char *body_code = generate_from_tree(body, functions, within);                        
-                        return for_loop(init, cond, post, body);                  
+                        return for_loop(init_code, cond_code, post_code, body_code);                  
                 }
         } else if (symbol == SYMBOL_SEMISTMT){
                 return generate_from_tree(tree->children->head->data, functions, within);
@@ -143,6 +148,8 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                 return eq(op1, op2);
                         case SYMBOL_NE:
                                 return ne(op1, op2);
+                        default:
+                                assert(0);
                 }
         } else if (symbol == SYMBOL_EXPR){
                 return generate_from_tree(tree->children->head->data, functions, within);
@@ -165,6 +172,8 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                 return divide(op1, op2);
                         case SYMBOL_MOD:
                                 return modulo(op1, op2);
+                        default:
+                                assert(0);
                 }
 
                 return subtract(op1, op2);
@@ -217,7 +226,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
 
                         struct string s;
                         s.data = id;
-                        struct function *f; query_map(functions, (&s), f, string, function);
+                        const struct function *f; query_map(functions, (&s), f, string, function);
                         if (num_params(f) == 0){
                                 return call_function(f, NULL);
                         }
@@ -225,7 +234,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         char **args_code = (char**) malloc(num_params(f) * sizeof(char*));
 
                         size_t i = 0;
-                        struct parse_tree *args = tree->children->head->next->next->next->data->children->head->data;
+                        struct parse_tree *args = tree->children->head->next->next->data->children->head->data;
                         while (1) {
                                 // args -> expr COMMA args
                                 // args -> expr
@@ -243,9 +252,11 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         return ret;
                 }
         }
+
+        assert(0);
 }
 
-char *generate_code(struct OUTER_TYPE_MAP *type_map, struct parse_tree *tree){
+char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tree *tree){
         struct MAP(string, function) functions; init_map((&functions), equals_string, free_string_function_entry, string, function);
         // program -> optincludes defns END
         struct parse_tree *defns; load_child_at(defns, tree, 1);
@@ -270,6 +281,9 @@ char *generate_code(struct OUTER_TYPE_MAP *type_map, struct parse_tree *tree){
                 }
 
                 struct function *fn = new_function(params, params_list.len, locals, locals_list.len);
+                free_list((&params_list), free_string, string);
+                free_list((&locals_list), free_string, string);
+                free(locals);
                 struct string *s = (struct string*) malloc(sizeof(struct string));
                 s->data = defn->children->head->next->data->data.value;
                 update_map((&functions), s, fn, string, function);
@@ -288,9 +302,9 @@ char *generate_code(struct OUTER_TYPE_MAP *type_map, struct parse_tree *tree){
                 struct parse_tree *defn = defns->children->head->data;
                 struct string s;
                 s.data = defn->children->head->next->data->data.value;;
-                struct function *fn; query_map((&functions), (&s), fn, string, function);
+                const struct function *fn; query_map((&functions), (&s), fn, string, function);
                 struct parse_tree *stmts; load_child_at(stmts, defn, 6);
-                set_body(fn, generate_from_tree(stmts, &functions, fn));
+                set_body((struct function*) fn, generate_from_tree(stmts, &functions, fn));
 
                 if (defns->children->len == 2){
                         load_child_at(defns, defns, 1);
@@ -307,15 +321,17 @@ char *generate_code(struct OUTER_TYPE_MAP *type_map, struct parse_tree *tree){
                         continue;
                 }
 
-                struct function *f = node->data->value;
+                const struct function *f = node->data->value;
                 prog = concat(2, prog, declare_function(f));
         }
 
         struct string s = {"main"};
-        struct function *main; query_map((&functions), (&s), main, string, function);
+        const struct function *main; query_map((&functions), (&s), main, string, function);
         char *sl = (char*) malloc(8 * sizeof(char));
         char *t = (char*) malloc(31 * sizeof(char));
         strcpy(sl, start_label);
         strcpy(t, tail);
         prog = concat(4, prog, sl, declare_function(main), t);
+        free_map((&functions), string, function);
+        return prog;
 }
