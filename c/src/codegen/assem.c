@@ -190,10 +190,10 @@ char *ret(){
 }
 
 char *comment(char *text){
-        char *val = (char*) malloc(sizeof(text) + 3);
-        strcpy(val, "// ");
-        strcat(val, text);
-        return val;
+    char *val = (char*) malloc(strlen(text) + 4 * sizeof(char));
+    strcpy(val, "// ");
+    strcat(val, text);
+    return val;
 }
 
 char *concat(size_t count, ...){
