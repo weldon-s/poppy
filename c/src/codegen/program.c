@@ -97,6 +97,10 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         char *expr_code = generate_from_tree(expr, functions, within);
                         return concat(2, expr_code, write_function_variable(within, var, REG_ARITH_RESULT));
                 }
+
+                char *ret = (char*) malloc(sizeof(char));
+                *ret = 0;
+                return ret;
         } else if (symbol == SYMBOL_VARASST){
                 struct parse_tree *id; load_child_at(id, tree, 0);
                 char *var = id->data.value;
@@ -106,7 +110,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
         } else if (symbol == SYMBOL_RET){
                 struct parse_tree *expr; load_child_at(expr, tree, 1);
                 char *expr_code = generate_from_tree(expr, functions, within);
-                return concat(2, expr_code, ret());
+                return concat(2, expr_code, hop(within));
         } else if (symbol == SYMBOL_COND){
                 return generate_from_tree(tree->children->head->data, functions, within);
         } else if (symbol == SYMBOL_ANDCOND){
@@ -238,7 +242,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                                 char *arg = generate_from_tree(expr, functions, within);
                                                 char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
                                                 strcpy(body, node->data->body);
-                                                return concat(2, arg, body);
+                                                return concat(4, comment("evaluating arg"), arg, comment("done"), body);
                                         }
                                 }
                         }

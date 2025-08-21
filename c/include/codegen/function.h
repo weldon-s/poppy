@@ -17,5 +17,5 @@ char *write_function_variable(const struct function *function, char *varname, en
 void set_body(struct function *function, char *body);
 char *declare_function(const struct function *function);
 char *call_function(const struct function *function, char **args);
-
+char *hop(const struct function *function);
 #endif

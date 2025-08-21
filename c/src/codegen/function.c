@@ -16,6 +16,7 @@ struct function {
         char **params;
         size_t params_len;
         struct label *start_label;
+        struct label *after_body_label;
         struct chunk *frame;
         struct chunk *param_chunk;
         bool is_main;
@@ -42,6 +43,7 @@ struct function *new_function(char **params, size_t params_len, char **vars, siz
         ptr->params = params;
         ptr->params_len = params_len;
         ptr->start_label = new_label();
+        ptr->after_body_label = new_label();
         ptr->frame = frame;
         ptr->param_chunk = param_chunk;
         ptr->is_main = is_main;
@@ -53,6 +55,7 @@ void free_function(const struct function *function){
         free_chunk(function->frame);
         free_chunk(function->param_chunk);
         free_label(function->start_label);
+        free_label(function->after_body_label);
         free((void*) function->params);
         free((void*) function);
 }
@@ -92,7 +95,7 @@ void set_body(struct function *function, char *body){
 }
 
 char *declare_function(const struct function *function){
-        char *fn = concat(11,
+        char *fn = concat(12,
                 declare_label(function->start_label),
                 mov(REG_ARG_CHUNK_PTR, REG_SP),
                 push_chunk(function->frame),
@@ -101,6 +104,7 @@ char *declare_function(const struct function *function){
                 write_variable(function->frame, SAVED_LINK, REG_LR, REG_SP),
                 write_variable(function->frame, ARG_CHUNK_PTR, REG_ARG_CHUNK_PTR, REG_SP),
                 function->body,
+                declare_label(function->after_body_label),
                 read_variable(function->frame, REG_LR, SAVED_LINK, REG_SP),
                 read_variable(function->frame, REG_FP, CALLER_FRAME_PTR, REG_SP),
                 pop_chunk()
@@ -143,4 +147,8 @@ char *call_function(const struct function *function, char **args){
                 bl(function->start_label),
                 pop_chunk()
         );
+}
+
+char *hop(const struct function *function){
+        return b(function->after_body_label);
 }

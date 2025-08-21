@@ -29,8 +29,10 @@ struct LIST(builtin) *get_builtins(){
 
 
         const struct builtin *print = new_builtin("print", function_type(print_ret, params, 1), 
-                "mov x1, x9\n"
-                "bl print_num"
+                "mov x1, x10\n"
+                "str lr, [sp, #-16]!\n"
+                "bl print_num\n"
+                "ldr lr, [sp], #16"
         );
 
         append_list(list, (struct builtin*) print, builtin);

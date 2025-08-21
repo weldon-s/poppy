@@ -57,12 +57,11 @@ int main(int argc, char *argv[]){
         const struct OUTER_TYPE_MAP *types = find_types(pt);
         if (types != NULL){
                 char *code = generate_code(types, pt);
+                printf("generation successful\n");
                 FILE *out = fopen("../assembly/out.s", "w");
                 fprintf(out, "%s", code);
                 free(code);
                 fclose(out);
-        } else {
-                printf("types bad\n");
         }
 
 
@@ -82,19 +81,3 @@ int main(int argc, char *argv[]){
 
         return 0;
 }
-
-// int main(){
-//         char *c = concat(3, concat(7,
-//                 mov(29, 3),
-//                 movi(10, 300),
-//                 push(1),
-//                 push_pair(2, 3),
-//                 pop(5),
-//                 pop_pair(30, 31),
-//                 add(1, 2, 3)),
-//                 add(1, 2, 3),
-//                 add(3, 2, 1)
-//         );
-//         printf("%s", c);
-//         free(c);
-// }
