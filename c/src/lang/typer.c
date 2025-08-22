@@ -174,6 +174,11 @@ const struct type * find_varasst_type(struct parse_tree *tree, struct OUTER_TYPE
 
 const struct type * find_ret_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
         verify_type(tree, SYMBOL_RET);
+        // ret -> HOP
+        if (tree->children->len == 1){
+                return void_type();
+        }
+
         // ret -> HOP expr
         struct parse_tree *expr; load_child_at(expr, tree, 1);
         return find_expr_type(expr, outer_map);

@@ -7,7 +7,7 @@ _token_:
 - _punctuator_
 
 _keyword_:
-- One of __else__, __for__, __hop__, __if__, __int__, __let__, __munch__, __while__
+- One of __else__, __for__, __hop__, __if__, __int__, __let__, __munch__, __void__, __while__
 
 _identifier_:
 - any string matching the following regex that is not part of the above list: [A-Za-z_][A-Za-z0-9_]*

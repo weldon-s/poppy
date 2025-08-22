@@ -108,6 +108,10 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 char *expr_code = generate_from_tree(expr, functions, within);
                 return concat(2, expr_code, write_function_variable(within, var, REG_ARITH_RESULT));                
         } else if (symbol == SYMBOL_RET){
+                if (tree->children->len == 1){
+                        return hop(within);
+                }
+
                 struct parse_tree *expr; load_child_at(expr, tree, 1);
                 char *expr_code = generate_from_tree(expr, functions, within);
                 return concat(2, expr_code, hop(within));

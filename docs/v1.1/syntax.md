@@ -18,6 +18,7 @@ $$\begin{align*}
 \text{defns} &\rightarrow \text{defn defns}\\
 \text{defn} &\rightarrow \text{type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE}\\
 \text{type} &\rightarrow \text{INT}\\
+\text{type} &\rightarrow \text{VOID}\\
 \text{optparams} &\rightarrow \varnothing \\
 \text{optparams} &\rightarrow \text{params} \\
 \text{params} &\rightarrow \text{param COMMA params}  \\
@@ -33,6 +34,7 @@ $$\begin{align*}
 \text{varasst} &\rightarrow \text{IDENTIFIER ASSIGN expr}  \\
 \text{semistmt} &\rightarrow \text{ret}  \\
 \text{ret} &\rightarrow \text{HOP expr}  \\
+\text{ret} &\rightarrow \text{HOP}  \\
 \text{semistmt} &\rightarrow \text{expr} \\
 \text{stmt} &\rightarrow \text{IF LPAREN cond RPAREN LBRACE stmts RBRACE optelse}  \\
 \text{optelse} &\rightarrow \varnothing  \\
