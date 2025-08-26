@@ -190,10 +190,18 @@ char *ret(){
 }
 
 char *comment(char *text){
-    char *val = (char*) malloc(strlen(text) + 4 * sizeof(char));
+    char *val = (char*) malloc((strlen(text) + 4) * sizeof(char));
     strcpy(val, "// ");
     strcat(val, text);
     return val;
+}
+
+char *include(char *module){
+        char *instr = (char*) malloc((strlen(module) + 14) * sizeof(char));
+        strcpy(instr, ".include \"");
+        strcat(instr, module);
+        strcat(instr, ".s\"");
+        return instr;
 }
 
 char *concat(size_t count, ...){

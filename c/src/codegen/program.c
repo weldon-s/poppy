@@ -22,9 +22,9 @@
 
 DEFINE_MAP(string, function);
 
-const char *head = ".text\n"
-                   ".include \"print_num.s\"\n"
-                   ".global _start";
+// const char *head = ".text\n"
+//                    ".include \"print_num.s\"\n"
+//                    ".global _start";
 
 const char *tail = "mov x0, #0\n"
                   "mov w8, #93\n"
@@ -40,6 +40,41 @@ void free_string_function_entry(const struct MAP_ENTRY(string, function) *entry)
 
 void free_string(const struct string *str){
         // free((void*) str);
+}
+
+char *generate_head(struct parse_tree *tree){
+        char *head = (char*) malloc(6 * sizeof(char));
+        strcpy(head, ".text");
+        char *global_start = (char*) malloc(15 * sizeof(char));
+        strcpy(global_start, ".global _start");
+
+        // optincludes ->
+        if ((tree->children == NULL) || (tree->children->len == 0)){
+                return concat(2, head, global_start);
+        }
+
+        // optincludes -> includes
+        struct parse_tree *includes = tree->children->head->data;
+
+        while (1) {
+                // includes -> include includes
+                // includes -> include
+                struct parse_tree *incl = includes->children->head->data;
+
+                // include -> MUNCH IDENTIFIER
+                char *id = incl->children->head->next->data->data.value;
+
+                head = concat(2, head, include(id));
+
+                if (includes->children->len == 2){
+                        load_child_at(includes, includes, 1);
+                } else {
+                        break;
+                }
+        };
+
+        return concat(2, head, global_start);
+
 }
 
 char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *functions, const struct function *within){
@@ -341,8 +376,9 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 }
         }
 
-        char *prog = (char*) malloc(44 * sizeof(char));
-        strcpy(prog, head);
+        // char *prog = (char*) malloc(44 * sizeof(char));
+        // strcpy(prog, head);
+        char *prog = generate_head(tree->children->head->data);
         
         for (struct string_function_map_entry_list_node *node = functions.list->head; node != NULL; node = node->next){
                 if (strcmp(node->data->key->data, "main") == 0){

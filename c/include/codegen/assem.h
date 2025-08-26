@@ -23,5 +23,6 @@ char *not(enum reg dest, enum reg src);
 char *cmpi(enum reg reg, long long imm);
 char *ret();
 char *comment(char *text);
+char *include(char *module);
 char *concat(size_t count, ...);
 #endif
