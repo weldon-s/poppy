@@ -3,6 +3,7 @@
 
 #include "data/list.h"
 #include "lang/type.h"
+#include "lang/typer.h"
 
 struct builtin {
         const struct type *type;
@@ -12,7 +13,7 @@ struct builtin {
 
 DEFINE_LIST(builtin);
 
-struct LIST(builtin) *get_builtins();
+struct LIST(builtin) *get_builtins(struct LIST(string) modules);
 void free_builtins();
 
 #endif

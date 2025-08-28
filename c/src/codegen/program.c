@@ -10,6 +10,7 @@
 #include "codegen/ops.h"
 #include "lang/builtin.h"
 #include "lang/symbol.h"
+#include "lang/typer.h"
 
 #define load_child_at(var, tree, n)                                        \
         do {                                                               \
@@ -21,10 +22,6 @@
         } while (0);                                                       \
 
 DEFINE_MAP(string, function);
-
-// const char *head = ".text\n"
-//                    ".include \"print_num.s\"\n"
-//                    ".global _start";
 
 const char *tail = "mov x0, #0\n"
                   "mov w8, #93\n"
@@ -77,25 +74,25 @@ char *generate_head(struct parse_tree *tree){
 
 }
 
-char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *functions, const struct function *within){
+char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *functions, const struct function *within, const struct LIST(builtin) *builtins){
         enum symbol symbol = tree->data.type;
 
         if (symbol == SYMBOL_STMTS){
-                char *first_stmt = generate_from_tree(tree->children->head->data, functions, within);
+                char *first_stmt = generate_from_tree(tree->children->head->data, functions, within, builtins);
                 if (tree->children->len == 1){
                         return first_stmt;
                 }
 
-                return concat(2, first_stmt, generate_from_tree(tree->children->head->next->data, functions, within));
+                return concat(2, first_stmt, generate_from_tree(tree->children->head->next->data, functions, within, builtins));
         } else if (symbol == SYMBOL_STMT){
                 enum symbol child_symbol = tree->children->head->data->data.type;
                 if (child_symbol == SYMBOL_SEMISTMT){
-                        return generate_from_tree(tree->children->head->data, functions, within);
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
                 } else if (child_symbol == SYMBOL_IF){
                         struct parse_tree *cond; load_child_at(cond, tree, 2);
-                        char *cond_code = generate_from_tree(cond, functions, within);
+                        char *cond_code = generate_from_tree(cond, functions, within, builtins);
                         struct parse_tree *then; load_child_at(then, tree, 5);
-                        char *then_code = generate_from_tree(then, functions, within);
+                        char *then_code = generate_from_tree(then, functions, within, builtins);
                         struct parse_tree *optelse;  load_child_at(optelse, tree, 7);
 
                         if ((optelse->children == NULL) || (optelse->children->len == 0)){
@@ -103,33 +100,33 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         }
 
                         struct parse_tree *else_stmts; load_child_at(else_stmts, optelse, 2);
-                        char *else_code = generate_from_tree(else_stmts, functions, within);
+                        char *else_code = generate_from_tree(else_stmts, functions, within, builtins);
                         return if_stmt(cond_code, then_code, else_code);
                 } else if (child_symbol == SYMBOL_WHILE){
                         struct parse_tree *cond; load_child_at(cond, tree, 2);
-                        char *cond_code = generate_from_tree(cond, functions, within);
+                        char *cond_code = generate_from_tree(cond, functions, within, builtins);
                         struct parse_tree *stmts; load_child_at(stmts, tree, 5);
-                        char *stmts_code = generate_from_tree(stmts, functions, within);
+                        char *stmts_code = generate_from_tree(stmts, functions, within, builtins);
                         return while_loop(cond_code, stmts_code);
                 } else if (child_symbol == SYMBOL_FOR){
                         struct parse_tree *init; load_child_at(init, tree, 2);
-                        char *init_code = generate_from_tree(init, functions, within);
+                        char *init_code = generate_from_tree(init, functions, within, builtins);
                         struct parse_tree *cond; load_child_at(cond, tree, 4);
-                        char *cond_code = generate_from_tree(cond, functions, within);
+                        char *cond_code = generate_from_tree(cond, functions, within, builtins);
                         struct parse_tree *post; load_child_at(post, tree, 6);
-                        char *post_code = generate_from_tree(post, functions, within);
+                        char *post_code = generate_from_tree(post, functions, within, builtins);
                         struct parse_tree *body; load_child_at(body, tree, 9);
-                        char *body_code = generate_from_tree(body, functions, within);                        
-                        return for_loop(init_code, cond_code, post_code, body_code);                  
+                        char *body_code = generate_from_tree(body, functions, within, builtins);
+                        return for_loop(init_code, cond_code, post_code, body_code);      
                 }
         } else if (symbol == SYMBOL_SEMISTMT){
-                return generate_from_tree(tree->children->head->data, functions, within);
+                return generate_from_tree(tree->children->head->data, functions, within, builtins);
         } else if (symbol == SYMBOL_VARDEC){
                 if (tree->children->len == 5){
                         struct parse_tree *id; load_child_at(id, tree, 2);
                         char *var = id->data.value;
                         struct parse_tree *expr; load_child_at(expr, tree, 4);
-                        char *expr_code = generate_from_tree(expr, functions, within);
+                        char *expr_code = generate_from_tree(expr, functions, within, builtins);
                         return concat(2, expr_code, write_function_variable(within, var, REG_ARITH_RESULT));
                 }
 
@@ -140,7 +137,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 struct parse_tree *id; load_child_at(id, tree, 0);
                 char *var = id->data.value;
                 struct parse_tree *expr; load_child_at(expr, tree, 2);
-                char *expr_code = generate_from_tree(expr, functions, within);
+                char *expr_code = generate_from_tree(expr, functions, within, builtins);
                 return concat(2, expr_code, write_function_variable(within, var, REG_ARITH_RESULT));                
         } else if (symbol == SYMBOL_RET){
                 if (tree->children->len == 1){
@@ -148,38 +145,38 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 }
 
                 struct parse_tree *expr; load_child_at(expr, tree, 1);
-                char *expr_code = generate_from_tree(expr, functions, within);
+                char *expr_code = generate_from_tree(expr, functions, within, builtins);
                 return concat(2, expr_code, hop(within));
         } else if (symbol == SYMBOL_COND){
-                return generate_from_tree(tree->children->head->data, functions, within);
+                return generate_from_tree(tree->children->head->data, functions, within, builtins);
         } else if (symbol == SYMBOL_ANDCOND){
                 if (tree->children->len == 1){
-                        return generate_from_tree(tree->children->head->data, functions, within);
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
                 }
 
-                char *op1 = generate_from_tree(tree->children->head->data, functions, within);
-                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within);
+                char *op1 = generate_from_tree(tree->children->head->data, functions, within, builtins);
+                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within, builtins);
                 return cnjtn(op1, op2);
         } else if (symbol == SYMBOL_ORCOND){
                 if (tree->children->len == 1){
-                        return generate_from_tree(tree->children->head->data, functions, within);
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
                 }
 
-                char *op1 = generate_from_tree(tree->children->head->data, functions, within);
-                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within);
+                char *op1 = generate_from_tree(tree->children->head->data, functions, within, builtins);
+                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within, builtins);
                 return dsjtn(op1, op2);                
         } else if (symbol == SYMBOL_UNCOND){
                 if (tree->children->len == 2){
-                        return ngtn(generate_from_tree(tree->children->head->next->data, functions, within));
+                        return ngtn(generate_from_tree(tree->children->head->next->data, functions, within, builtins));
                 }
 
                 enum symbol op_type = tree->children->head->next->data->data.type;
                 if (op_type == SYMBOL_COND){
-                        return generate_from_tree(tree->children->head->next->data, functions, within);
+                        return generate_from_tree(tree->children->head->next->data, functions, within, builtins);
                 }
 
-                char *op1 = generate_from_tree(tree->children->head->data, functions, within);
-                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within);
+                char *op1 = generate_from_tree(tree->children->head->data, functions, within, builtins);
+                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within, builtins);
                 switch (op_type){
                         case SYMBOL_LT:
                                 return lt(op1, op2);
@@ -197,14 +194,14 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                 assert(0);
                 }
         } else if (symbol == SYMBOL_EXPR){
-                return generate_from_tree(tree->children->head->data, functions, within);
+                return generate_from_tree(tree->children->head->data, functions, within, builtins);
         } else if ((symbol == SYMBOL_ADDEXPR) || (symbol == SYMBOL_MULTEXPR)){
                 if (tree->children->len == 1){
-                        return generate_from_tree(tree->children->head->data, functions, within);
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
                 }
 
-                char *op1 = generate_from_tree(tree->children->head->data, functions, within);
-                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within);
+                char *op1 = generate_from_tree(tree->children->head->data, functions, within, builtins);
+                char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within, builtins);
                 enum symbol operand = tree->children->head->next->data->data.type;
                 switch(operand){
                         case SYMBOL_PLUS:
@@ -227,7 +224,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 if (first == SYMBOL_MINUS){
                         return subtract(
                                 movi(REG_ARITH_RESULT, 0), 
-                                generate_from_tree(tree->children->head->next->data, functions, within)
+                                generate_from_tree(tree->children->head->next->data, functions, within, builtins)
                         );
                 }
 
@@ -254,7 +251,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 }
 
                 if (first == SYMBOL_LPAREN){
-                        return generate_from_tree(tree->children->head->next->data, functions, within);
+                        return generate_from_tree(tree->children->head->next->data, functions, within, builtins);
                 }
 
                 if (first == SYMBOL_CONSTANT){
@@ -274,14 +271,20 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         const struct function *f; query_map(functions, (&s), f, string, function);
 
                         if (f == NULL){
-                                for (struct LIST_NODE(builtin) *node = get_builtins()->head; node != NULL; node = node->next){
-                                        if (strcmp(node->data->name, id) == 0){
+                                for (struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
+                                        if ((strcmp(node->data->name, id) == 0) && (strcmp(id, "print") == 0)){
                                                 struct parse_tree *args = tree->children->head->next->next->data->children->head->data;
                                                 struct parse_tree *expr = args->children->head->data;
-                                                char *arg = generate_from_tree(expr, functions, within);
+                                                char *arg = generate_from_tree(expr, functions, within, builtins);
                                                 char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
                                                 strcpy(body, node->data->body);
                                                 return concat(4, comment("evaluating arg"), arg, comment("done"), body);
+                                        }
+
+                                        if (strcmp(node->data->name, id) == 0){
+                                                char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
+                                                strcpy(body, node->data->body);
+                                                return body;
                                         }
                                 }
                         }
@@ -298,7 +301,7 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                 // args -> expr COMMA args
                                 // args -> expr
                                 struct parse_tree *expr = args->children->head->data;
-                                args_code[i++] = generate_from_tree(expr, functions, within);
+                                args_code[i++] = generate_from_tree(expr, functions, within, builtins);
 
                                 if (args->children->len == 3){
                                         load_child_at(args, args, 2);
@@ -320,6 +323,8 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
         struct MAP(string, function) functions; init_map((&functions), equals_string, free_string_function_entry, string, function);
         // program -> optincludes defns END
         struct parse_tree *defns; load_child_at(defns, tree, 1);
+        struct parse_tree *optincludes = tree->children->head->data;
+        struct LIST(builtin) *builtins = get_builtins(get_module_names(optincludes));
 
         while (1) {
                 // defns -> defn defns
@@ -367,7 +372,7 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 s.data = defn->children->head->next->data->data.value;;
                 const struct function *fn; query_map((&functions), (&s), fn, string, function);
                 struct parse_tree *stmts; load_child_at(stmts, defn, 6);
-                set_body((struct function*) fn, generate_from_tree(stmts, &functions, fn));
+                set_body((struct function*) fn, generate_from_tree(stmts, &functions, fn, builtins));
 
                 if (defns->children->len == 2){
                         load_child_at(defns, defns, 1);

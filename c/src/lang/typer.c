@@ -215,10 +215,11 @@ const struct type * find_call_type(struct parse_tree *tree, struct OUTER_TYPE_MA
         }
 
         const struct type *ftype = find_symbol_type(tree->children->head->data, outer_map);
-        if (equals_arg_types(params_array, param_count, ftype)){
-                return return_type(ftype);
+
+        if ((ftype == NULL) || !equals_arg_types(params_array, param_count, ftype)){
+                return NULL;
         }
-        return NULL;
+        return return_type(ftype);
 }
 
 const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
@@ -538,7 +539,7 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
         init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, MAP(string, type));
         update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
 
-        for(struct LIST_NODE(builtin) *node = get_builtins()->head; node != NULL; node = node->next){
+        for(struct LIST_NODE(builtin) *node = get_builtins(get_module_names(tree->children->head->data))->head; node != NULL; node = node->next){
                 struct string *id = (struct string*) malloc(sizeof(struct string));
                 id->data = node->data->name;
                 update_map(inner_map, id, node->data->type, string, type);
@@ -637,5 +638,37 @@ struct LIST(string) get_parameters(const struct parse_tree *tree, const struct O
         for (struct string_type_map_entry_list_node *map_node = inner_map->list->head; map_node != NULL; map_node = map_node->next){
                 append_list((&list), (struct string*) map_node->data->key, string);
         }
+        return list;
+}
+
+struct LIST(string) get_module_names(const struct parse_tree *tree){
+        struct LIST(string) list;
+        init_list((&list));
+        // optincludes ->
+        if ((tree->children == NULL) || (tree->children->len == 0)){
+                return list;
+        }
+
+        // optincludes -> includes
+        struct parse_tree *includes = tree->children->head->data;
+
+        while (1) {
+                // includes -> include includes
+                // includes -> include
+                struct parse_tree *incl = includes->children->head->data;
+
+                // include -> MUNCH IDENTIFIER
+                char *id = incl->children->head->next->data->data.value;
+                struct string *s = (struct string*) malloc(sizeof(struct string));
+                s->data = id;
+                append_list((&list), s, string);
+
+                if (includes->children->len == 2){
+                        load_child_at(includes, includes, 1);
+                } else {
+                        break;
+                }
+        };
+
         return list;
 }

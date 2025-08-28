@@ -27,8 +27,6 @@ void print(const struct parse_tree *pt, size_t level){
         printf("\n");
 
         if (pt->children != NULL){
-
-
                 for (struct LIST_NODE(parse_tree) *node = pt->children->head; node != NULL; node = node->next){
                         print(node->data, level + 1);
                 }
@@ -64,9 +62,6 @@ int main(int argc, char *argv[]){
                 fclose(out);
         }
 
-
-
-
         free_list(list, free_token, token);
         free(list);
         free_parse_tree(pt);
@@ -77,7 +72,7 @@ int main(int argc, char *argv[]){
         }
 
         free_types();
-        free_builtins();
+        // free_builtins();
 
         return 0;
 }
