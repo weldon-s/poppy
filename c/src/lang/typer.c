@@ -539,7 +539,9 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
         init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, MAP(string, type));
         update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
 
-        for(struct LIST_NODE(builtin) *node = get_builtins(get_module_names(tree->children->head->data))->head; node != NULL; node = node->next){
+        struct LIST(builtin) *builtins = get_builtins(get_module_names(tree->children->head->data));
+
+        for(struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
                 struct string *id = (struct string*) malloc(sizeof(struct string));
                 id->data = node->data->name;
                 update_map(inner_map, id, node->data->type, string, type);
@@ -601,6 +603,8 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                 struct OUTER_TYPE_MAP_ENTRY *entry = node->data;
                 // printf("%s: %d\n", symbol_name(entry->key->data.type), entry->value->list->len);
         }
+
+        free_builtins(builtins);
 
         return outer_map;
 }

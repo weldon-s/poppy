@@ -51,6 +51,10 @@ void append_io_builtins(struct LIST(builtin)* list){
         append_list(list, print_line, builtin);
 }
 
+void free_string_builtin(const struct string *string){
+        free((void*) string);
+}
+
 struct LIST(builtin) *get_builtins(struct LIST(string) modules){
         struct LIST(builtin)* list = (struct LIST(builtin)*) malloc(sizeof(struct LIST(builtin)));
         init_list(list);
@@ -60,6 +64,8 @@ struct LIST(builtin) *get_builtins(struct LIST(string) modules){
                         append_io_builtins(list);
                 }
         }
+
+        free_list((&modules), free_string_builtin, string);
 
         return list;
 }
@@ -71,5 +77,6 @@ char *evaluate_builtin(const struct builtin *builtin, char **args){
 void free_builtins(const struct LIST(builtin) *list){
         if (list != NULL){
                 free_list(list, free_builtin, builtin);
+                free((void*) list);
         }
 }

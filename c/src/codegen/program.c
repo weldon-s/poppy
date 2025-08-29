@@ -398,5 +398,6 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
         strcpy(t, tail);
         prog = concat(4, prog, sl, declare_function(main), t);
         free_map((&functions), string, function);
+        free_builtins(builtins);
         return prog;
 }
