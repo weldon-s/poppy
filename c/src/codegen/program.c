@@ -266,49 +266,45 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                                 return read_function_variable(within, REG_ARITH_RESULT, id);
                         }
 
+                        char **args_code = (char**) malloc(MAX_PARAM_COUNT * sizeof(char*));
+
+                        size_t i = 0;
+                        
+                        struct parse_tree *optargs = tree->children->head->next->next->data;
+                        if ((optargs->children != NULL) && (optargs->children->len != 0)){
+                                struct parse_tree *args = optargs->children->head->data;
+                                while (1) {
+                                        // args -> expr COMMA args
+                                        // args -> expr
+                                        struct parse_tree *expr = args->children->head->data;
+                                        args_code[i++] = generate_from_tree(expr, functions, within, builtins);
+
+                                        if (args->children->len == 3){
+                                                load_child_at(args, args, 2);
+                                        } else {
+                                                break;
+                                        }
+                                };
+                        }
+        
                         struct string s;
                         s.data = id;
                         const struct function *f; query_map(functions, (&s), f, string, function);
 
                         if (f == NULL){
                                 for (struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
-                                        if ((strcmp(node->data->name, id) == 0) && (strcmp(id, "print") == 0)){
-                                                struct parse_tree *args = tree->children->head->next->next->data->children->head->data;
-                                                struct parse_tree *expr = args->children->head->data;
-                                                char *arg = generate_from_tree(expr, functions, within, builtins);
-                                                char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
-                                                strcpy(body, node->data->body);
-                                                return concat(4, comment("evaluating arg"), arg, comment("done"), body);
-                                        }
-
                                         if (strcmp(node->data->name, id) == 0){
-                                                char *body = (char*) malloc((strlen(node->data->body) + 1) * sizeof(char));
-                                                strcpy(body, node->data->body);
-                                                return body;
+                                                char *ret = evaluate_builtin(node->data, args_code);
+                                                free(args_code);
+                                                return ret;
                                         }
                                 }
                         }
 
                         if (num_params(f) == 0){
+                                free(args_code);
                                 return call_function(f, NULL);
                         }
-
-                        char **args_code = (char**) malloc(num_params(f) * sizeof(char*));
-
-                        size_t i = 0;
-                        struct parse_tree *args = tree->children->head->next->next->data->children->head->data;
-                        while (1) {
-                                // args -> expr COMMA args
-                                // args -> expr
-                                struct parse_tree *expr = args->children->head->data;
-                                args_code[i++] = generate_from_tree(expr, functions, within, builtins);
-
-                                if (args->children->len == 3){
-                                        load_child_at(args, args, 2);
-                                } else {
-                                        break;
-                                }
-                        };
 
                         char *ret = call_function(f, args_code);
                         free(args_code);

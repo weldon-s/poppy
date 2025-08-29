@@ -8,12 +8,13 @@
 struct builtin {
         const struct type *type;
         char *name;
-        char *body;
+        char *(*evaluate)(char **args);
 };
 
 DEFINE_LIST(builtin);
 
+char *evaluate_builtin(const struct builtin *builtin, char **args);
 struct LIST(builtin) *get_builtins(struct LIST(string) modules);
-void free_builtins();
+void free_builtins(const struct LIST(builtin) *list);
 
 #endif
