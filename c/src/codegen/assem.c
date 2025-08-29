@@ -16,16 +16,54 @@ char *mov(enum reg dest, enum reg src){
         return instr;
 }
 
-char *movi(enum reg dest, long long imm){
+char *movi_small(enum reg dest, long long imm){
         assert((-65537 <= imm) && (imm <= 65535));
         char *instr = (char*) malloc(17 * sizeof(char));
         strcpy(instr, "mov ");
         strcat(instr, reg_to_string(dest));
         strcat(instr, ", #");
         char imm_str[7];
-        sprintf(imm_str, "%d", imm);
+        sprintf(imm_str, "%lli", imm);
         strcat(instr, imm_str);
         return instr;
+}
+
+char *movi(enum reg dest, long long imm){
+        // this instruction needs to support 64-bit immediate values
+        // ARM only supports 16-bit, so we recursively split the immediate value
+
+        if ((imm <= 65535) && (imm >= -65537)){
+                return movi_small(dest, imm);
+        }
+
+        long long upper = imm >> 12;
+        long long lower = imm & 0xFFF;
+
+        char *mov_upper = movi(dest, upper);
+
+        char *lsl = (char*) malloc(18 * sizeof(char));
+        strcpy(lsl, "lsl ");
+        strcat(lsl, reg_to_string(dest));
+        strcat(lsl, ", ");
+        strcat(lsl, reg_to_string(dest));
+        strcat(lsl, ", #12");
+
+        char *addi = (char*) malloc(22 * sizeof(char));
+        char imm_str[7];
+        sprintf(imm_str, "%lli", lower);
+
+        strcpy(addi, "add ");
+        strcat(addi, reg_to_string(dest));
+        strcat(addi, ", ");
+        strcat(addi, reg_to_string(dest));
+        strcat(addi, ", #");
+        strcat(addi, imm_str);
+        
+        return concat(3, 
+                mov_upper,
+                lsl,
+                addi
+        );
 }
 
 char *push(enum reg reg){
@@ -178,7 +216,7 @@ char *cmpi(enum reg reg, long long imm){
         strcat(instr, reg_to_string(reg));
         strcat(instr, ", #");
         char imm_str[7];
-        sprintf(imm_str, "%d", imm);
+        sprintf(imm_str, "%lli", imm);
         strcat(instr, imm_str);
         return instr;
 }
