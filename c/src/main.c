@@ -55,11 +55,13 @@ int main(int argc, char *argv[]){
         const struct OUTER_TYPE_MAP *types = find_types(pt);
         if (types != NULL){
                 char *code = generate_code(types, pt);
-                printf("generation successful\n");
-                FILE *out = fopen("../assembly/out.s", "w");
-                fprintf(out, "%s", code);
-                free(code);
-                fclose(out);
+                if (code != NULL){
+                        printf("generation successful\n");
+                        FILE *out = fopen("../assembly/out.s", "w");
+                        fprintf(out, "%s", code);
+                        free(code);
+                        fclose(out);
+                }
         }
 
         free_list(list, free_token, token);

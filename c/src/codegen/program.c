@@ -392,6 +392,14 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
 
         struct string s = {"main"};
         const struct function *main; query_map((&functions), (&s), main, string, function);
+
+        if (main == NULL){
+                free_map((&functions), string, function);
+                free_builtins(builtins);
+                free(prog);
+                return NULL;
+        }
+
         char *sl = (char*) malloc(8 * sizeof(char));
         char *t = (char*) malloc(31 * sizeof(char));
         strcpy(sl, start_label);
