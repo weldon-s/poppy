@@ -252,7 +252,7 @@ char *concat(size_t count, ...){
                 char *cur = va_arg(args, char*);
                 size_t curlen = strlen(cur);
                 len += curlen;
-                if (cur[curlen - 1] != '\n'){
+                if ((curlen >= 1) && (cur[curlen - 1] != '\n')){
                         ++len;
                 }
 
@@ -263,7 +263,7 @@ char *concat(size_t count, ...){
                         strcpy(temp, res);
                         strcat(temp, cur);
                 }
-                if (cur[curlen - 1] != '\n'){
+                if ((curlen >= 1) && (cur[curlen - 1] != '\n')){
                         strcat(temp, "\n");
                 }
 

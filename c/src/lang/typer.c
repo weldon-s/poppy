@@ -115,6 +115,12 @@ const struct type * find_defn_type(struct parse_tree *tree, struct MAP(string, t
                 params_array[param_count] = find_type_type(param->children->head->data);
                 struct string *s = (struct string*) malloc(sizeof(struct string));
                 s->data = param->children->head->next->data->data.value;
+                const struct type *t; query_map(scope_map, s, t, string, type);
+                if (t != NULL){
+                        free(s);
+                        return NULL;
+                }
+
                 update_map(scope_map, s, params_array[param_count], string, type)
                 ++param_count;
 
@@ -150,6 +156,12 @@ const struct type * find_vardec_type(struct parse_tree *tree, struct OUTER_TYPE_
         struct parse_tree *id; load_child_at(id, tree, 2);
         struct string *str = (struct string*) malloc(sizeof(struct string));
         str->data = id->data.value;
+        const struct type *t; query_map(scope_map, str, t, string, type);
+        if (t != NULL){
+                free(str);
+                return NULL;
+        }
+
         update_map(scope_map, str, type_type, string, type);
         return void_type();
 }
@@ -586,9 +598,10 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                 const struct type *stmts_type = find_stmts_type(stmts, outer_map, stmts_map);
                 const struct type *ftype = find_symbol_type(defn->children->head->next->data, outer_map);
 
-                if ((stmts_type == NULL) || !equals_type(stmts_type, return_type(ftype))){
+                if ((stmts_type == NULL) || (ftype == NULL) || !equals_type(stmts_type, return_type(ftype))){
                         free_map(outer_map, parse_tree, MAP(string, type));
                         free(outer_map);
+                        free_builtins(builtins);
                         return NULL;
                 }
 
@@ -597,11 +610,6 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                 } else {
                         break;
                 }
-        } 
-
-        for (struct parse_tree_string_type_map_map_entry_list_node *node = outer_map->list->head; node != NULL; node = node->next) {
-                struct OUTER_TYPE_MAP_ENTRY *entry = node->data;
-                // printf("%s: %d\n", symbol_name(entry->key->data.type), entry->value->list->len);
         }
 
         free_builtins(builtins);

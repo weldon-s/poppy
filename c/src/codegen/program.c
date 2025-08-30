@@ -328,13 +328,36 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 struct parse_tree *defn = defns->children->head->data;
 
                 struct LIST(string) params_list = get_parameters(defn, type_map);
+                struct LIST(string) locals_list = get_local_variables(defn, type_map);
+
+                for (struct LIST_NODE(string) *l_node = locals_list.head; l_node != NULL; l_node = l_node->next){
+                        for (struct LIST_NODE(string) *successor = l_node->next; successor != NULL; successor = successor->next){
+                                if (strcmp(l_node->data->data, successor->data->data) == 0){
+                                        free_map((&functions), string, function);
+                                        free_builtins(builtins);
+                                        free_list((&params_list), free_string, string);
+                                        free_list((&locals_list), free_string, string);
+                                        return NULL;
+                                }
+                        }
+
+                        for (struct LIST_NODE(string) *p_node = params_list.head; p_node != NULL; p_node = p_node->next){
+                                if (strcmp(l_node->data->data, p_node->data->data) == 0){
+                                        free_map((&functions), string, function);
+                                        free_builtins(builtins);  
+                                        free_list((&params_list), free_string, string);
+                                        free_list((&locals_list), free_string, string);
+                                        return NULL;
+                                }
+                        }
+                }
+
                 char **params = (char**) malloc(params_list.len * sizeof(char*));
                 size_t i = 0;
                 for (struct LIST_NODE(string) *node = params_list.head; node != NULL; node = node->next){
                         params[i++] = node->data->data;
                 }
 
-                struct LIST(string) locals_list = get_local_variables(defn, type_map);
                 char **locals = (char**) malloc(locals_list.len * sizeof(char*));
                 i = 0;
                 for (struct LIST_NODE(string) *node = locals_list.head; node != NULL; node = node->next){
