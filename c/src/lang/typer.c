@@ -132,6 +132,10 @@ const struct type * find_defn_type(struct parse_tree *tree, struct MAP(string, t
                 }
         };
 
+        if (param_count > MAX_PARAM_COUNT){
+                return NULL;
+        }
+        
         return function_type(ret, params_array, param_count);
 }
 
