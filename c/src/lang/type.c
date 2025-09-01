@@ -4,6 +4,11 @@
 
 #include "data/list.h"
 
+#define INT_CHAR 'i'
+#define VOID_CHAR 'v'
+#define BOOL_CHAR 'b'
+#define CHAR_CHAR 'c'
+
 DEFINE_LIST(type);
 
 struct LIST(type) types;
@@ -12,6 +17,7 @@ bool initialized = false;
 struct type *int_ptr = NULL;
 struct type *void_ptr = NULL;
 struct type *bool_ptr = NULL;
+struct type *char_ptr = NULL;
 
 void add_type(struct type *new) {
         if (!initialized) {
@@ -22,9 +28,10 @@ void add_type(struct type *new) {
         append_list((&types), new, type);
 }
 
-struct type* simple_type(char *repr, bool assignable, bool returnable){
+struct type* simple_type(char repr, bool assignable, bool returnable){
         struct type* new = (struct type*) malloc(sizeof(struct type));
-        strcpy(new->repr, repr);
+        new->repr[0] = repr;
+        new->repr[1] = 0; 
         new->assignable = assignable;
         new->returnable = returnable;
         add_type(new);
@@ -33,23 +40,30 @@ struct type* simple_type(char *repr, bool assignable, bool returnable){
 
 const struct type* const int_type(){
         if (int_ptr == NULL){
-                int_ptr = simple_type("i", true, true);
+                int_ptr = simple_type(INT_CHAR, true, true);
         }
         return int_ptr;
 }
 
 const struct type* const bool_type(){
         if (bool_ptr == NULL){
-                bool_ptr = simple_type("b", false, false);
+                bool_ptr = simple_type(BOOL_CHAR, false, false);
         }
         return bool_ptr;
 }
 
 const struct type* const void_type(){
         if (void_ptr == NULL){
-                void_ptr = simple_type("v", false, true);
+                void_ptr = simple_type(VOID_CHAR, false, true);
         }
         return void_ptr;
+}
+
+const struct type* const char_type(){
+        if (char_ptr == NULL){
+                char_ptr = simple_type(CHAR_CHAR, true, true);
+        }
+        return char_ptr;
 }
 
 const struct type* const function_type(const struct type *ret, const struct type *params[MAX_PARAM_COUNT], size_t params_len){
@@ -76,9 +90,11 @@ const struct type* const function_type(const struct type *ret, const struct type
 
 const struct type* const return_type(const struct type *type){
         switch (type->repr[0]){
-                case 'i':
+                case INT_CHAR:
                         return int_type();
-                case 'v':
+                case CHAR_CHAR:
+                        return char_type();
+                case VOID_CHAR:
                         return void_type();
                 default:
                         return NULL;
@@ -98,8 +114,11 @@ bool equals_arg_types(const struct type *args[MAX_PARAM_COUNT], size_t args_len,
         for (size_t i = 0; i < args_len; ++i){
                 const struct type *param_type;
                 switch (type->repr[i + 2]){
-                        case 'i':
+                        case INT_CHAR:
                                 param_type = int_type();
+                                break;
+                        case CHAR_CHAR:
+                                param_type = char_type();
                                 break;
                         default:
                                 return false;

@@ -17,6 +17,7 @@ struct type {
 const struct type* const int_type();
 const struct type* const bool_type();
 const struct type* const void_type();
+const struct type* const char_type();
 const struct type* const function_type(const struct type *ret, const struct type *params[MAX_PARAM_COUNT], size_t params_len);
 const struct type* const return_type(const struct type *type);
 bool equals_type(const struct type *t1, const struct type *t2);

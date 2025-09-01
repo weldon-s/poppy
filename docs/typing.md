@@ -5,6 +5,7 @@ $$
 \begin{align*}
 \text{type}&\rightarrow \text{returnabletype}\\
 \text{returnabletype}&\rightarrow \text{int}\\
+\text{returnabletype}&\rightarrow \text{char}\\
 \text{returnabletype}&\rightarrow \text{void}\\
 \text{type}&\rightarrow \text{bool}\\
 \text{type}&\rightarrow \text{(optparams) $\mapsto$ returnabletype}\\
@@ -12,6 +13,7 @@ $$
 \text{optparams}&\rightarrow \text{params}\\
 \text{params}&\rightarrow \text{param, params}\\
 \text{param}&\rightarrow \text{int}\\
+\text{param}&\rightarrow \text{char}\\
 \end{align*}
 $$
 
@@ -58,11 +60,11 @@ $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash E: \tau}{\Gamma \vdash 
 $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash a, c : \text{void}\quad \Gamma \vdash E: \tau}{\Gamma \vdash \text{for }(a;b;c)\{E\}: \tau}$$
 
 ## Predicates
-$$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau}{
+$$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau\quad \tau \in \{\text{int, char}\}}{
     \Gamma \vdash E_1 == E_2 : \text{bool} \quad \Gamma \vdash E_1 \text{ != } E_2 : \text{bool}
 }$$
 
-$$\frac{\Gamma \vdash E_1:\text{int} \quad \Gamma \vdash E_2:\text{int}}{
+$$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau \quad \tau \in \{\text{int, char}\}}{
     \Gamma \vdash E_1 < E_2 : \text{bool} \quad \Gamma \vdash E_1 > E_2 : \text{bool} \quad
     \Gamma \vdash E_1 <= E_2 : \text{bool} \quad \Gamma \vdash E_1 >= E_2 : \text{bool}
 }$$
@@ -77,14 +79,15 @@ $$\frac{\Gamma \vdash E_1 : \text{bool} \quad \Gamma \vdash E_2 : \text{bool}}{
 }$$
 
 ## Arithmetic
-$$\frac{\Gamma \vdash E_1: \text{int}\quad \Gamma \vdash E_2: \text{int}}{
-    \Gamma \vdash E_1 + E_2 : \text{int} \quad \Gamma \vdash E_1 - E_2 : \text{int} \quad \Gamma \vdash E_1 * E_2 : \text{int} \quad \Gamma \vdash E_1 \text{ / }E_2 : \text{int} \quad \Gamma \vdash E_1 
-    \text{ \% } E_2 : \text{int}
+$$\frac{\Gamma \vdash E_1: \tau_1\quad \Gamma \vdash E_2: \tau_2\quad \tau_1,\tau_2 \in \{\text{int, char}\}}{
+    \Gamma \vdash E_1 + E_2 : \tau_1 \quad \Gamma \vdash E_1 - E_2 : \tau_1 \quad \Gamma \vdash E_1 * E_2 : \tau_1 \quad \Gamma \vdash E_1 \text{ / }E_2 : \tau_1 \quad \Gamma \vdash E_1 
+    \text{ \% } E_2 : \tau_1
 }$$
 
-$$\frac{\Gamma \vdash E: \tau}{\Gamma \vdash (E):\tau}$$
+$$\frac{\Gamma \vdash E: \tau \quad \tau \in \{\text{int, char}\}}{\Gamma \vdash (E):\tau}$$
 
 
 ## Literals
 
 $$\Gamma \vdash \text{CONSTANT}: \text{int}$$
+$$\Gamma \vdash \text{SQUOTE CHARLIT SQUOTE}: \text{char}$$

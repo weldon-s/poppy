@@ -29,6 +29,8 @@ enum symbol {
         SYMBOL_ASSIGN,     // =
         SYMBOL_COMMA,      // ,
         SYMBOL_SEMICOLON,  // ;
+        SYMBOL_SQUOTE,     // '
+        SYMBOL_CHAR,
         SYMBOL_ELSE,
         SYMBOL_FOR,
         SYMBOL_HOP,
@@ -40,6 +42,7 @@ enum symbol {
         SYMBOL_WHILE,
         SYMBOL_IDENTIFIER,
         SYMBOL_CONSTANT,
+        SYMBOL_CHARLIT,
         SYMBOL_END,         // end of input
         // non-terminal symbols
         SYMBOL_PROGRAM,

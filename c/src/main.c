@@ -42,6 +42,8 @@ int main(int argc, char *argv[]){
                 return 0;
         }
 
+        printf("lexed\n");
+
         const struct grammar *poppy_grammar = get_poppy_grammar();
         const struct parse_tree *pt = parse(poppy_grammar, list);
         free_poppy_grammar();
@@ -51,6 +53,8 @@ int main(int argc, char *argv[]){
                 free(list);
                 return 0;
         }
+
+        printf("parsed\n");
 
         const struct OUTER_TYPE_MAP *types = find_types(pt);
         if (types != NULL){

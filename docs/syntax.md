@@ -19,6 +19,7 @@ $$\begin{align*}
 \text{defn} &\rightarrow \text{type IDENTIFIER LPAREN optparams RPAREN LBRACE stmts RBRACE}\\
 \text{type} &\rightarrow \text{INT}\\
 \text{type} &\rightarrow \text{VOID}\\
+\text{type} &\rightarrow \text{CHAR}\\
 \text{optparams} &\rightarrow \varnothing \\
 \text{optparams} &\rightarrow \text{params} \\
 \text{params} &\rightarrow \text{param COMMA params}  \\
@@ -73,5 +74,6 @@ $$\begin{align*}
 \text{unexpr} &\rightarrow \text{DEC IDENTIFIER} \\
 \text{unexpr} &\rightarrow \text{IDENTIFIER}  \\
 \text{unexpr} &\rightarrow \text{CONSTANT}  \\
+\text{unexpr} &\rightarrow \text{SQUOTE CHARLIT SQUOTE}
 \end{align*}
 $$
