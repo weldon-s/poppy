@@ -63,6 +63,8 @@ const struct type * find_type_type(struct parse_tree *tree){
                         return int_type();
                 case SYMBOL_VOID:
                         return void_type();
+                case SYMBOL_CHAR:
+                        return char_type();
                 default:
                         return NULL;
         }
@@ -258,7 +260,7 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                         // unexpr -> DEC IDENTIFIER
                         struct parse_tree *id; load_child_at(id, tree, 1);
                         const struct type *id_type = find_symbol_type(id, outer_map);
-                        return id_type && equals_type(id_type, int_type()) ? int_type() : NULL;
+                        return id_type && id_type->assignable ? id_type : NULL;
                 case SYMBOL_IDENTIFIER:
                         if (tree->children->len == 1){
                                 // unexpr -> IDENTIFIER
@@ -270,7 +272,10 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                 case SYMBOL_CONSTANT:
                         // unexpr -> CONSTANT
                         return int_type();
-
+                
+                case SYMBOL_SQUOTE:
+                        // unexpr -> SQUOTE CHARLIT SQUOTE
+                        return char_type();
                 default:
                         return NULL;
         }
@@ -288,17 +293,19 @@ const struct type * find_multexpr_type(struct parse_tree *tree, struct OUTER_TYP
         // multexpr -> multexpr MOD unexpr
         struct parse_tree *op1; load_child_at(op1, tree, 0);
         const struct type *op1_type = find_multexpr_type(op1, outer_map);
-        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op1_type == NULL) || !op1_type->assignable){
                 return NULL;
         }
 
         struct parse_tree *op2; load_child_at(op2, tree, 2);
         const struct type *op2_type = find_unexpr_type(op2, outer_map);
-        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op2_type == NULL) || !op2_type->assignable){
                 return NULL;
         }
 
-        return int_type();
+        return op1_type;
 }
 
 const struct type * find_addexpr_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
@@ -312,17 +319,19 @@ const struct type * find_addexpr_type(struct parse_tree *tree, struct OUTER_TYPE
         // addexpr -> addexpr MINUS multexpr
         struct parse_tree *op1; load_child_at(op1, tree, 0);
         const struct type *op1_type = find_addexpr_type(op1, outer_map);
-        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op1_type == NULL) || !op1_type->assignable){
                 return NULL;
         }
 
         struct parse_tree *op2; load_child_at(op2, tree, 2);
         const struct type *op2_type = find_multexpr_type(op2, outer_map);
-        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op2_type == NULL) || !op2_type->assignable){
                 return NULL;
         }
 
-        return int_type();
+        return op1_type;
 }
 
 const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
@@ -371,13 +380,19 @@ const struct type * find_uncond_type(struct parse_tree *tree, struct OUTER_TYPE_
         // uncond -> expr NE expr
         struct parse_tree *op1; load_child_at(op1, tree, 0);
         const struct type *op1_type = find_expr_type(op1, outer_map);
-        if ((op1_type == NULL) || !equals_type(op1_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op1_type == NULL) || !op1_type->assignable){
                 return NULL;
         }
 
         struct parse_tree *op2; load_child_at(op2, tree, 0);
         const struct type *op2_type = find_expr_type(op2, outer_map);
-        if ((op2_type == NULL) || !equals_type(op2_type, int_type())){
+        // TODO replace this with check for numeric type
+        if ((op2_type == NULL) || !op2_type->assignable){
+                return NULL;
+        }
+
+        if (!equals_type(op1_type, op2_type)){
                 return NULL;
         }
 

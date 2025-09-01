@@ -12,6 +12,7 @@ bool initialized = false;
 struct type *int_ptr = NULL;
 struct type *void_ptr = NULL;
 struct type *bool_ptr = NULL;
+struct type *char_ptr = NULL;
 
 void add_type(struct type *new) {
         if (!initialized) {
@@ -50,6 +51,13 @@ const struct type* const void_type(){
                 void_ptr = simple_type("v", false, true);
         }
         return void_ptr;
+}
+
+const struct type* const char_type(){
+        if (char_ptr == NULL){
+                char_ptr = simple_type("c", true, true);
+        }
+        return char_ptr;
 }
 
 const struct type* const function_type(const struct type *ret, const struct type *params[MAX_PARAM_COUNT], size_t params_len){
