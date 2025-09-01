@@ -21,6 +21,19 @@ char *evaluate_print_num(char **args){
         );
 }
 
+char *evaluate_print_char(char **args){
+        char *bl = (char*) malloc(14 * sizeof(char));
+        strcpy(bl, "bl print_char");
+
+        return concat(5,
+                args[0],
+                mov(REG_1, REG_ARITH_RESULT),
+                push(REG_LR),
+                bl,
+                pop(REG_LR)
+        );
+}
+
 char *evaluate_print_line(char **args){
         char *bl = (char*) malloc(14 * sizeof(char));
         strcpy(bl, "bl print_line");
@@ -45,6 +58,10 @@ void append_io_builtins(struct LIST(builtin)* list){
         params[0] = int_type();
         struct builtin *print_num = new_builtin("print", function_type(print_ret, params, 1), evaluate_print_num);
         append_list(list, print_num, builtin);
+
+        params[0] = char_type();
+        struct builtin *print_char = new_builtin("printc", function_type(print_ret, params, 1), evaluate_print_char);
+        append_list(list, print_char, builtin);
 
         params[0] = NULL;
         struct builtin *print_line = new_builtin("println", function_type(print_ret, params, 0), evaluate_print_line);

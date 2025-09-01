@@ -86,6 +86,8 @@ const struct type* const return_type(const struct type *type){
         switch (type->repr[0]){
                 case 'i':
                         return int_type();
+                case 'c':
+                        return char_type();
                 case 'v':
                         return void_type();
                 default:
@@ -108,6 +110,9 @@ bool equals_arg_types(const struct type *args[MAX_PARAM_COUNT], size_t args_len,
                 switch (type->repr[i + 2]){
                         case 'i':
                                 param_type = int_type();
+                                break;
+                        case 'c':
+                                param_type = char_type();
                                 break;
                         default:
                                 return false;
