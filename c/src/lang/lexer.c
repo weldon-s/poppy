@@ -107,6 +107,56 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
 
         return ret;
 }
+/*
+match escape sequences to the chars they escape by editing val[0]
+return true if the lex is still valid
+*/
+bool lex_char_literal(FILE *file, char val[MAX_TOKEN_LENGTH + 1]){
+        if (val[0] != '\\'){
+                return true;
+        }
+
+        if (feof(file)){
+                return false;
+        }
+
+        switch(fgetc(file)){
+                case 'a':
+                        val[0] = '\a';
+                        break;
+                case 'b':
+                        val[0] = '\b';
+                        break;
+                case 'f':
+                        val[0] = '\f';
+                        break;
+                case 'n':
+                        val[0] = '\n';
+                        break;
+                case 'r':
+                        val[0] = '\r';
+                        break;
+                case 't':
+                        val[0] = '\t';
+                        break;
+                case 'v':
+                        val[0] = '\v';
+                        break;
+                case '\\':
+                        val[0] = '\\';
+                        break;
+                case '\'':
+                        val[0] = '\'';
+                        break;
+                case '\"':
+                        val[0] = '\"';
+                        break;
+                default:
+                        return false;
+        }
+
+        return true;
+}
 
 struct LIST(token)* lex(FILE *file){
         char val[MAX_TOKEN_LENGTH + 1];
@@ -127,6 +177,11 @@ struct LIST(token)* lex(FILE *file){
                 if (charlit_status == OPENED_CHARLIT){
                         data.type = SYMBOL_CHARLIT;
                         data.val_len = 1;
+                        if (!lex_char_literal(file, val)){
+                                free_list(list, free_token, token);
+                                free(list);
+                                return NULL;
+                        }
                 } else {
                         if (isspace(val[0])){
                                 val[0] = 0;
