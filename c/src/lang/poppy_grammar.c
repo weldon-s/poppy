@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define RULE_COUNT 67
+#define RULE_COUNT 72
 #define COMMA ,
 #define populate(lh_symbol, rh_symbols, ctr, grmr)                               \
         do {                                                                     \
@@ -44,6 +44,7 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_TYPE, {SYMBOL_INT}, i, poppy_grammar); ++i;
         populate(SYMBOL_TYPE, {SYMBOL_VOID}, i, poppy_grammar); ++i;
         populate(SYMBOL_TYPE, {SYMBOL_CHAR}, i, poppy_grammar); ++i;
+        populate(SYMBOL_TYPE, {SYMBOL_BOOL}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTPARAMS, {}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTPARAMS, {SYMBOL_PARAMS}, i, poppy_grammar); ++i;
         populate(SYMBOL_PARAMS, {SYMBOL_PARAM COMMA SYMBOL_COMMA COMMA SYMBOL_PARAMS}, i, poppy_grammar); ++i;
@@ -61,24 +62,27 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_RET, {SYMBOL_HOP COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_RET, {SYMBOL_HOP}, i, poppy_grammar); ++i;
         populate(SYMBOL_SEMISTMT, {SYMBOL_EXPR}, i, poppy_grammar); ++i;
-        populate(SYMBOL_STMT, {SYMBOL_IF COMMA SYMBOL_LPAREN COMMA SYMBOL_COND COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE COMMA SYMBOL_OPTELSE }, i, poppy_grammar); ++i;
+        populate(SYMBOL_STMT, {SYMBOL_IF COMMA SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE COMMA SYMBOL_OPTELSE }, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTELSE, {}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTELSE, {SYMBOL_ELSE COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
-        populate(SYMBOL_STMT, {SYMBOL_WHILE COMMA SYMBOL_LPAREN COMMA SYMBOL_COND COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
-        populate(SYMBOL_STMT, {SYMBOL_FOR COMMA SYMBOL_LPAREN COMMA SYMBOL_SEMISTMT COMMA SYMBOL_SEMICOLON COMMA SYMBOL_COND COMMA SYMBOL_SEMICOLON COMMA SYMBOL_SEMISTMT COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
-        populate(SYMBOL_COND, {SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ANDCOND, {SYMBOL_ANDCOND COMMA SYMBOL_AND COMMA SYMBOL_ORCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ANDCOND, {SYMBOL_ORCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ORCOND, {SYMBOL_ORCOND COMMA SYMBOL_OR COMMA SYMBOL_UNCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ORCOND, {SYMBOL_UNCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_UNCOND, {SYMBOL_NOT COMMA SYMBOL_COND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_UNCOND, {SYMBOL_LPAREN COMMA SYMBOL_COND COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
+        populate(SYMBOL_STMT, {SYMBOL_WHILE COMMA SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_STMT, {SYMBOL_FOR COMMA SYMBOL_LPAREN COMMA SYMBOL_SEMISTMT COMMA SYMBOL_SEMICOLON COMMA SYMBOL_EXPR COMMA SYMBOL_SEMICOLON COMMA SYMBOL_SEMISTMT COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_EXPR, {SYMBOL_ORCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ORCOND, {SYMBOL_ORCOND COMMA SYMBOL_OR COMMA SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ORCOND, {SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ANDCOND, {SYMBOL_ANDCOND COMMA SYMBOL_AND COMMA SYMBOL_UNCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ANDCOND, {SYMBOL_UNCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_NOT COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_LT COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_GT COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_LE COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_GE COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_EQ COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_NE COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_TRUE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_FALSE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_CALL}, i, poppy_grammar); ++i;
         populate(SYMBOL_EXPR, {SYMBOL_ADDEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_ADDEXPR, {SYMBOL_ADDEXPR COMMA SYMBOL_PLUS COMMA SYMBOL_MULTEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_ADDEXPR, {SYMBOL_ADDEXPR COMMA SYMBOL_MINUS COMMA SYMBOL_MULTEXPR}, i, poppy_grammar); ++i;
@@ -89,7 +93,8 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_MULTEXPR, {SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_MINUS COMMA SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
-        populate(SYMBOL_UNEXPR, {SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTARGS COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNEXPR, {SYMBOL_CALL}, i, poppy_grammar); ++i;
+        populate(SYMBOL_CALL, {SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTARGS COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTARGS, {}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTARGS, {SYMBOL_ARGS}, i, poppy_grammar); ++i;
         populate(SYMBOL_ARGS, {SYMBOL_EXPR}, i, poppy_grammar); ++i;

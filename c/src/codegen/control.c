@@ -78,16 +78,13 @@ char *if_stmt(char* cond, char *then_block, char *else_block) {
         if (else_block){
                 struct label *after_then = new_label();
                 struct label *after_else = new_label();
-                ret = concat(11,
-                        comment("cond"),
+                ret = concat(8,
                         cond,
                         cmpi(REG_ARITH_RESULT, 1),
                         bne(after_then),
-                        comment("then"),
                         then_block,
                         b(after_else),
                         declare_label(after_then),
-                        comment("else"),
                         else_block,
                         declare_label(after_else)
                 );

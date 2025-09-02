@@ -38,66 +38,56 @@ char *modulo(char *op1, char *op2){
         ));
 }
 
-char *condop(char *op1, char *op2, char *operation){
-        return concat(5,
-                op1,
-                push(REG_ARITH_RESULT),
-                // write_variable(chunk, temp, REG_ARITH_RESULT, REG_FP),
-                op2,
-                pop(REG_SCRATCH),
-                // read_variable(chunk, REG_SCRATCH, temp, REG_FP),
-                operation
-        );
-}
-
 char *eq(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "eq")
         ));
 }
 
 char *ne(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "ne")
         ));
 }
 
 char *lt(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "lt")
         ));
 }
 
 char *gt(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "gt")
         ));
 }
 
 char *le(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "le")
         ));
 }
 
 char *ge(char *op1, char *op2){
-        return condop(op1, op2, concat(2,
+        return binop(op1, op2, concat(2,
                 cmp(REG_SCRATCH, REG_ARITH_RESULT),
                 cset(REG_ARITH_RESULT, "ge")
         ));
 }
 
 char *cnjtn(char *op1, char *op2){
-        return condop(op1, op2, and(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));  
+        return binop(op1, op2, and(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
 }
 
 char *dsjtn(char *op1, char *op2){
-        return condop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));  
+        return binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
+
+        return binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
 }
 
 char *ngtn(char *op){

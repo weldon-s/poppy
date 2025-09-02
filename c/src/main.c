@@ -58,6 +58,7 @@ int main(int argc, char *argv[]){
 
         const struct OUTER_TYPE_MAP *types = find_types(pt);
         if (types != NULL){
+                printf("typed\n");
                 char *code = generate_code(types, pt);
                 if (code != NULL){
                         printf("generation successful\n");

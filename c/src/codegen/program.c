@@ -147,8 +147,6 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 struct parse_tree *expr; load_child_at(expr, tree, 1);
                 char *expr_code = generate_from_tree(expr, functions, within, builtins);
                 return concat(2, expr_code, hop(within));
-        } else if (symbol == SYMBOL_COND){
-                return generate_from_tree(tree->children->head->data, functions, within, builtins);
         } else if (symbol == SYMBOL_ANDCOND){
                 if (tree->children->len == 1){
                         return generate_from_tree(tree->children->head->data, functions, within, builtins);
@@ -166,12 +164,22 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 char *op2 = generate_from_tree(tree->children->head->next->next->data, functions, within, builtins);
                 return dsjtn(op1, op2);                
         } else if (symbol == SYMBOL_UNCOND){
+                if (tree->children->len == 1){
+                        if (tree->children->head->data->data.type == SYMBOL_TRUE){
+                                return movi(REG_ARITH_RESULT, 1);
+                        } else if (tree->children->head->data->data.type == SYMBOL_FALSE){
+                                return movi(REG_ARITH_RESULT, 0);
+                        }
+
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
+                }
+
                 if (tree->children->len == 2){
                         return ngtn(generate_from_tree(tree->children->head->next->data, functions, within, builtins));
                 }
 
                 enum symbol op_type = tree->children->head->next->data->data.type;
-                if (op_type == SYMBOL_COND){
+                if (op_type == SYMBOL_EXPR){
                         return generate_from_tree(tree->children->head->next->data, functions, within, builtins);
                 }
 
@@ -268,54 +276,58 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 if (first == SYMBOL_IDENTIFIER){
                         char *id = tree->children->head->data->data.value;
 
-                        if (tree->children->len == 1){
-                                return read_function_variable(within, REG_ARITH_RESULT, id);
-                        }
+                        return read_function_variable(within, REG_ARITH_RESULT, id);
+                }
 
-                        char **args_code = (char**) malloc(MAX_PARAM_COUNT * sizeof(char*));
+                if (first == SYMBOL_CALL){
+                        return generate_from_tree(tree->children->head->data, functions, within, builtins);
+                }
+        } else if (symbol == SYMBOL_CALL){
+                char *id = tree->children->head->data->data.value;
 
-                        size_t i = 0;
-                        
-                        struct parse_tree *optargs = tree->children->head->next->next->data;
-                        if ((optargs->children != NULL) && (optargs->children->len != 0)){
-                                struct parse_tree *args = optargs->children->head->data;
-                                while (1) {
-                                        // args -> expr COMMA args
-                                        // args -> expr
-                                        struct parse_tree *expr = args->children->head->data;
-                                        args_code[i++] = generate_from_tree(expr, functions, within, builtins);
+                char **args_code = (char**) malloc(MAX_PARAM_COUNT * sizeof(char*));
 
-                                        if (args->children->len == 3){
-                                                load_child_at(args, args, 2);
-                                        } else {
-                                                break;
-                                        }
-                                };
-                        }
-        
-                        struct string s;
-                        s.data = id;
-                        const struct function *f; query_map(functions, (&s), f, string, function);
+                size_t i = 0;
+                
+                struct parse_tree *optargs = tree->children->head->next->next->data;
+                if ((optargs->children != NULL) && (optargs->children->len != 0)){
+                        struct parse_tree *args = optargs->children->head->data;
+                        while (1) {
+                                // args -> expr COMMA args
+                                // args -> expr
+                                struct parse_tree *expr = args->children->head->data;
+                                args_code[i++] = generate_from_tree(expr, functions, within, builtins);
 
-                        if (f == NULL){
-                                for (struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
-                                        if (strcmp(node->data->name, id) == 0){
-                                                char *ret = evaluate_builtin(node->data, args_code);
-                                                free(args_code);
-                                                return ret;
-                                        }
+                                if (args->children->len == 3){
+                                        load_child_at(args, args, 2);
+                                } else {
+                                        break;
+                                }
+                        };
+                }
+
+                struct string s;
+                s.data = id;
+                const struct function *f; query_map(functions, (&s), f, string, function);
+
+                if (f == NULL){
+                        for (struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
+                                if (strcmp(node->data->name, id) == 0){
+                                        char *ret = evaluate_builtin(node->data, args_code);
+                                        free(args_code);
+                                        return ret;
                                 }
                         }
-
-                        if (num_params(f) == 0){
-                                free(args_code);
-                                return call_function(f, NULL);
-                        }
-
-                        char *ret = call_function(f, args_code);
-                        free(args_code);
-                        return ret;
                 }
+
+                if (num_params(f) == 0){
+                        free(args_code);
+                        return call_function(f, NULL);
+                }
+
+                char *ret = call_function(f, args_code);
+                free(args_code);
+                return ret;
         }
 
         assert(0);

@@ -30,14 +30,17 @@ enum symbol {
         SYMBOL_COMMA,      // ,
         SYMBOL_SEMICOLON,  // ;
         SYMBOL_SQUOTE,     // '
+        SYMBOL_BOOL,
         SYMBOL_CHAR,
         SYMBOL_ELSE,
+        SYMBOL_FALSE,
         SYMBOL_FOR,
         SYMBOL_HOP,
         SYMBOL_IF,
         SYMBOL_INT,
         SYMBOL_LET,
         SYMBOL_MUNCH,
+        SYMBOL_TRUE,
         SYMBOL_VOID,
         SYMBOL_WHILE,
         SYMBOL_IDENTIFIER,
@@ -59,7 +62,6 @@ enum symbol {
         SYMBOL_STMT,
         SYMBOL_SEMISTMT,
         SYMBOL_EXPR,
-        SYMBOL_COND,
         SYMBOL_ANDCOND,
         SYMBOL_ORCOND,
         SYMBOL_UNCOND,
@@ -72,6 +74,7 @@ enum symbol {
         SYMBOL_VARDEC,
         SYMBOL_VARASST,
         SYMBOL_RET,
+        SYMBOL_CALL,
         SYMBOL_COUNT
 };
 
