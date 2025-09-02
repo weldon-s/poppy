@@ -74,6 +74,7 @@ enum symbol {
         SYMBOL_VARDEC,
         SYMBOL_VARASST,
         SYMBOL_RET,
+        SYMBOL_CALL,
         SYMBOL_COUNT
 };
 

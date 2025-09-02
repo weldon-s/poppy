@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define RULE_COUNT 70
+#define RULE_COUNT 72
 #define COMMA ,
 #define populate(lh_symbol, rh_symbols, ctr, grmr)                               \
         do {                                                                     \
@@ -82,6 +82,7 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_NE COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_TRUE}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_FALSE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNCOND, {SYMBOL_CALL}, i, poppy_grammar); ++i;
         populate(SYMBOL_EXPR, {SYMBOL_ADDEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_ADDEXPR, {SYMBOL_ADDEXPR COMMA SYMBOL_PLUS COMMA SYMBOL_MULTEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_ADDEXPR, {SYMBOL_ADDEXPR COMMA SYMBOL_MINUS COMMA SYMBOL_MULTEXPR}, i, poppy_grammar); ++i;
@@ -92,7 +93,8 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_MULTEXPR, {SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_MINUS COMMA SYMBOL_UNEXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
-        populate(SYMBOL_UNEXPR, {SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTARGS COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNEXPR, {SYMBOL_CALL}, i, poppy_grammar); ++i;
+        populate(SYMBOL_CALL, {SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTARGS COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTARGS, {}, i, poppy_grammar); ++i;
         populate(SYMBOL_OPTARGS, {SYMBOL_ARGS}, i, poppy_grammar); ++i;
         populate(SYMBOL_ARGS, {SYMBOL_EXPR}, i, poppy_grammar); ++i;

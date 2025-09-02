@@ -206,8 +206,8 @@ const struct type * find_ret_type(struct parse_tree *tree, struct OUTER_TYPE_MAP
 }
 
 const struct type * find_call_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
-        verify_type(tree, SYMBOL_UNEXPR);
-        // unexpr -> IDENTIFIER LPAREN optargs RPAREN
+        verify_type(tree, SYMBOL_CALL);
+        // call -> IDENTIFIER LPAREN optargs RPAREN
         struct parse_tree *optargs; load_child_at(optargs, tree, 2);
 
         // optargs ->
@@ -265,11 +265,10 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                         const struct type *id_type = find_symbol_type(id, outer_map);
                         return id_type && id_type->assignable ? id_type : NULL;
                 case SYMBOL_IDENTIFIER:
-                        if (tree->children->len == 1){
-                                // unexpr -> IDENTIFIER
-                                return find_symbol_type(head, outer_map);
-                        }
-                        // unexpr -> IDENTIFIER LPAREN optargs RPAREN
+                        // unexpr -> IDENTIFIER
+                        return find_symbol_type(head, outer_map);
+                case SYMBOL_CALL:
+                        // unexpr -> call
                         return find_call_type(tree, outer_map);
 
                 case SYMBOL_CONSTANT:
@@ -337,6 +336,13 @@ const struct type * find_uncond_type(struct parse_tree *tree, struct OUTER_TYPE_
         verify_type(tree, SYMBOL_UNCOND);
 
         if (tree->children->len == 1){
+                if (tree->children->head->data->data.type == SYMBOL_CALL){
+                        // uncond -> call
+                        return find_call_type(tree->children->head->data, outer_map);
+                }
+
+                // uncond -> TRUE
+                // uncond -> FALSE
                 return bool_type();
         }
 

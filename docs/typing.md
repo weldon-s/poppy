@@ -6,14 +6,15 @@ $$
 \text{type}&\rightarrow \text{returnabletype}\\
 \text{returnabletype}&\rightarrow \text{int}\\
 \text{returnabletype}&\rightarrow \text{char}\\
+\text{returnabletype}&\rightarrow \text{bool}\\
 \text{returnabletype}&\rightarrow \text{void}\\
-\text{type}&\rightarrow \text{bool}\\
 \text{type}&\rightarrow \text{(optparams) $\mapsto$ returnabletype}\\
 \text{optparams}&\rightarrow \varnothing\\
 \text{optparams}&\rightarrow \text{params}\\
 \text{params}&\rightarrow \text{param, params}\\
 \text{param}&\rightarrow \text{int}\\
 \text{param}&\rightarrow \text{char}\\
+\text{param}&\rightarrow \text{bool}\\
 \end{align*}
 $$
 
@@ -60,7 +61,7 @@ $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash E: \tau}{\Gamma \vdash 
 $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash a, c : \text{void}\quad \Gamma \vdash E: \tau}{\Gamma \vdash \text{for }(a;b;c)\{E\}: \tau}$$
 
 ## Predicates
-$$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau\quad \tau \in \{\text{int, char}\}}{
+$$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau\quad \tau \in \{\text{int, char, bool}\}}{
     \Gamma \vdash E_1 == E_2 : \text{bool} \quad \Gamma \vdash E_1 \text{ != } E_2 : \text{bool}
 }$$
 
@@ -91,3 +92,5 @@ $$\frac{\Gamma \vdash E: \tau \quad \tau \in \{\text{int, char}\}}{\Gamma \vdash
 
 $$\Gamma \vdash \text{CONSTANT}: \text{int}$$
 $$\Gamma \vdash \text{SQUOTE CHARLIT SQUOTE}: \text{char}$$
+$$\Gamma \vdash \text{TRUE}: \text{bool}$$
+$$\Gamma \vdash \text{FALSE}: \text{bool}$$
