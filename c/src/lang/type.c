@@ -28,40 +28,41 @@ void add_type(struct type *new) {
         append_list((&types), new, type);
 }
 
-struct type* simple_type(char repr, bool assignable, bool returnable){
+struct type* simple_type(char repr, bool assignable, bool returnable, bool numeric){
         struct type* new = (struct type*) malloc(sizeof(struct type));
         new->repr[0] = repr;
         new->repr[1] = 0; 
         new->assignable = assignable;
         new->returnable = returnable;
+        new->numeric = numeric;
         add_type(new);
         return new;
 }
 
 const struct type* const int_type(){
         if (int_ptr == NULL){
-                int_ptr = simple_type(INT_CHAR, true, true);
+                int_ptr = simple_type(INT_CHAR, true, true, true);
         }
         return int_ptr;
 }
 
 const struct type* const bool_type(){
         if (bool_ptr == NULL){
-                bool_ptr = simple_type(BOOL_CHAR, true, true);
+                bool_ptr = simple_type(BOOL_CHAR, true, true, false);
         }
         return bool_ptr;
 }
 
 const struct type* const void_type(){
         if (void_ptr == NULL){
-                void_ptr = simple_type(VOID_CHAR, false, true);
+                void_ptr = simple_type(VOID_CHAR, false, true, false);
         }
         return void_ptr;
 }
 
 const struct type* const char_type(){
         if (char_ptr == NULL){
-                char_ptr = simple_type(CHAR_CHAR, true, true);
+                char_ptr = simple_type(CHAR_CHAR, true, true, true);
         }
         return char_ptr;
 }

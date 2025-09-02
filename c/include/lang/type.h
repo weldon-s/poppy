@@ -12,6 +12,7 @@ struct type {
     char repr[MAX_TYPE_STRING_LEN];
     bool assignable;
     bool returnable;
+    bool numeric;
 };
 
 const struct type* const int_type();
