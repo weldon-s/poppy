@@ -47,7 +47,7 @@ const struct type* const int_type(){
 
 const struct type* const bool_type(){
         if (bool_ptr == NULL){
-                bool_ptr = simple_type(BOOL_CHAR, false, false);
+                bool_ptr = simple_type(BOOL_CHAR, true, true);
         }
         return bool_ptr;
 }
@@ -96,6 +96,8 @@ const struct type* const return_type(const struct type *type){
                         return char_type();
                 case VOID_CHAR:
                         return void_type();
+                case BOOL_CHAR:
+                        return bool_type();
                 default:
                         return NULL;
         }
@@ -119,6 +121,9 @@ bool equals_arg_types(const struct type *args[MAX_PARAM_COUNT], size_t args_len,
                                 break;
                         case CHAR_CHAR:
                                 param_type = char_type();
+                                break;
+                        case BOOL_CHAR:
+                                param_type = bool_type();
                                 break;
                         default:
                                 return false;

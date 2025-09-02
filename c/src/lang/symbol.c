@@ -56,7 +56,6 @@ char * symbol_name(enum symbol s){
                 case SYMBOL_STMT: return "STMT";
                 case SYMBOL_SEMISTMT: return "SEMISTMT";
                 case SYMBOL_EXPR: return "EXPR";
-                case SYMBOL_COND: return "COND";
                 case SYMBOL_ANDCOND: return "ANDCOND";
                 case SYMBOL_ORCOND: return "ORCOND";
                 case SYMBOL_UNCOND: return "UNCOND";

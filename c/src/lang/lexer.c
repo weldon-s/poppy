@@ -81,10 +81,14 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
                 --ret.val_len;
                 ret.excess = val[ret.val_len];                        
         }
-        if ((ret.val_len == 4) && (strncmp(val, "char", 4) == 0)){
+        if ((ret.val_len == 4) && (strncmp(val, "bool", 4) == 0)){
+                ret.type = SYMBOL_BOOL;
+        } else if ((ret.val_len == 4) && (strncmp(val, "char", 4) == 0)){
                 ret.type = SYMBOL_CHAR;
         } else if ((ret.val_len == 4) && (strncmp(val, "else", 4) == 0)){
                 ret.type = SYMBOL_ELSE;
+        } else if ((ret.val_len == 5) && (strncmp(val, "false", 5) == 0)){
+                ret.type = SYMBOL_FALSE;
         } else if ((ret.val_len == 3) && (strncmp(val, "for", 3) == 0)){
                 ret.type = SYMBOL_FOR;
         } else if ((ret.val_len == 3) && (strncmp(val, "hop", 3) == 0)){
@@ -97,6 +101,8 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
                 ret.type = SYMBOL_LET;
         } else if ((ret.val_len == 5) && (strncmp(val, "munch", 5) == 0)){
                 ret.type = SYMBOL_MUNCH;
+        } else if ((ret.val_len == 4) && (strncmp(val, "true", 4) == 0)){
+                ret.type = SYMBOL_TRUE;
         } else if ((ret.val_len == 4) && (strncmp(val, "void", 4) == 0)){
                 ret.type = SYMBOL_VOID;
         } else if ((ret.val_len == 5) && (strncmp(val, "while", 3) == 0)){
