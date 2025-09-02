@@ -81,13 +81,13 @@ char *ge(char *op1, char *op2){
 }
 
 char *cnjtn(char *op1, char *op2){
-        return concat(3, comment("and start"), binop(op1, op2, and(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT)), comment("and end"));  
+        return binop(op1, op2, and(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
 }
 
 char *dsjtn(char *op1, char *op2){
-        return concat(3, comment("or start"), binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT)), comment("or end"));  
+        return binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
 
-        return binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));  
+        return binop(op1, op2, orr(REG_ARITH_RESULT, REG_SCRATCH, REG_ARITH_RESULT));
 }
 
 char *ngtn(char *op){

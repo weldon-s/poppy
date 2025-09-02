@@ -43,11 +43,11 @@ $$\begin{align*}
 \text{optelse} &\rightarrow \text{ELSE LBRACE stmts RBRACE}  \\
 \text{stmt} &\rightarrow \text{WHILE LPAREN expr RPAREN LBRACE stmts RBRACE}  \\
 \text{stmt} &\rightarrow \text{FOR LPAREN semistmt SEMICOLON expr SEMICOLON semistmt RPAREN LBRACE stmts RBRACE}  \\
-\text{expr} &\rightarrow \text{andcond}  \\
-\text{andcond} &\rightarrow \text{andcond AND orcond}  \\
-\text{andcond} &\rightarrow \text{orcond}  \\
-\text{orcond} &\rightarrow \text{orcond OR uncond}  \\
-\text{orcond} &\rightarrow \text{uncond}  \\
+\text{expr} &\rightarrow \text{orcond}  \\
+\text{orcond} &\rightarrow \text{orcond OR andcond}  \\
+\text{orcond} &\rightarrow \text{andcond}  \\
+\text{andcond} &\rightarrow \text{andcond AND uncond}  \\
+\text{andcond} &\rightarrow \text{uncond}  \\
 \text{uncond} &\rightarrow \text{NOT expr}  \\
 \text{uncond} &\rightarrow \text{LPAREN expr RPAREN}  \\
 \text{uncond} &\rightarrow \text{expr LT expr}  \\

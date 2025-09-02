@@ -67,11 +67,11 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_OPTELSE, {SYMBOL_ELSE COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
         populate(SYMBOL_STMT, {SYMBOL_WHILE COMMA SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
         populate(SYMBOL_STMT, {SYMBOL_FOR COMMA SYMBOL_LPAREN COMMA SYMBOL_SEMISTMT COMMA SYMBOL_SEMICOLON COMMA SYMBOL_EXPR COMMA SYMBOL_SEMICOLON COMMA SYMBOL_SEMISTMT COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
-        populate(SYMBOL_EXPR, {SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ANDCOND, {SYMBOL_ANDCOND COMMA SYMBOL_AND COMMA SYMBOL_ORCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ANDCOND, {SYMBOL_ORCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ORCOND, {SYMBOL_ORCOND COMMA SYMBOL_OR COMMA SYMBOL_UNCOND}, i, poppy_grammar); ++i;
-        populate(SYMBOL_ORCOND, {SYMBOL_UNCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_EXPR, {SYMBOL_ORCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ORCOND, {SYMBOL_ORCOND COMMA SYMBOL_OR COMMA SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ORCOND, {SYMBOL_ANDCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ANDCOND, {SYMBOL_ANDCOND COMMA SYMBOL_AND COMMA SYMBOL_UNCOND}, i, poppy_grammar); ++i;
+        populate(SYMBOL_ANDCOND, {SYMBOL_UNCOND}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_NOT COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_LPAREN COMMA SYMBOL_EXPR COMMA SYMBOL_RPAREN}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNCOND, {SYMBOL_EXPR COMMA SYMBOL_LT COMMA SYMBOL_EXPR}, i, poppy_grammar); ++i;

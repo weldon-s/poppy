@@ -379,16 +379,16 @@ const struct type * find_uncond_type(struct parse_tree *tree, struct OUTER_TYPE_
         return bool_type();                 
 }
 
-const struct type * find_orcond_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
-        verify_type(tree, SYMBOL_ORCOND);
+const struct type * find_andcond_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
+        verify_type(tree, SYMBOL_ANDCOND);
         if (tree->children->len == 1){
-                // orcond -> uncond
+                // andcond -> uncond
                 return find_uncond_type(tree->children->head->data, outer_map);
         }
 
-        // orcond -> orcond OR uncond
+        // andcond -> andcond OR uncond
         struct parse_tree *op1; load_child_at(op1, tree, 0);
-        const struct type *op1_type = find_orcond_type(op1, outer_map);
+        const struct type *op1_type = find_andcond_type(op1, outer_map);
         if ((op1_type == NULL) || !equals_type(op1_type, bool_type())){
                 return NULL;
         }
@@ -402,22 +402,22 @@ const struct type * find_orcond_type(struct parse_tree *tree, struct OUTER_TYPE_
         return bool_type();
 }
 
-const struct type * find_andcond_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
-        verify_type(tree, SYMBOL_ANDCOND);
+const struct type * find_orcond_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
+        verify_type(tree, SYMBOL_ORCOND);
         if (tree->children->len == 1){
-                // andcond -> orcond
-                return find_orcond_type(tree->children->head->data, outer_map);
+                // orcond -> andcond
+                return find_andcond_type(tree->children->head->data, outer_map);
         }
 
-        // andcond -> andcond AND orcond
+        // orcond -> orcond AND andcond
         struct parse_tree *op1; load_child_at(op1, tree, 0);
-        const struct type *op1_type = find_andcond_type(op1, outer_map);
+        const struct type *op1_type = find_orcond_type(op1, outer_map);
         if ((op1_type == NULL) || !equals_type(op1_type, bool_type())){
                 return NULL;
         }
 
         struct parse_tree *op2; load_child_at(op2, tree, 2);
-        const struct type *op2_type = find_orcond_type(op2, outer_map);
+        const struct type *op2_type = find_andcond_type(op2, outer_map);
         if ((op2_type == NULL) || !equals_type(op2_type, bool_type())){
                 return NULL;
         }
@@ -432,8 +432,8 @@ const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_TYPE_MA
                 return find_addexpr_type(tree->children->head->data, outer_map);
         }
 
-        // expr -> andcond
-        return find_andcond_type(tree->children->head->data, outer_map);
+        // expr -> orcond
+        return find_orcond_type(tree->children->head->data, outer_map);
 }
 
 const struct type * find_semistmt_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map, struct MAP(string, type) *scope_map){
