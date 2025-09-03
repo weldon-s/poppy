@@ -76,6 +76,7 @@ char * symbol_name(enum symbol s){
                 case SYMBOL_CHARLIT: return "CHARLIT";
                 case SYMBOL_CALL: return "CALL";
                 case SYMBOL_STRINGLIT: return "STRINGLIT";
+                case SYMBOL_ASM: return "asm";
         }
         return 0;
 }

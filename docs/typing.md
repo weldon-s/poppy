@@ -60,6 +60,8 @@ $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash E: \tau}{\Gamma \vdash 
 
 $$\frac{\Gamma \vdash b: \text{bool} \quad \Gamma \vdash a, c : \text{void}\quad \Gamma \vdash E: \tau}{\Gamma \vdash \text{for }(a;b;c)\{E\}: \tau}$$
 
+$$\Gamma\vdash \text{asm}(\text{STRINGLIT}):\text{void}$$
+
 ## Predicates
 $$\frac{\Gamma \vdash E_1:\tau \quad \Gamma \vdash E_2:\tau\quad \tau \in \{\text{int, char, bool}\}}{
     \Gamma \vdash E_1 == E_2 : \text{bool} \quad \Gamma \vdash E_1 \text{ != } E_2 : \text{bool}

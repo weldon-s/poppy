@@ -29,6 +29,7 @@ enum symbol {
         SYMBOL_ASSIGN,     // =
         SYMBOL_COMMA,      // ,
         SYMBOL_SEMICOLON,  // ;
+        SYMBOL_ASM,
         SYMBOL_BOOL,
         SYMBOL_CHAR,
         SYMBOL_ELSE,

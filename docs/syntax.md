@@ -29,6 +29,7 @@ $$\begin{align*}
 \text{stmts} &\rightarrow \text{stmt}  \\
 \text{stmts} &\rightarrow \text{stmt stmts}  \\
 \text{stmt} &\rightarrow \text{semistmt SEMICOLON}  \\
+\text{semistmt} &\rightarrow \text{ASM LPAREN STRINGLIT RPAREN}\\
 \text{semistmt} &\rightarrow \text{vardec}  \\
 \text{vardec} &\rightarrow \text{LET type IDENTIFIER ASSIGN expr}  \\
 \text{vardec} &\rightarrow \text{LET type IDENTIFIER}  \\

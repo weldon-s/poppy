@@ -77,7 +77,9 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
                 --ret.val_len;
                 ret.excess = val[ret.val_len];                        
         }
-        if ((ret.val_len == 4) && (strncmp(val, "bool", 4) == 0)){
+        if ((ret.val_len == 3) && (strncmp(val, "asm", 3) == 0)){
+                ret.type = SYMBOL_ASM;
+        } else if ((ret.val_len == 4) && (strncmp(val, "bool", 4) == 0)){
                 ret.type = SYMBOL_BOOL;
         } else if ((ret.val_len == 4) && (strncmp(val, "char", 4) == 0)){
                 ret.type = SYMBOL_CHAR;
