@@ -275,8 +275,8 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                         // unexpr -> CONSTANT
                         return int_type();
                 
-                case SYMBOL_SQUOTE:
-                        // unexpr -> SQUOTE CHARLIT SQUOTE
+                case SYMBOL_CHARLIT:
+                        // unexpr -> CHARLIT
                         return char_type();
                 default:
                         return NULL;

@@ -91,6 +91,6 @@ $$\frac{\Gamma \vdash E: \tau \quad \tau \in \{\text{int, char}\}}{\Gamma \vdash
 ## Literals
 
 $$\Gamma \vdash \text{CONSTANT}: \text{int}$$
-$$\Gamma \vdash \text{SQUOTE CHARLIT SQUOTE}: \text{char}$$
+$$\Gamma \vdash \text{CHARLIT}: \text{char}$$
 $$\Gamma \vdash \text{TRUE}: \text{bool}$$
 $$\Gamma \vdash \text{FALSE}: \text{bool}$$

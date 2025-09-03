@@ -267,8 +267,8 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         return movi(REG_ARITH_RESULT, imm);
                 }
 
-                if (first == SYMBOL_SQUOTE){
-                        char *data = tree->children->head->next->data->data.value;
+                if (first == SYMBOL_CHARLIT){
+                        char *data = tree->children->head->data->data.value;
                         long long imm = data[0];
                         return movi(REG_ARITH_RESULT, imm);
                 }

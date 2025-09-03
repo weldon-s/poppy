@@ -103,7 +103,7 @@ const struct grammar * const get_poppy_grammar(){
         populate(SYMBOL_UNEXPR, {SYMBOL_DEC COMMA SYMBOL_IDENTIFIER}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_IDENTIFIER}, i, poppy_grammar); ++i;
         populate(SYMBOL_UNEXPR, {SYMBOL_CONSTANT}, i, poppy_grammar); ++i;
-        populate(SYMBOL_UNEXPR, {SYMBOL_SQUOTE COMMA SYMBOL_CHARLIT COMMA SYMBOL_SQUOTE}, i, poppy_grammar); ++i;
+        populate(SYMBOL_UNEXPR, {SYMBOL_CHARLIT}, i, poppy_grammar); ++i;
 
         for (size_t i = 0; i < RULE_COUNT; ++i){
                 if (poppy_grammar->rules[i].rhs_len == 0){

@@ -79,6 +79,6 @@ $$\begin{align*}
 \text{unexpr} &\rightarrow \text{DEC IDENTIFIER} \\
 \text{unexpr} &\rightarrow \text{IDENTIFIER}  \\
 \text{unexpr} &\rightarrow \text{CONSTANT}  \\
-\text{unexpr} &\rightarrow \text{SQUOTE CHARLIT SQUOTE}
+\text{unexpr} &\rightarrow \text{CHARLIT}
 \end{align*}
 $$

@@ -69,6 +69,13 @@ char * symbol_name(enum symbol s){
                 case SYMBOL_VARASST: return "VARASST";
                 case SYMBOL_RET: return "RET";
                 case SYMBOL_COUNT: return "COUNT";
-                default: return 0;
+                case SYMBOL_BOOL: return "bool";
+                case SYMBOL_CHAR: return "char";
+                case SYMBOL_FALSE: return "false";
+                case SYMBOL_TRUE: return "true";
+                case SYMBOL_CHARLIT: return "CHARLIT";
+                case SYMBOL_CALL: return "CALL";
+                case SYMBOL_STRINGLIT: return "STRINGLIT";
         }
+        return 0;
 }
