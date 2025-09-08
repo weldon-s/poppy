@@ -85,8 +85,17 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
 
                 return concat(2, first_stmt, generate_from_tree(tree->children->head->next->data, functions, within, builtins));
         } else if (symbol == SYMBOL_STMT){
-                enum symbol child_symbol = tree->children->head->data->data.type;
+                struct parse_tree *child = tree->children->head->data;
+                enum symbol child_symbol = child->data.type;
                 if (child_symbol == SYMBOL_SEMISTMT){
+                        enum symbol grandchild_symbol = child->children->head->data->data.type;
+                        if (grandchild_symbol == SYMBOL_ASM){
+                                char *instr = child->children->head->next->next->data->data.value;
+                                char *ret = (char*) malloc((strlen(instr) + 1) * sizeof(char));
+                                strcpy(ret, instr);
+                                return ret;
+                        }
+
                         return generate_from_tree(tree->children->head->data, functions, within, builtins);
                 } else if (child_symbol == SYMBOL_IF){
                         struct parse_tree *cond; load_child_at(cond, tree, 2);
@@ -267,8 +276,8 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         return movi(REG_ARITH_RESULT, imm);
                 }
 
-                if (first == SYMBOL_SQUOTE){
-                        char *data = tree->children->head->next->data->data.value;
+                if (first == SYMBOL_CHARLIT){
+                        char *data = tree->children->head->data->data.value;
                         long long imm = data[0];
                         return movi(REG_ARITH_RESULT, imm);
                 }

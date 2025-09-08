@@ -5,11 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NO_CHARLIT 0
-#define OPENED_CHARLIT 1
-#define UNCLOSED_CHARLIT 2
-
-#define MAX_TOKEN_LENGTH 128
+#define MAX_TOKEN_LENGTH 127
 
 bool is_numeric(char c){
         return (c >= '0') && (c <= '9');
@@ -81,7 +77,9 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
                 --ret.val_len;
                 ret.excess = val[ret.val_len];                        
         }
-        if ((ret.val_len == 4) && (strncmp(val, "bool", 4) == 0)){
+        if ((ret.val_len == 3) && (strncmp(val, "asm", 3) == 0)){
+                ret.type = SYMBOL_ASM;
+        } else if ((ret.val_len == 4) && (strncmp(val, "bool", 4) == 0)){
                 ret.type = SYMBOL_BOOL;
         } else if ((ret.val_len == 4) && (strncmp(val, "char", 4) == 0)){
                 ret.type = SYMBOL_CHAR;
@@ -113,54 +111,105 @@ struct lex_data find_alphanumeric_value (FILE* file, char *val){
 
         return ret;
 }
+
+bool lex_single_char(FILE *file, char *chr, bool *escaped){
+        // precondition: !feof(file)
+        if (escaped){
+                *escaped = false;
+        }
+
+        *chr = fgetc(file);
+
+        if (*chr == '\\'){
+                if (feof(file)){
+                        return false;
+                }
+
+                if (escaped){
+                        *escaped = true;
+                }
+
+                switch(fgetc(file)){
+                        case 'a':
+                                *chr = '\a';
+                                return true;
+                        case 'b':
+                                *chr = '\b';
+                                return true;
+                        case 'f':
+                                *chr = '\f';
+                                return true;
+                        case 'n':
+                                *chr = '\n';
+                                return true;
+                        case 'r':
+                                *chr = '\r';
+                                return true;
+                        case 't':
+                                *chr = '\t';
+                                return true;
+                        case 'v':
+                                *chr = '\v';
+                                return true;
+                        case '\\':
+                                *chr = '\\';
+                                return true;
+                        case '\'':
+                                *chr = '\'';
+                                return true;
+                        case '\"':
+                                *chr = '\"';
+                                return true;
+                        default:
+                                return false;
+                }
+        }
+
+        return true;
+}
+
 /*
 match escape sequences to the chars they escape by editing val[0]
 return true if the lex is still valid
 */
 bool lex_char_literal(FILE *file, char val[MAX_TOKEN_LENGTH + 1]){
-        if (val[0] != '\\'){
-                return true;
-        }
-
+        // ensure we have char after opening single quote
         if (feof(file)){
                 return false;
         }
 
-        switch(fgetc(file)){
-                case 'a':
-                        val[0] = '\a';
-                        break;
-                case 'b':
-                        val[0] = '\b';
-                        break;
-                case 'f':
-                        val[0] = '\f';
-                        break;
-                case 'n':
-                        val[0] = '\n';
-                        break;
-                case 'r':
-                        val[0] = '\r';
-                        break;
-                case 't':
-                        val[0] = '\t';
-                        break;
-                case 'v':
-                        val[0] = '\v';
-                        break;
-                case '\\':
-                        val[0] = '\\';
-                        break;
-                case '\'':
-                        val[0] = '\'';
-                        break;
-                case '\"':
-                        val[0] = '\"';
-                        break;
-                default:
-                        return false;
+        // ensure any escape sequences are valid
+        if (!lex_single_char(file, val, NULL)){
+                return false;
         }
 
+        // ensure we have a closing quote
+        if (feof(file) || (fgetc(file) != '\'')){
+                return false;
+        }
+
+        return true;
+}
+
+bool lex_string_literal(FILE *file, char val[MAX_TOKEN_LENGTH + 1]){
+        // ensure we have char after opening single quote
+        if (feof(file)){
+                return false;
+        }
+        
+        size_t i = 0;
+        bool escaped;
+        do {
+                if (!lex_single_char(file, val + i, &escaped)){
+                        return false;
+                }
+                ++i;
+        } while (((val[i - 1] != '\"') || escaped) && (i - 1 <= MAX_TOKEN_LENGTH));
+        if (i - 1 > MAX_TOKEN_LENGTH){
+                return false;
+        }
+
+        val[i - 1] = 0;
         return true;
 }
 
@@ -169,7 +218,6 @@ struct LIST(token)* lex(FILE *file){
         val[0] = 0;
         struct LIST(token) *list = (struct LIST(token)*) malloc(sizeof(struct LIST(token)));
         init_list(list);
-        int charlit_status = NO_CHARLIT;
 
         while (!feof(file)){
                 if (val[0] == 0){
@@ -180,112 +228,105 @@ struct LIST(token)* lex(FILE *file){
                 data.type = SYMBOL_NULL;
                 data.excess = 0;
 
-                if (charlit_status == OPENED_CHARLIT){
-                        data.type = SYMBOL_CHARLIT;
-                        data.val_len = 1;
-                        if (!lex_char_literal(file, val)){
-                                free_list(list, free_token, token);
-                                free(list);
-                                return NULL;
-                        }
-                } else {
-                        if (isspace(val[0])){
-                                val[0] = 0;
-                                continue;
-                        }
-
-                        switch (val[0]){
-                                case -1:
-                                        data.type = SYMBOL_END;
-                                        data.val_len = 0;
-                                        break;
-                                case '(':
-                                        data.type = SYMBOL_LPAREN;
-                                        data.val_len = 1;
-                                        break;
-                                case ')':
-                                        data.type = SYMBOL_RPAREN;
-                                        data.val_len = 1;
-                                        break;
-                                case '{':
-                                        data.type = SYMBOL_LBRACE;
-                                        data.val_len = 1;
-                                        break;
-                                case '}':
-                                        data.type = SYMBOL_RBRACE;
-                                        data.val_len = 1;
-                                        break;
-                                case '*':
-                                        data.type = SYMBOL_TIMES;
-                                        data.val_len = 1;
-                                        break;
-                                case '/':
-                                        data.type = SYMBOL_DIVIDE;
-                                        data.val_len = 1;
-                                        break;
-                                case '%':
-                                        data.type = SYMBOL_MOD;
-                                        data.val_len = 1;
-                                        break;
-                                case ',':
-                                        data.type = SYMBOL_COMMA;
-                                        data.val_len = 1;
-                                        break;
-                                case ';':
-                                        data.type = SYMBOL_SEMICOLON;
-                                        data.val_len = 1;
-                                        break;
-                                case '\'':
-                                        data.type = SYMBOL_SQUOTE;
-                                        data.val_len = 1;
-                                        if (charlit_status == NO_CHARLIT){
-                                                charlit_status = OPENED_CHARLIT;
-                                        } else if (charlit_status == UNCLOSED_CHARLIT){
-                                                charlit_status = NO_CHARLIT;
-                                        }
-                                        break;
-                                case '+':
-                                        data = find_prefixed_type(file, '+', SYMBOL_PLUS, SYMBOL_INC, val);
-                                        break;
-                                case '-':
-                                        data = find_prefixed_type(file, '-', SYMBOL_MINUS, SYMBOL_DEC, val);
-                                        break;
-                                case '&':
-                                        data = find_prefixed_type(file, '&', SYMBOL_NULL, SYMBOL_AND, val);
-                                        break;                        
-                                case '|':
-                                        data = find_prefixed_type(file, '|', SYMBOL_NULL, SYMBOL_OR, val);
-                                        break;   
-                                case '!':
-                                        data = find_prefixed_type(file, '=', SYMBOL_NOT, SYMBOL_NE, val);
-                                        break;      
-                                case '>':
-                                        data = find_prefixed_type(file, '=', SYMBOL_GT, SYMBOL_GE, val);
-                                        break;      
-                                case '<':
-                                        data = find_prefixed_type(file, '=', SYMBOL_LT, SYMBOL_LE, val);
-                                        break;
-                                case '=':
-                                        data = find_prefixed_type(file, '=', SYMBOL_ASSIGN, SYMBOL_EQ, val);
-                                        break; 
-                                default:
-                                        if (is_alphabetic(val[0])){
-                                                data = find_alphanumeric_value(file, val);
-                                        } else if (is_numeric(val[0])){
-                                                data = find_numeric_value(file, val);
-                                        }
-                        }
-
+                if (isspace(val[0])){
+                        val[0] = 0;
+                        continue;
                 }
 
-                if ((data.type == SYMBOL_NULL) || (charlit_status == UNCLOSED_CHARLIT)){
+                switch (val[0]){
+                        case -1:
+                                data.type = SYMBOL_END;
+                                data.val_len = 0;
+                                break;
+                        case '(':
+                                data.type = SYMBOL_LPAREN;
+                                data.val_len = 1;
+                                break;
+                        case ')':
+                                data.type = SYMBOL_RPAREN;
+                                data.val_len = 1;
+                                break;
+                        case '{':
+                                data.type = SYMBOL_LBRACE;
+                                data.val_len = 1;
+                                break;
+                        case '}':
+                                data.type = SYMBOL_RBRACE;
+                                data.val_len = 1;
+                                break;
+                        case '*':
+                                data.type = SYMBOL_TIMES;
+                                data.val_len = 1;
+                                break;
+                        case '/':
+                                data.type = SYMBOL_DIVIDE;
+                                data.val_len = 1;
+                                break;
+                        case '%':
+                                data.type = SYMBOL_MOD;
+                                data.val_len = 1;
+                                break;
+                        case ',':
+                                data.type = SYMBOL_COMMA;
+                                data.val_len = 1;
+                                break;
+                        case ';':
+                                data.type = SYMBOL_SEMICOLON;
+                                data.val_len = 1;
+                                break;
+                        case '\'':
+                                data.val_len = 1;
+                                if(lex_char_literal(file, val)){
+                                        data.type = SYMBOL_CHARLIT;
+                                } else {
+                                        data.type = SYMBOL_NULL;
+                                }
+                                break;
+                        case '\"':
+                                if (lex_string_literal(file, val)){
+                                        data.type = SYMBOL_STRINGLIT;
+                                        data.val_len = strlen(val);
+                                } else {
+                                        data.type = SYMBOL_NULL;
+                                }
+                                break;
+                        case '+':
+                                data = find_prefixed_type(file, '+', SYMBOL_PLUS, SYMBOL_INC, val);
+                                break;
+                        case '-':
+                                data = find_prefixed_type(file, '-', SYMBOL_MINUS, SYMBOL_DEC, val);
+                                break;
+                        case '&':
+                                data = find_prefixed_type(file, '&', SYMBOL_NULL, SYMBOL_AND, val);
+                                break;                        
+                        case '|':
+                                data = find_prefixed_type(file, '|', SYMBOL_NULL, SYMBOL_OR, val);
+                                break;   
+                        case '!':
+                                data = find_prefixed_type(file, '=', SYMBOL_NOT, SYMBOL_NE, val);
+                                break;      
+                        case '>':
+                                data = find_prefixed_type(file, '=', SYMBOL_GT, SYMBOL_GE, val);
+                                break;      
+                        case '<':
+                                data = find_prefixed_type(file, '=', SYMBOL_LT, SYMBOL_LE, val);
+                                break;
+                        case '=':
+                                data = find_prefixed_type(file, '=', SYMBOL_ASSIGN, SYMBOL_EQ, val);
+                                break; 
+                        default:
+                                if (is_alphabetic(val[0])){
+                                        data = find_alphanumeric_value(file, val);
+                                } else if (is_numeric(val[0])){
+                                        data = find_numeric_value(file, val);
+                                }
+                }
+
+
+                if (data.type == SYMBOL_NULL){
                         free_list(list, free_token, token);
                         free(list);
                         return NULL;
-                }
-
-                if ((charlit_status == OPENED_CHARLIT) && (data.type != SYMBOL_SQUOTE)){
-                        charlit_status = UNCLOSED_CHARLIT;
                 }
 
                 struct token *new_token = (struct token*) malloc(sizeof(struct token));
@@ -298,12 +339,6 @@ struct LIST(token)* lex(FILE *file){
 
                 val[0] = data.excess;
                 data.excess = 0;
-        }
-
-        if (charlit_status != NO_CHARLIT){
-                free_list(list, free_token, token);
-                free(list);
-                return NULL;
         }
 
         return list;

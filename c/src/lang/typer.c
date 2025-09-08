@@ -275,8 +275,8 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                         // unexpr -> CONSTANT
                         return int_type();
                 
-                case SYMBOL_SQUOTE:
-                        // unexpr -> SQUOTE CHARLIT SQUOTE
+                case SYMBOL_CHARLIT:
+                        // unexpr -> CHARLIT
                         return char_type();
                 default:
                         return NULL;
@@ -442,6 +442,9 @@ const struct type * find_semistmt_type(struct parse_tree *tree, struct OUTER_TYP
         verify_type(tree, SYMBOL_SEMISTMT);
         struct parse_tree *child = tree->children->head->data;
         switch (child->data.type){
+                case SYMBOL_ASM:
+                        // semistmt -> ASM LPAREN STRINGLIT RPAREN
+                        return void_type();
                 case SYMBOL_VARDEC:
                         // semistmt -> vardec
                         return find_vardec_type(child, outer_map, scope_map);
@@ -453,7 +456,7 @@ const struct type * find_semistmt_type(struct parse_tree *tree, struct OUTER_TYP
                         return find_ret_type(child, outer_map);
                 case SYMBOL_EXPR:
                         // semistmt -> expr
-                        return find_expr_type(child, outer_map);
+                        return find_expr_type(child, outer_map) ? void_type() : NULL;
                 default:
                         return NULL;
         }
