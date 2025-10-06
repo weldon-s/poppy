@@ -39,7 +39,6 @@ enum symbol {
         SYMBOL_IF,
         SYMBOL_INT,
         SYMBOL_LET,
-        SYMBOL_MUNCH,
         SYMBOL_TRUE,
         SYMBOL_VOID,
         SYMBOL_WHILE,
@@ -50,9 +49,6 @@ enum symbol {
         SYMBOL_END,         // end of input
         // non-terminal symbols
         SYMBOL_PROGRAM,
-        SYMBOL_OPTINCLUDES,
-        SYMBOL_INCLUDES,
-        SYMBOL_INCLUDE,
         SYMBOL_DEFNS,
         SYMBOL_DEFN,
         SYMBOL_TYPE,

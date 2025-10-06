@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "codegen/assem.h"
 #include "codegen/program.h"
-#include "codegen/register.h"
 #include "data/list.h"
-#include "lang/builtin.h"
 #include "lang/lexer.h"
 #include "lang/parser.h"
 #include "lang/poppy_grammar.h"
@@ -88,7 +85,6 @@ int main(int argc, char *argv[]){
         }
 
         free_types();
-        // free_builtins();
 
         return 0;
 }
