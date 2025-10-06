@@ -1,0 +1,23 @@
+void poppyio_include(){
+    asm(".include \"poppyio.s\"");
+}
+
+void print(int n){
+    n;
+    asm("mov x1, x10");
+    asm("str lr, [sp, #-16]!");
+    asm("bl print_num");
+    asm("ldr lr, [sp], #16");
+}
+
+void printc(char c){
+    c;
+    asm("mov x1, x10");
+    asm("str lr, [sp, #-16]!");
+    asm("bl print_char");
+    asm("ldr lr, [sp], #16");
+}
+
+void println(){
+    printc('\n');
+}

@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "data/map.h"
-#include "lang/builtin.h"
 #include "lang/type.h"
 
 #define OUTER_TYPE_MAP_ENTRY parse_tree_string_type_map_map_entry
@@ -525,7 +524,7 @@ const struct type * find_for_type(struct parse_tree *tree, struct OUTER_TYPE_MAP
 
         struct parse_tree *post; load_child_at(post, tree, 6);
         const struct type *post_type = find_semistmt_type(post, outer_map, scope_map);
-        if ((post_type == NULL)){
+        if (post_type == NULL){
                 return NULL;
         }
 
@@ -581,16 +580,8 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
         init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, MAP(string, type));
         update_map(outer_map, tree, inner_map, parse_tree, MAP(string, type));
 
-        struct LIST(builtin) *builtins = get_builtins(get_module_names(tree->children->head->data));
-
-        for(struct LIST_NODE(builtin) *node = builtins->head; node != NULL; node = node->next){
-                struct string *id = (struct string*) malloc(sizeof(struct string));
-                id->data = node->data->name;
-                update_map(inner_map, id, node->data->type, string, type);
-        }
-
-        // program -> optincludes defns END
-        struct parse_tree *defns; load_child_at(defns, tree, 1);
+        // program -> defns END
+        struct parse_tree *defns = tree->children->head->data;
 
         while (1) {
                 // defns -> defn defns
@@ -613,7 +604,7 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                 }
         }
         
-        load_child_at(defns, tree, 1);
+        defns = tree->children->head->data;
         while (1) {
                 // defns -> defn defns
                 // defns -> defn
@@ -631,7 +622,6 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                 if ((stmts_type == NULL) || (ftype == NULL) || !equals_type(stmts_type, return_type(ftype))){
                         free_map(outer_map, parse_tree, MAP(string, type));
                         free(outer_map);
-                        free_builtins(builtins);
                         return NULL;
                 }
 
@@ -641,8 +631,6 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
                         break;
                 }
         }
-
-        free_builtins(builtins);
 
         return outer_map;
 }
@@ -680,37 +668,5 @@ struct LIST(string) get_parameters(const struct parse_tree *tree, const struct O
         for (struct string_type_map_entry_list_node *map_node = inner_map->list->head; map_node != NULL; map_node = map_node->next){
                 append_list((&list), (struct string*) map_node->data->key, string);
         }
-        return list;
-}
-
-struct LIST(string) get_module_names(const struct parse_tree *tree){
-        struct LIST(string) list;
-        init_list((&list));
-        // optincludes ->
-        if ((tree->children == NULL) || (tree->children->len == 0)){
-                return list;
-        }
-
-        // optincludes -> includes
-        struct parse_tree *includes = tree->children->head->data;
-
-        while (1) {
-                // includes -> include includes
-                // includes -> include
-                struct parse_tree *incl = includes->children->head->data;
-
-                // include -> MUNCH IDENTIFIER
-                char *id = incl->children->head->next->data->data.value;
-                struct string *s = (struct string*) malloc(sizeof(struct string));
-                s->data = id;
-                append_list((&list), s, string);
-
-                if (includes->children->len == 2){
-                        load_child_at(includes, includes, 1);
-                } else {
-                        break;
-                }
-        };
-
         return list;
 }

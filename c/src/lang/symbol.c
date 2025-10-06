@@ -36,16 +36,12 @@ char * symbol_name(enum symbol s){
                 case SYMBOL_IF: return "if";
                 case SYMBOL_INT: return "int";
                 case SYMBOL_LET: return "let";
-                case SYMBOL_MUNCH: return "munch";
                 case SYMBOL_VOID: return "void";
                 case SYMBOL_WHILE: return "while";
                 case SYMBOL_IDENTIFIER: return "ID";
                 case SYMBOL_CONSTANT: return "CONST";
                 case SYMBOL_END: return "END";
                 case SYMBOL_PROGRAM: return "PROGRAM";
-                case SYMBOL_OPTINCLUDES: return "OPTINCLUDES";
-                case SYMBOL_INCLUDES: return "INCLUDES";
-                case SYMBOL_INCLUDE: return "INCLUDE";
                 case SYMBOL_DEFNS: return "DEFNS";
                 case SYMBOL_DEFN: return "DEFN";
                 case SYMBOL_TYPE: return "TYPE";

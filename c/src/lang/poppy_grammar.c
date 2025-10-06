@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define RULE_COUNT 73
+#define RULE_COUNT 68
 #define COMMA ,
 #define populate(lh_symbol, rh_symbols, ctr, grmr)                               \
         do {                                                                     \
@@ -32,12 +32,7 @@ const struct grammar * const get_poppy_grammar(){
         poppy_grammar->rules = (struct rule*) malloc(RULE_COUNT * sizeof(struct rule));
 
         int i = 0;
-        populate(SYMBOL_PROGRAM, {SYMBOL_OPTINCLUDES COMMA SYMBOL_DEFNS COMMA SYMBOL_END}, i, poppy_grammar); ++i;
-        populate(SYMBOL_OPTINCLUDES, {SYMBOL_INCLUDES},i, poppy_grammar); ++i;
-        populate(SYMBOL_OPTINCLUDES, {}, i, poppy_grammar); ++i;
-        populate(SYMBOL_INCLUDES, {SYMBOL_INCLUDE COMMA SYMBOL_INCLUDES}, i, poppy_grammar); ++i;
-        populate(SYMBOL_INCLUDES, {SYMBOL_INCLUDE}, i, poppy_grammar); ++i;
-        populate(SYMBOL_INCLUDE, {SYMBOL_MUNCH COMMA SYMBOL_IDENTIFIER}, i, poppy_grammar); ++i;
+        populate(SYMBOL_PROGRAM, {SYMBOL_DEFNS COMMA SYMBOL_END}, i, poppy_grammar); ++i;
         populate(SYMBOL_DEFNS, {SYMBOL_DEFN}, i, poppy_grammar); ++i;
         populate(SYMBOL_DEFNS, {SYMBOL_DEFN COMMA SYMBOL_DEFNS}, i, poppy_grammar); ++i;
         populate(SYMBOL_DEFN, {SYMBOL_TYPE COMMA SYMBOL_IDENTIFIER COMMA SYMBOL_LPAREN COMMA SYMBOL_OPTPARAMS COMMA SYMBOL_RPAREN COMMA SYMBOL_LBRACE COMMA SYMBOL_STMTS COMMA SYMBOL_RBRACE}, i, poppy_grammar); ++i;
