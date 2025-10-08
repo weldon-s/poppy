@@ -30,3 +30,20 @@ char scanc(){
     asm("str x0, [fp, #8]");
     hop c;
 }
+
+bool isdigit(char c){
+    hop c >= '0' && c <= '9';
+}
+
+int scan(){ 
+    !!- this should eventually be in assembly once we do more string manip/dealing directly with the buffer :,)
+    let int total = 0;
+    let char c = scanc();
+
+    while (isdigit(c)){
+        let int digit_value = 0 + c - '0';
+        total = total * 10 + digit_value;
+        c = scanc();
+    }
+    hop total;
+}
