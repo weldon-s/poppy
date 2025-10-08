@@ -27,8 +27,8 @@ char scanc(){
     asm("str lr, [sp, #-16]!");
     asm("bl read_char");
     asm("ldr lr, [sp], #16");
-    asm("str x0, [fp, #8]");
-    hop c;
+    asm("mov x10, x0");
+    hop char;
 }
 
 bool isdigit(char c){
@@ -36,6 +36,7 @@ bool isdigit(char c){
 }
 
 int scan(){ 
+    !!- this should eventually be implemented in assembly once we do more work with string/buffer manip :,)
     let char c = scanc();
     let int sign = 1;
     
