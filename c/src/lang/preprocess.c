@@ -1,5 +1,6 @@
 #include "lang/preprocess.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -29,8 +30,19 @@ void preprocess(char *in_name, char *out_name){
 
                                 fclose(module);
                         }
+                        else {
+                                // invalid preprocessor directive
+                                assert(0);
+                        }
                 }
                 else {
+                        // check if comment present in line
+                        char *pos = strstr(line, "!!-");
+                        if (pos){
+                                // if one is, then ignore comment text by null-terminating whe comment starts
+                                *pos = 0;
+                        }
+
                         fputs(line, out);
                 }
         }
