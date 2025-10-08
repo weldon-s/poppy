@@ -36,7 +36,6 @@ bool isdigit(char c){
 }
 
 int scan(){ 
-    !!- this should eventually be in assembly once we do more string manip/dealing directly with the buffer :,)
     let int total = 0;
     let char c = scanc();
 

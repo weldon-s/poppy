@@ -126,8 +126,13 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                         return hop(within);
                 }
 
-                struct parse_tree *expr; load_child_at(expr, tree, 1);
-                char *expr_code = generate_from_tree(expr, functions, within);
+                struct parse_tree *second; load_child_at(second, tree, 1);
+
+                if (second->data.type == SYMBOL_TYPE){
+                        return NULL;
+                }
+                
+                char *expr_code = generate_from_tree(second, functions, within);
                 return concat(2, expr_code, hop(within));
         } else if (symbol == SYMBOL_ANDCOND){
                 if (tree->children->len == 1){
