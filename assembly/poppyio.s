@@ -1,5 +1,7 @@
 .text
 .include "print_num.s"
+.include "read_char.s"
+
 print_line:
     stp     lr, x0, [sp, #-16]!
     stp     x1, x2, [sp, #-16]!

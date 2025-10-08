@@ -21,3 +21,12 @@ void printc(char c){
 void println(){
     printc('\n');
 }
+
+char scanc(){
+    let char c;
+    asm("str lr, [sp, #-16]!");
+    asm("bl read_char");
+    asm("ldr lr, [sp], #16");
+    asm("str x0, [fp, #8]");
+    hop c;
+}
