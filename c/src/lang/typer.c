@@ -273,7 +273,7 @@ const struct type * find_unexpr_type(struct parse_tree *tree, struct OUTER_TYPE_
                         return find_symbol_type(head, outer_map);
                 case SYMBOL_CALL:
                         // unexpr -> call
-                        return find_call_type(tree, outer_map);
+                        return find_call_type(head, outer_map);
 
                 case SYMBOL_CONSTANT:
                         // unexpr -> CONSTANT
