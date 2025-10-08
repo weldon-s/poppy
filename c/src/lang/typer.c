@@ -199,9 +199,14 @@ const struct type * find_ret_type(struct parse_tree *tree, struct OUTER_TYPE_MAP
                 return void_type();
         }
 
+        struct parse_tree *second; load_child_at(second, tree, 1);
+        if (second->data.type == SYMBOL_TYPE){
+                // ret -> HOP type
+                return find_type_type(second);
+        }
+
         // ret -> HOP expr
-        struct parse_tree *expr; load_child_at(expr, tree, 1);
-        return find_expr_type(expr, outer_map);
+        return find_expr_type(second, outer_map);
 }
 
 const struct type * find_call_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map){
