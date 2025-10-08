@@ -129,7 +129,9 @@ char *generate_from_tree(struct parse_tree *tree, struct MAP(string, function) *
                 struct parse_tree *second; load_child_at(second, tree, 1);
 
                 if (second->data.type == SYMBOL_TYPE){
-                        return NULL;
+                        char *ret = (char*) malloc(sizeof(char));
+                        *ret = 0;
+                        return ret;
                 }
                 
                 char *expr_code = generate_from_tree(second, functions, within);
