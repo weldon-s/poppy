@@ -8,7 +8,7 @@
 #include "lang/poppy_grammar.h"
 #include "lang/preprocess.h"
 #include "lang/type.h"
-#include "lang/typer.h"
+#include "lang/type_checker.h"
 
 char *intermediate_file = "inter.prog";
 
@@ -61,9 +61,7 @@ int main(int argc, char *argv[]){
         free_parse_tree(pt);
 
         if (types != NULL){
-                printf("freeing types\n");
                 free_map(types, parse_tree, LIST(symbol_table_entry));
-                printf("freeing types\n");
                 free((void*) types);
         }
 

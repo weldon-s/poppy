@@ -1,4 +1,4 @@
-#include "lang/typer.h"
+#include "lang/type_checker.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -34,11 +34,6 @@ bool equals_string(const struct string *s1, const struct string *s2) {
         return strcmp(s1->data, s2->data) == 0;
 }
 
-// void free_string_entry(const struct MAP_ENTRY(string, type) *entry){
-//         free((void *) entry->key);
-//         free((void *) entry);
-// }
-
 bool equals_parse_tree(const struct parse_tree *pt1, const struct parse_tree *pt2){
         return pt1 == pt2;
 }
@@ -47,7 +42,7 @@ void free_symbol_table_entry(const struct symbol_table_entry *entry){
         free((void*) entry);
 }
 
-void free_typer_entry(const struct OUTER_TYPE_MAP_ENTRY *entry){
+void free_type_checker_entry(const struct OUTER_TYPE_MAP_ENTRY *entry){
         free_list(entry->value, free_symbol_table_entry, symbol_table_entry);
         free((void *) entry->value);
         free((void *) entry);
@@ -58,12 +53,6 @@ struct LIST(symbol_table_entry) * new_inner_table() {
         init_list(ptr);
         return ptr;
 }
-
-// struct LIST(symbol_table_entry) * new_inner_map() {
-//         struct LIST(symbol_table_entry) *ptr = (struct LIST(symbol_table_entry)*) malloc(sizeof(struct LIST(symbol_table_entry)));
-//         init_map(ptr, equals_string, free_string_entry, string, type);
-//         return ptr;
-// }
 
 const struct type * find_stmts_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map, struct LIST(symbol_table_entry) *scope_map);
 const struct type * find_expr_type(struct parse_tree *tree, struct OUTER_TYPE_MAP *outer_map);
@@ -597,7 +586,7 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
         struct OUTER_TYPE_MAP *outer_map = (struct OUTER_TYPE_MAP*) malloc(sizeof (struct OUTER_TYPE_MAP));
         
         struct LIST(symbol_table_entry) *inner_map = new_inner_table();
-        init_map(outer_map, equals_parse_tree, free_typer_entry, parse_tree, LIST(symbol_table_entry));
+        init_map(outer_map, equals_parse_tree, free_type_checker_entry, parse_tree, LIST(symbol_table_entry));
         update_map(outer_map, tree, inner_map, parse_tree, LIST(symbol_table_entry));
 
         // program -> defns END
@@ -633,7 +622,6 @@ struct OUTER_TYPE_MAP * find_types(const struct parse_tree *tree){
 
                 struct LIST(symbol_table_entry) *stmts_map = new_inner_table(); 
                 update_map(outer_map, stmts, stmts_map, parse_tree, LIST(symbol_table_entry));
-                // cast to non-const here because map assumes we can't modify values
                 const struct type *stmts_type = find_stmts_type(stmts, outer_map, stmts_map);
                 const struct type *ftype = find_symbol_type(defn->children->head->next->data, outer_map);
 
