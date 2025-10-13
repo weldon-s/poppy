@@ -9,6 +9,28 @@
 #define BOOL_CHAR 'b'
 #define CHAR_CHAR 'c'
 
+enum category {
+    CATEGORY_PRIMITIVE,
+    CATEGORY_FUNCTION,
+    CATEGORY_ARRAY
+};
+
+struct type {
+    enum category category;
+    union{
+        struct {char repr;}; // primitive
+        struct {
+            struct type **params;
+            size_t params_len;
+            const struct type *ret_type;
+        }; // function
+        struct {
+                const struct type *elem_type;
+                size_t len;
+        }; // array
+    };
+};
+
 DEFINE_LIST(type);
 
 struct LIST(type) types;
@@ -93,6 +115,35 @@ const struct type* const function_type(const struct type *ret, const struct type
         return new;
 }
 
+const struct type* const array_type(const struct type *elem_type, size_t len){
+        if (!is_assignable(elem_type)){
+                return NULL;
+        }
+
+        struct type *array = (struct type*) malloc(sizeof(struct type));
+        array->category = CATEGORY_ARRAY;
+        array->elem_type = elem_type;
+        array->len = len;
+        add_type(array);
+        return array;
+}
+
+size_t size_words(const struct type *type){
+        if (!is_assignable(type)){
+                return 0;
+        }
+
+        if (type->category == CATEGORY_PRIMITIVE){
+                return 1;
+        }
+
+        else if (type->category == CATEGORY_ARRAY){
+                return size_words(type->elem_type) * type->len;
+        }
+
+        return 0;
+}
+
 const struct type* const return_type(const struct type *type){
         if (type->category == CATEGORY_FUNCTION){
                 return type->ret_type;
@@ -146,7 +197,7 @@ bool is_numeric(const struct type *type){
 }
 
 bool is_assignable(const struct type *type){
-        return is_numeric(type) || ((type->category == CATEGORY_PRIMITIVE) && (type->repr == BOOL_CHAR));
+        return is_numeric(type) || ((type->category == CATEGORY_PRIMITIVE) && (type->repr == BOOL_CHAR)) || (type->category == CATEGORY_ARRAY);
 }
 
 bool is_returnable(const struct type *type){

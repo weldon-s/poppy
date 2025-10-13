@@ -323,24 +323,24 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 // defns -> defn
                 struct parse_tree *defn = defns->children->head->data;
 
-                struct LIST(string) params_list = get_parameters(defn, type_map);
-                struct LIST(string) locals_list = get_local_variables(defn, type_map);
+                struct LIST(symbol_table_entry) params_list = get_parameters(defn, type_map);
+                struct LIST(symbol_table_entry) locals_list = get_local_variables(defn, type_map);
 
-                for (struct LIST_NODE(string) *l_node = locals_list.head; l_node != NULL; l_node = l_node->next){
-                        for (struct LIST_NODE(string) *successor = l_node->next; successor != NULL; successor = successor->next){
-                                if (strcmp(l_node->data->data, successor->data->data) == 0){
+                for (struct LIST_NODE(symbol_table_entry) *l_node = locals_list.head; l_node != NULL; l_node = l_node->next){
+                        for (struct LIST_NODE(symbol_table_entry) *successor = l_node->next; successor != NULL; successor = successor->next){
+                                if (strcmp(l_node->data->name, successor->data->name) == 0){
                                         free_map((&functions), string, function);
-                                        free_list((&params_list), free_string, string);
-                                        free_list((&locals_list), free_string, string);
+                                        free_list((&params_list), free_symbol_table_entry, symbol_table_entry);
+                                        free_list((&locals_list), free_symbol_table_entry, symbol_table_entry);
                                         return NULL;
                                 }
                         }
 
-                        for (struct LIST_NODE(string) *p_node = params_list.head; p_node != NULL; p_node = p_node->next){
-                                if (strcmp(l_node->data->data, p_node->data->data) == 0){
+                        for (struct LIST_NODE(symbol_table_entry) *p_node = params_list.head; p_node != NULL; p_node = p_node->next){
+                                if (strcmp(l_node->data->name, p_node->data->name) == 0){
                                         free_map((&functions), string, function);
-                                        free_list((&params_list), free_string, string);
-                                        free_list((&locals_list), free_string, string);
+                                        free_list((&params_list), free_symbol_table_entry, symbol_table_entry);
+                                        free_list((&locals_list), free_symbol_table_entry, symbol_table_entry);
                                         return NULL;
                                 }
                         }
@@ -348,14 +348,14 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
 
                 char **params = (char**) malloc(params_list.len * sizeof(char*));
                 size_t i = 0;
-                for (struct LIST_NODE(string) *node = params_list.head; node != NULL; node = node->next){
-                        params[i++] = node->data->data;
+                for (struct LIST_NODE(symbol_table_entry) *node = params_list.head; node != NULL; node = node->next){
+                        params[i++] = node->data->name;
                 }
 
                 char **locals = (char**) malloc(locals_list.len * sizeof(char*));
                 i = 0;
-                for (struct LIST_NODE(string) *node = locals_list.head; node != NULL; node = node->next){
-                        locals[i++] = node->data->data;
+                for (struct LIST_NODE(symbol_table_entry) *node = locals_list.head; node != NULL; node = node->next){
+                        locals[i++] = node->data->name;
                 }
 
                 struct string *s = (struct string*) malloc(sizeof(struct string));
@@ -363,8 +363,8 @@ char *generate_code(const struct OUTER_TYPE_MAP *type_map, const struct parse_tr
                 bool is_main = strcmp("main", s->data) == 0;
 
                 struct function *fn = new_function(params, params_list.len, locals, locals_list.len, is_main);
-                free_list((&params_list), free_string, string);
-                free_list((&locals_list), free_string, string);
+                free_list((&params_list), free_symbol_table_entry, symbol_table_entry);
+                free_list((&locals_list), free_symbol_table_entry, symbol_table_entry);
                 free(locals);
 
                 update_map((&functions), s, fn, string, function);
